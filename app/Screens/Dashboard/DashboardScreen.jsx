@@ -1484,7 +1484,7 @@ const DashboardScreen = ({ navigation }) => {
                     x: scrollToX,
                     animated: true,
                 });
-            }, 3000); // 3 seconds
+            }, 10000); // 3 seconds
         }, 500);
 
         return () => {
