@@ -1880,61 +1880,125 @@ const DashboardScreen = ({ navigation }) => {
         </ScrollView>
     );
     // PENDING ACTIONS SECTION
+    //     const PendingActionsSection = () => {
+
+
+    //     const handlePress = async (id) => {
+    //         try {
+    //             const employeeID = await AsyncStorage.getItem("employeeID");
+
+    //             navigation.navigate("TrainingDetails", {
+    //                 trainingSessionId: id,
+    //                 employeeID: employeeID,
+    //                 from: "TrainingSession",
+    //             });
+    //         } catch (err) {
+    //             console.log("Navigation error:", err);
+    //         }
+    //     };
+
+    //     return (
+    //         <ScrollView
+    //             style={styles.sectionScrollView}
+    //             showsVerticalScrollIndicator={false}
+    //         >
+    //             {dashboardData?.pendingActions && dashboardData.pendingActions.length > 0 ? (
+    //                 dashboardData.pendingActions.map((p) => (
+    //                     <TouchableOpacity
+    //                         key={p.id}
+    //                         style={styles.modalListItem}
+    //                         onPress={() => handlePress(p.id)}
+    //                     >
+    //                         <Text allowFontScaling={false} style={styles.modalItemTitle}>
+    //                             {p.title}  
+    //                             <Text allowFontScaling={false} style={{ fontSize: 12, color: '#a8b2d1' }}>
+    //                                 ({p.type})
+    //                             </Text>
+    //                         </Text>
+
+    //                         <Text allowFontScaling={false} style={styles.modalItemSub}>
+    //                             Training: {new Date(p.trainingDate).toLocaleString()}
+    //                         </Text>
+
+    //                         <Text allowFontScaling={false} style={styles.modalItemSub}>
+    //                             Due: {new Date(p.dueDate).toLocaleString()}
+    //                         </Text>
+    //                     </TouchableOpacity>
+    //                 ))
+    //             ) : (
+    //                 <View style={styles.emptyContainer}>
+    //                     <Text allowFontScaling={false} style={styles.emptyText}>No pending actions</Text>
+    //                 </View>
+    //             )}
+
+    //             <View style={{ height: 40 }} />
+    //         </ScrollView>
+    //     );
+    // };
+
+    // PENDING ACTIONS SECTION
     const PendingActionsSection = () => {
-  
 
-    const handlePress = async (id) => {
-        try {
-            const employeeID = await AsyncStorage.getItem("employeeID");
+        const formatDateTime = (dateString) => {
+            const date = new Date(dateString);
+            const formattedDate = date.toLocaleDateString('en-GB'); // dd/mm/yyyy format
+            const formattedTime = date.toLocaleTimeString(); // keeps current time format
+            return `${formattedDate} ${formattedTime}`;
+        };
 
-            navigation.navigate("TrainingDetails", {
-                trainingSessionId: id,
-                employeeID: employeeID,
-                from: "TrainingSession",
-            });
-        } catch (err) {
-            console.log("Navigation error:", err);
-        }
+        const handlePress = async (id) => {
+            try {
+                const employeeID = await AsyncStorage.getItem("employeeID");
+
+                navigation.navigate("TrainingDetails", {
+                    trainingSessionId: id,
+                    employeeID: employeeID,
+                    from: "TrainingSession",
+                });
+            } catch (err) {
+                console.log("Navigation error:", err);
+            }
+        };
+
+        return (
+            <ScrollView
+                style={styles.sectionScrollView}
+                showsVerticalScrollIndicator={false}
+            >
+                {dashboardData?.pendingActions && dashboardData.pendingActions.length > 0 ? (
+                    dashboardData.pendingActions.map((p) => (
+                        <TouchableOpacity
+                            key={p.id}
+                            style={styles.modalListItem}
+                            onPress={() => handlePress(p.id)}
+                        >
+                            <Text allowFontScaling={false} style={styles.modalItemTitle}>
+                                {p.title}
+                                <Text allowFontScaling={false} style={{ fontSize: 12, color: '#a8b2d1' }}>
+                                    ({p.type})
+                                </Text>
+                            </Text>
+
+                            <Text allowFontScaling={false} style={styles.modalItemSub}>
+                                Training: {formatDateTime(p.trainingDate)}
+                            </Text>
+
+                            <Text allowFontScaling={false} style={styles.modalItemSub}>
+                                Due: {formatDateTime(p.dueDate)}
+                            </Text>
+                        </TouchableOpacity>
+                    ))
+                ) : (
+                    <View style={styles.emptyContainer}>
+                        <Text allowFontScaling={false} style={styles.emptyText}>No pending actions</Text>
+                    </View>
+                )}
+
+                <View style={{ height: 40 }} />
+            </ScrollView>
+        );
     };
 
-    return (
-        <ScrollView
-            style={styles.sectionScrollView}
-            showsVerticalScrollIndicator={false}
-        >
-            {dashboardData?.pendingActions && dashboardData.pendingActions.length > 0 ? (
-                dashboardData.pendingActions.map((p) => (
-                    <TouchableOpacity
-                        key={p.id}
-                        style={styles.modalListItem}
-                        onPress={() => handlePress(p.id)}
-                    >
-                        <Text allowFontScaling={false} style={styles.modalItemTitle}>
-                            {p.title}  
-                            <Text allowFontScaling={false} style={{ fontSize: 12, color: '#a8b2d1' }}>
-                                ({p.type})
-                            </Text>
-                        </Text>
-
-                        <Text allowFontScaling={false} style={styles.modalItemSub}>
-                            Training: {new Date(p.trainingDate).toLocaleString()}
-                        </Text>
-
-                        <Text allowFontScaling={false} style={styles.modalItemSub}>
-                            Due: {new Date(p.dueDate).toLocaleString()}
-                        </Text>
-                    </TouchableOpacity>
-                ))
-            ) : (
-                <View style={styles.emptyContainer}>
-                    <Text allowFontScaling={false} style={styles.emptyText}>No pending actions</Text>
-                </View>
-            )}
-
-            <View style={{ height: 40 }} />
-        </ScrollView>
-    );
-};
     const alertStyle = getAlertStyle();
     const alertIconRotateInterpolate = alertIconRotate.interpolate({
         inputRange: [0, 1],
