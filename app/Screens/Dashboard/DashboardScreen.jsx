@@ -232,11 +232,11 @@ const DashboardScreen = ({ navigation }) => {
                 const employeeID = await AsyncStorage.getItem("employeeID");
                 const applicationProfile = await AsyncStorage.getItem("applicationProfile");
                 const token = await AsyncStorage.getItem("token");
-                 const sapid = await AsyncStorage.getItem("sapid");
+                const sapid = await AsyncStorage.getItem("sapid");
                 if (!employeeID || !applicationProfile || !token) {
                     throw new Error("Required user data not found");
                 }
-                   setSapId(sapid); 
+                setSapId(sapid);
                 const currentDate = new Date();
                 const year = currentDate.getFullYear();
                 const month = currentDate.getMonth() + 1;
@@ -1740,82 +1740,82 @@ const DashboardScreen = ({ navigation }) => {
                 ) : (
                     <>
                         {leaderboardData.slice(3).map((user, index) => {
-    const actualIndex = index + 3;
-    const anim = leaderboardItemAnims[actualIndex];
-    const scale = anim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0.9, 1],
-    });
-    const translateX = anim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [50, 0],
-    });
-    const opacity = anim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-    });
-    
-    // Match using employeeId from API with sapid from AsyncStorage
-    const isCurrentUser = user.employeeId?.toString() === sapId?.toString();
-    
-    return (
-        <Animated.View
-            key={user.rank}
-            style={[
-                styles.leaderboardItem,
-                {
-                    transform: [{ translateX }, { scale }],
-                    opacity,
-                    borderWidth: isCurrentUser ? 2 : 0,
-                    borderColor: isCurrentUser ? '#7B68EE' : 'transparent',
-                },
-            ]}
-        >
-            <View style={styles.leaderboardItemContent}>
-                <LinearGradient
-                    colors={
-                        isCurrentUser
-                            ? ['rgba(123,104,238,0.35)', 'rgba(123,104,238,0.15)']
-                            : ['rgba(123,104,238,0.1)', 'rgba(123,104,238,0.05)']
-                    }
-                    style={[
-                        styles.leaderboardItemGradient,
-                        isCurrentUser && { borderColor: '#7B68EE' }
-                    ]}
-                >
-                    <View style={styles.leaderboardLeft}>
-                        <View
-                            style={[
-                                styles.rankCircle,
-                                isCurrentUser && { backgroundColor: '#7B68EE' }
-                            ]}
-                        >
-                            <Text allowFontScaling={false} style={styles.rankCircleText}>{user.rank}</Text>
-                        </View>
-                        <Text allowFontScaling={false}
-                            style={[
-                                styles.leaderboardName,
-                                isCurrentUser && { color: '#7B68EE', fontWeight: '800' }
-                            ]}
-                            numberOfLines={2}
-                            ellipsizeMode="tail"
-                        >
-                            {user.name}
-                        </Text>
-                    </View>
-                    <Text allowFontScaling={false}
-                        style={[
-                            styles.leaderboardPoints,
-                            isCurrentUser && { color: '#fff' }
-                        ]}
-                    >
-                        {user.points}
-                    </Text>
-                </LinearGradient>
-            </View>
-        </Animated.View>
-    );
-})}
+                            const actualIndex = index + 3;
+                            const anim = leaderboardItemAnims[actualIndex];
+                            const scale = anim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0.9, 1],
+                            });
+                            const translateX = anim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [50, 0],
+                            });
+                            const opacity = anim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, 1],
+                            });
+
+                            // Match using employeeId from API with sapid from AsyncStorage
+                            const isCurrentUser = user.employeeId?.toString() === sapId?.toString();
+
+                            return (
+                                <Animated.View
+                                    key={user.rank}
+                                    style={[
+                                        styles.leaderboardItem,
+                                        {
+                                            transform: [{ translateX }, { scale }],
+                                            opacity,
+                                            borderWidth: isCurrentUser ? 2 : 0,
+                                            borderColor: isCurrentUser ? '#7B68EE' : 'transparent',
+                                        },
+                                    ]}
+                                >
+                                    <View style={styles.leaderboardItemContent}>
+                                        <LinearGradient
+                                            colors={
+                                                isCurrentUser
+                                                    ? ['rgba(123,104,238,0.35)', 'rgba(123,104,238,0.15)']
+                                                    : ['rgba(123,104,238,0.1)', 'rgba(123,104,238,0.05)']
+                                            }
+                                            style={[
+                                                styles.leaderboardItemGradient,
+                                                isCurrentUser && { borderColor: '#7B68EE' }
+                                            ]}
+                                        >
+                                            <View style={styles.leaderboardLeft}>
+                                                <View
+                                                    style={[
+                                                        styles.rankCircle,
+                                                        isCurrentUser && { backgroundColor: '#7B68EE' }
+                                                    ]}
+                                                >
+                                                    <Text allowFontScaling={false} style={styles.rankCircleText}>{user.rank}</Text>
+                                                </View>
+                                                <Text allowFontScaling={false}
+                                                    style={[
+                                                        styles.leaderboardName,
+                                                        isCurrentUser && { color: '#7B68EE', fontWeight: '800' }
+                                                    ]}
+                                                    numberOfLines={2}
+                                                    ellipsizeMode="tail"
+                                                >
+                                                    {user.name}
+                                                </Text>
+                                            </View>
+                                            <Text allowFontScaling={false}
+                                                style={[
+                                                    styles.leaderboardPoints,
+                                                    isCurrentUser && { color: '#fff' }
+                                                ]}
+                                            >
+                                                {user.points}
+                                            </Text>
+                                        </LinearGradient>
+                                    </View>
+                                </Animated.View>
+                            );
+                        })}
 
                         {/* Display current user's rank if not in top 10 */}
                         {dashboardData?.userRank && dashboardData.userRank > 10 && (
@@ -1880,25 +1880,61 @@ const DashboardScreen = ({ navigation }) => {
         </ScrollView>
     );
     // PENDING ACTIONS SECTION
-    const PendingActionsSection = () => (
+    const PendingActionsSection = () => {
+  
+
+    const handlePress = async (id) => {
+        try {
+            const employeeID = await AsyncStorage.getItem("employeeID");
+
+            navigation.navigate("TrainingDetails", {
+                trainingSessionId: id,
+                employeeID: employeeID,
+                from: "TrainingSession",
+            });
+        } catch (err) {
+            console.log("Navigation error:", err);
+        }
+    };
+
+    return (
         <ScrollView
             style={styles.sectionScrollView}
             showsVerticalScrollIndicator={false}
         >
             {dashboardData?.pendingActions && dashboardData.pendingActions.length > 0 ? (
                 dashboardData.pendingActions.map((p) => (
-                    <View key={p.id} style={styles.modalListItem}>
-                        <Text allowFontScaling={false} style={styles.modalItemTitle}>{p.title}  <Text allowFontScaling={false} style={{ fontSize: 12, color: '#a8b2d1' }}>({p.type})</Text></Text>
-                        <Text allowFontScaling={false} style={styles.modalItemSub}>Training: {new Date(p.trainingDate).toLocaleString()}</Text>
-                        <Text allowFontScaling={false} style={styles.modalItemSub}>Due: {new Date(p.dueDate).toLocaleString()}</Text>
-                    </View>
+                    <TouchableOpacity
+                        key={p.id}
+                        style={styles.modalListItem}
+                        onPress={() => handlePress(p.id)}
+                    >
+                        <Text allowFontScaling={false} style={styles.modalItemTitle}>
+                            {p.title}  
+                            <Text allowFontScaling={false} style={{ fontSize: 12, color: '#a8b2d1' }}>
+                                ({p.type})
+                            </Text>
+                        </Text>
+
+                        <Text allowFontScaling={false} style={styles.modalItemSub}>
+                            Training: {new Date(p.trainingDate).toLocaleString()}
+                        </Text>
+
+                        <Text allowFontScaling={false} style={styles.modalItemSub}>
+                            Due: {new Date(p.dueDate).toLocaleString()}
+                        </Text>
+                    </TouchableOpacity>
                 ))
             ) : (
-                <View style={styles.emptyContainer}><Text allowFontScaling={false} style={styles.emptyText}>No pending actions</Text></View>
+                <View style={styles.emptyContainer}>
+                    <Text allowFontScaling={false} style={styles.emptyText}>No pending actions</Text>
+                </View>
             )}
+
             <View style={{ height: 40 }} />
         </ScrollView>
     );
+};
     const alertStyle = getAlertStyle();
     const alertIconRotateInterpolate = alertIconRotate.interpolate({
         inputRange: [0, 1],
@@ -2251,38 +2287,38 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         gap: 10,
     },
-  
+
     navTabActive: {
         borderColor: '#7B68EE',
         backgroundColor: 'rgba(123, 104, 238, 0.2)',
     },
-   navTab: {
-  flex: 1,
-   minHeight: 44,
-  borderRadius: 20,
-  overflow: 'hidden',
-  borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.12)',
-  backgroundColor: 'transparent',
-},
+    navTab: {
+        flex: 1,
+        minHeight: 44,
+        borderRadius: 20,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.12)',
+        backgroundColor: 'transparent',
+    },
 
-navTabGradient: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingVertical: 8,
-},
+    navTabGradient: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 8,
+    },
 
-navTabText: {
-  color: '#fff',
-  fontSize: 13,
-  fontWeight: '600',
-  textAlign: 'center',
-  paddingHorizontal: 12,
-  paddingVertical: 4, // a bit smaller so text has more room
-  flexWrap: 'wrap',   // allow multiline
-  includeFontPadding: false, // Android: reduce weird clipping
-},
+    navTabText: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: '600',
+        textAlign: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 4, // a bit smaller so text has more room
+        flexWrap: 'wrap',   // allow multiline
+        includeFontPadding: false, // Android: reduce weird clipping
+    },
 
     horizontalSectionContainer: {
         height: 1400,
