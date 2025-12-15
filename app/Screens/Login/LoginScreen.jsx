@@ -1,10 +1,12 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from "@react-native-community/netinfo";
 import { useNavigation } from "@react-navigation/native";
 import CheckBox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
+
 import {
   ActivityIndicator,
   Alert,
@@ -179,7 +181,33 @@ export default function LoginScreen() {
     }
   };
 
+  useEffect(() => {
+  const unsubscribe = NetInfo.addEventListener(state => {
+    if (!state.isConnected) {
+      showCustomAlert(
+        "warning",
+        "No Internet Connection",
+        "Please connect to Mobile Data or Wi-Fi."
+      );
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
+
   const handleLogin = async () => {
+
+  const net = await NetInfo.fetch();
+  if (!net.isConnected) {
+    showCustomAlert(
+      "warning",
+      "No Internet Connection",
+      "Please connect to Mobile Data or Wi-Fi."
+    );
+    return;
+  }
+
     if (!username || !password) {
       showCustomAlert('error', 'Missing Information', 'Please enter both username and password.');
       return;
