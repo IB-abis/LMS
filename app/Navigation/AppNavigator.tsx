@@ -56,18 +56,26 @@ export default function AppNavigator() {
 
   // Check if user is logged in
   const checkLogin = async () => {
-    const token = await AsyncStorage.getItem("token");
+  const token = await AsyncStorage.getItem("token");
+  const isQuizEnabled = await AsyncStorage.getItem("isQuizEnabled");
 
-    if (token && token !== "") {
-      setIsLoggedIn(true);
-      setInitialRoute("Dashboard");
-    } else {
+  if (token && token !== "") {
+    // If quiz is enabled, force user to login screen
+    if (isQuizEnabled === "true") {
+      await AsyncStorage.removeItem("token"); // Clear token to force re-login
       setIsLoggedIn(false);
       setInitialRoute("Login");
+    } else {
+      setIsLoggedIn(true);
+      setInitialRoute("Dashboard");
     }
+  } else {
+    setIsLoggedIn(false);
+    setInitialRoute("Login");
+  }
 
-    setIsSplashVisible(false);
-  };
+  setIsSplashVisible(false);
+};
 
   // Logout function
   const performLogout = async () => {
