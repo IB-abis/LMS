@@ -12,7 +12,6 @@ import {
   Dimensions,
   Easing,
   Modal,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -200,7 +199,7 @@ export default function LoginScreen() {
 
   // Quiz Modal States
   const [quizVisible, setQuizVisible] = useState(false);
-  const [quizData, setQuizData] = useState([]);
+  const [quizData, setQuizData] = useState({ data: [], title: "", description: "" });
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [quizToken, setQuizToken] = useState("");
@@ -227,12 +226,12 @@ export default function LoginScreen() {
 
     setLoading(true);
 
-    const loginUser = async (username, password) => {
+    const loginUser = async (username, password, source) => {
       try {
         const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Login/Login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ username, password, source }),
         });
         const result = await response.json();
         return result;
@@ -242,7 +241,7 @@ export default function LoginScreen() {
       }
     };
 
-    const response = await loginUser(username, password);
+    const response = await loginUser(username, password, "Mobile");
     setLoading(false);
 
     if (response?.succeeded) {
@@ -284,6 +283,11 @@ export default function LoginScreen() {
       showCustomAlert('error', 'Login Failed', response?.message || 'Invalid credentials. Please check your username and password.');
     }
   };
+
+  // Add to your existing quiz states
+  const [quizTitle, setQuizTitle] = useState("");
+  const [quizDescription, setQuizDescription] = useState("");
+
   const fetchQuizQuestions = async (token) => {
     setQuizLoading(true);
     try {
@@ -294,10 +298,15 @@ export default function LoginScreen() {
           "Authorization": `Bearer ${token}`
         },
       });
+
       const result = await response.json();
 
       if (result?.succeeded && result.data) {
-        setQuizData(result.data);
+        // Store the entire result with title and description
+        setQuizData(result);
+        setQuizTitle(result.title || "Quiz Alert!");
+        setQuizDescription(result.description || "Something exciting is up for grabs for first 500 learners. Ready to begin?");
+        setCurrentQuestionIndex(-1); // Set to -1 to show intro screen
         setQuizVisible(true);
       } else {
         showCustomAlert('error', 'Quiz Error', 'Failed to load quiz questions.');
@@ -347,44 +356,88 @@ export default function LoginScreen() {
     );
   };
 
+  const [successData, setSuccessData] = useState({
+    title: '',
+    description: '',
+    message: ''
+  });
+
+
   const handleQuizSubmit = async () => {
-    const unansweredQuestions = quizData.filter(q => !selectedAnswers[q.id]);
+    // Check if quiz data exists
+    if (!quizData || !quizData.data || quizData.data.length === 0) {
+      showCustomAlert('error', 'Error', 'No quiz data available.');
+      return;
+    }
+
+    // Check for unanswered questions - FIXED: Use quizData.data.filter()
+    const unansweredQuestions = quizData.data.filter(q => !selectedAnswers[q.id]);
 
     if (unansweredQuestions.length > 0) {
-      showCustomAlert('warning', 'Incomplete Quiz', 'Please answer all questions before submitting.');
+      showCustomAlert(
+        'warning',
+        'Incomplete Quiz',
+        `Please answer all questions before submitting. You have ${unansweredQuestions.length} unanswered question${unansweredQuestions.length > 1 ? 's' : ''}.`
+      );
       return;
     }
 
     setQuizLoading(true);
     try {
-      const submissionData = quizData.map(q => ({
+      // Prepare submission data - FIXED: Use quizData.data.map()
+      const submissionData = quizData.data.map(q => ({
         questionId: q.id,
         selectedOption: selectedAnswers[q.id]
       }));
 
-      const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Quiz/Submit", {
-        method: "POST",
+      console.log('Submitting quiz data:', JSON.stringify(submissionData, null, 2));
+
+      const response = await fetch('https://lms-api-qa.abisaio.com/api/v1/Quiz/Submit', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${quizToken}`
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${quizToken}`
         },
         body: JSON.stringify(submissionData)
       });
+
       const result = await response.json();
 
+      console.log('Quiz submit response:', result);
+
       if (result?.succeeded) {
-        await AsyncStorage.setItem("isQuizEnabled", "false");
+        await AsyncStorage.setItem('isQuizEnabled', 'false');
+        setSuccessData({
+          title: result?.title || 'Success!',
+          description: result?.description || 'Your prize awaits.',
+          message: result?.message || ''
+        });
         setQuizSubmitted(true);
       } else {
-        showCustomAlert('error', 'Submission Failed', 'Failed to submit quiz. Please try again.');
+        showCustomAlert('error', 'Submission Failed', result?.message || 'Failed to submit quiz. Please try again.');
       }
     } catch (error) {
-      console.error("Quiz Submit Error:", error);
+      console.error('Quiz Submit Error:', error);
       showCustomAlert('error', 'Submission Failed', 'Failed to submit quiz. Please try again.');
     } finally {
       setQuizLoading(false);
     }
   };
+
+  const getSuccessIcon = () => {
+    if (successData.title?.toLowerCase().includes('mic')) {
+      return 'mic';
+    }
+
+    if (successData.description?.toLowerCase().includes('prize')) {
+      return 'gift';
+    }
+
+    return 'trophy'; // default fallback
+  };
+
+
+
 
   const handleOptionSelect = (questionId, option) => {
     setSelectedAnswers(prev => ({
@@ -647,16 +700,17 @@ export default function LoginScreen() {
           </Animated.View>
         </TouchableWithoutFeedback>
       </Modal>
+
       {/* Quiz Modal */}
       <Modal
-        transparent
         visible={quizVisible}
         animationType="fade"
+        transparent={true}
         onRequestClose={() => { }}
       >
         <View style={styles.quizOverlay}>
           {quizSubmitted ? (
-            // Success Screen
+            // Success Screen (unchanged)
             <View style={styles.quizSuccessContainer}>
               <LinearGradient
                 colors={['#9B7EBD', '#280137']}
@@ -676,14 +730,20 @@ export default function LoginScreen() {
 
                 {/* Success Icon */}
                 <View style={styles.quizSuccessIconContainer}>
-                  <Ionicons name="checkmark-circle" size={100} color="#4CAF50" />
+                <Ionicons name="gift" size={90} color="#FFFFFF" />
+
+
                 </View>
 
                 {/* Success Message */}
-                <Text allowFontScaling={false} style={styles.quizSuccessTitle}>Quiz Submitted Successfully!</Text>
-                <Text allowFontScaling={false} style={styles.quizSuccessMessage}>
-                  Your quiz has been submitted
+                <Text style={styles.quizSuccessTitle}>
+                  {successData.title}
                 </Text>
+
+                <Text style={styles.quizSuccessMessage}>
+                  {successData.description}
+                </Text>
+
 
                 {/* Go to Dashboard Button */}
                 <TouchableOpacity
@@ -698,10 +758,55 @@ export default function LoginScreen() {
                     colors={['#FFFFFF', '#F5F5F5']}
                     style={styles.quizSuccessButtonGradient}
                   >
-                    <Text allowFontScaling={false} style={styles.quizSuccessButtonText}>Go to Dashboard</Text>
+                    <Text style={styles.quizSuccessButtonText}>Go to Dashboard</Text>
                     <Ionicons name="arrow-forward" size={24} color="#280137" />
                   </LinearGradient>
                 </TouchableOpacity>
+              </LinearGradient>
+            </View>
+          ) : currentQuestionIndex === -1 ? (
+            // Pre-Quiz Introduction Screen
+            <View style={styles.quizIntroContainer}>
+              <LinearGradient
+                colors={['#9B7EBD', '#280137']}
+                style={styles.quizIntroGradient}
+              >
+                {/* Quiz Icon */}
+                <View style={styles.quizIntroIconContainer}>
+                  <Ionicons name="trophy" size={80} color="#FFFFFF" />
+                </View>
+
+                {/* Title and Description */}
+                <Text style={styles.quizIntroTitle}>{quizData.title || "Quiz Alert!"}</Text>
+                <Text style={styles.quizIntroDescription}>
+                  {quizData.description || "Something exciting is up for grabs for first 500 learners. Ready to begin?"}
+                </Text>
+
+                {/* Action Buttons */}
+                <View style={styles.quizIntroButtonsContainer}>
+                  <TouchableOpacity
+                    onPress={() => setCurrentQuestionIndex(0)}
+                    style={styles.quizIntroStartButton}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={['#FFFFFF', '#F5F5F5']}
+                      style={styles.quizIntroStartButtonGradient}
+                    >
+                      <Ionicons name="play" size={24} color="#280137" />
+                      <Text style={styles.quizIntroStartButtonText}>Start Quiz</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={handleQuizSkip}
+                    style={styles.quizIntroSkipButton}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="close-circle-outline" size={24} color="#FFFFFF" />
+                    <Text style={styles.quizIntroSkipButtonText}>Skip Quiz</Text>
+                  </TouchableOpacity>
+                </View>
               </LinearGradient>
             </View>
           ) : (
@@ -711,36 +816,33 @@ export default function LoginScreen() {
               <LinearGradient
                 colors={['#9B7EBD', '#280137']}
                 style={styles.quizHeader}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
               >
-                <Text allowFontScaling={false} style={styles.quizHeaderTitle}>Daily Quiz</Text>
-                <Text allowFontScaling={false} style={styles.quizHeaderSubtitle}>
-                  Question {currentQuestionIndex + 1} of {quizData.length}
+                <Text style={styles.quizHeaderTitle}>Daily Quiz</Text>
+                <Text style={styles.quizHeaderSubtitle}>
+                  Question {currentQuestionIndex + 1} of {quizData.data.length}
                 </Text>
               </LinearGradient>
 
               {/* Question Numbers Grid */}
               <View style={styles.quizNumbersContainer}>
-                <Text allowFontScaling={false} style={styles.quizNumbersLabel}>Questions</Text>
+                <Text style={styles.quizNumbersLabel}>Questions</Text>
                 <View style={styles.quizNumbersGrid}>
-                  {quizData.map((q, index) => (
+                  {quizData.data.map((q, index) => (
                     <TouchableOpacity
                       key={q.id}
-                      style={[
-                        styles.quizNumberBox,
-                        getQuestionStatus(q.id) === 'answered' && styles.quizNumberBoxAnswered,
-                        currentQuestionIndex === index && styles.quizNumberBoxActive
-                      ]}
                       onPress={() => setCurrentQuestionIndex(index)}
                       activeOpacity={0.7}
+                      style={[
+                        styles.quizNumberBox,
+                        selectedAnswers[q.id] && styles.quizNumberBoxAnswered,
+                        currentQuestionIndex === index && styles.quizNumberBoxActive,
+                      ]}
                     >
                       <Text
-                        allowFontScaling={false}
                         style={[
                           styles.quizNumberText,
-                          getQuestionStatus(q.id) === 'answered' && styles.quizNumberTextAnswered,
-                          currentQuestionIndex === index && styles.quizNumberTextActive
+                          selectedAnswers[q.id] && styles.quizNumberTextAnswered,
+                          currentQuestionIndex === index && styles.quizNumberTextActive,
                         ]}
                       >
                         {index + 1}
@@ -750,128 +852,147 @@ export default function LoginScreen() {
                 </View>
               </View>
 
-              {/* Question Content - Wrap in ScrollView */}
-              <ScrollView
-                style={{ maxHeight: '60%' }}
-                showsVerticalScrollIndicator={true}
-                contentContainerStyle={{ paddingBottom: 10 }}
-              >
-                <View style={styles.quizContentContainer}>
-                  {quizData[currentQuestionIndex] && (
-                    <>
-                      <Text allowFontScaling={false} style={styles.quizQuestionText}>
-                        {quizData[currentQuestionIndex].questionText}
-                      </Text>
+              {/* Question Content - No ScrollView */}
+              <View style={styles.quizContentContainer}>
+                {quizData.data[currentQuestionIndex] && (
+                  <>
+                    <Text style={styles.quizQuestionText}>
+                      {quizData.data[currentQuestionIndex].questionText}
+                    </Text>
 
-                      {/* Options */}
-                      <View style={styles.quizOptionsContainer}>
-                        {['A', 'B', 'C', 'D'].map(option => (
-                          <TouchableOpacity
-                            key={option}
+                    {/* Options - Only A, B, C */}
+                    <View style={styles.quizOptionsContainer}>
+                      {['A', 'B', 'C'].map(option => (
+                        <TouchableOpacity
+                          key={option}
+                          onPress={() =>
+                            handleOptionSelect(quizData.data[currentQuestionIndex].id, option)
+                          }
+                          activeOpacity={0.7}
+                          style={[
+                            styles.quizOptionBox,
+                            selectedAnswers[quizData.data[currentQuestionIndex].id] === option &&
+                            styles.quizOptionBoxSelected,
+                          ]}
+                        >
+                          <View
                             style={[
-                              styles.quizOptionBox,
-                              selectedAnswers[quizData[currentQuestionIndex].id] === option &&
-                              styles.quizOptionBoxSelected,
+                              styles.quizOptionCircle,
+                              selectedAnswers[quizData.data[currentQuestionIndex].id] === option &&
+                              styles.quizOptionCircleSelected,
                             ]}
-                            onPress={() =>
-                              handleOptionSelect(quizData[currentQuestionIndex].id, option)
-                            }
-                            activeOpacity={0.7}
                           >
-                            <View
-                              style={[
-                                styles.quizOptionCircle,
-                                selectedAnswers[quizData[currentQuestionIndex].id] === option &&
-                                styles.quizOptionCircleSelected,
-                              ]}
-                            >
-                              {selectedAnswers[quizData[currentQuestionIndex].id] === option && (
-                                <View style={styles.quizOptionCircleInner} />
-                              )}
-                            </View>
-                            <View style={styles.quizOptionTextContainer}>
-                              <Text allowFontScaling={false} style={styles.quizOptionLabel}>{option}</Text>
-                              <Text allowFontScaling={false} style={styles.quizOptionText}>
-                                {quizData[currentQuestionIndex][`option${option}`]}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </>
-                  )}
-                </View>
-              </ScrollView>
-
+                            {selectedAnswers[quizData.data[currentQuestionIndex].id] === option && (
+                              <View style={styles.quizOptionCircleInner} />
+                            )}
+                          </View>
+                          <View style={styles.quizOptionTextContainer}>
+                            <Text style={styles.quizOptionLabel}>{option}</Text>
+                            <Text style={styles.quizOptionText}>
+                              {quizData.data[currentQuestionIndex][`option${option}`]}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </>
+                )}
+              </View>
 
               {/* Quiz Footer Actions */}
               <View style={styles.quizFooter}>
-  <View style={styles.quizNavigationContainer}>
-    {/* Previous Button */}
-    {currentQuestionIndex > 0 && (
-      <TouchableOpacity
-        style={styles.quizNavButton}
-        onPress={() => setCurrentQuestionIndex(prev => prev - 1)}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="chevron-back" size={20} color="#280137" />
-        <Text allowFontScaling={false} style={styles.quizNavButtonText}>Previous</Text>
-      </TouchableOpacity>
-    )}
+                {/* First Row: Previous and Next */}
+                <View style={styles.quizNavigationRow}>
+                  {/* Previous Button */}
+                  <TouchableOpacity
+                    onPress={() => currentQuestionIndex > 0 && setCurrentQuestionIndex(prev => prev - 1)}
+                    activeOpacity={currentQuestionIndex > 0 ? 0.8 : 1}
+                    disabled={currentQuestionIndex === 0}
+                    style={[
+                      styles.quizNavButton,
+                      currentQuestionIndex === 0 && styles.quizNavButtonDisabled
+                    ]}
+                  >
+                    <Ionicons
+                      name="chevron-back"
+                      size={18}
+                      color={currentQuestionIndex === 0 ? "#CCCCCC" : "#280137"}
+                    />
+                    <Text style={[
+                      styles.quizNavButtonText,
+                      currentQuestionIndex === 0 && styles.quizNavButtonTextDisabled
+                    ]}>
+                      Previous
+                    </Text>
+                  </TouchableOpacity>
 
-    {/* Skip Button */}
-    <TouchableOpacity
-      style={styles.quizSkipButtonNew}
-      onPress={handleQuizSkip}
-      activeOpacity={0.8}
-      disabled={quizLoading}
-    >
-      <Ionicons name="close-circle-outline" size={18} color="#ff9800" />
-      <Text allowFontScaling={false} style={styles.quizSkipButtonTextNew}>Skip</Text>
-    </TouchableOpacity>
+                  {/* Next Button */}
+                  <TouchableOpacity
+                    onPress={() => currentQuestionIndex < quizData.data.length - 1 && setCurrentQuestionIndex(prev => prev + 1)}
+                    activeOpacity={currentQuestionIndex < quizData.data.length - 1 ? 0.8 : 1}
+                    disabled={currentQuestionIndex === quizData.data.length - 1}
+                    style={[
+                      styles.quizNavButton,
+                      currentQuestionIndex === quizData.data.length - 1 && styles.quizNavButtonDisabled
+                    ]}
+                  >
+                    <Text style={[
+                      styles.quizNavButtonText,
+                      currentQuestionIndex === quizData.data.length - 1 && styles.quizNavButtonTextDisabled
+                    ]}>
+                      Next
+                    </Text>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={18}
+                      color={currentQuestionIndex === quizData.data.length - 1 ? "#CCCCCC" : "#280137"}
+                    />
+                  </TouchableOpacity>
+                </View>
 
-    {/* Next or Submit Button */}
-    {currentQuestionIndex < quizData.length - 1 ? (
-      <TouchableOpacity
-        style={styles.quizNavButton}
-        onPress={() => setCurrentQuestionIndex(prev => prev + 1)}
-        activeOpacity={0.8}
-      >
-        <Text allowFontScaling={false} style={styles.quizNavButtonText}>Next</Text>
-        <Ionicons name="chevron-forward" size={20} color="#280137" />
-      </TouchableOpacity>
-    ) : (
-      <TouchableOpacity
-        style={styles.quizSubmitButtonWrapper}
-        onPress={handleQuizSubmit}
-        activeOpacity={0.8}
-        disabled={quizLoading}
-      >
-        <LinearGradient
-          colors={['#9B7EBD', '#280137']}
-          style={styles.quizSubmitButton}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          {quizLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <Text allowFontScaling={false} style={styles.quizSubmitButtonText}>Submit</Text>
-              <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-            </>
-          )}
-        </LinearGradient>
-      </TouchableOpacity>
-    )}
-  </View>
-</View>
+                {/* Second Row: Skip and Submit */}
+                <View style={styles.quizActionRow}>
+                  {/* Skip Button - flex: 1 */}
+                  <TouchableOpacity
+                    onPress={handleQuizSkip}
+                    activeOpacity={0.8}
+                    style={styles.quizSkipButtonNew}
+                  >
+                    <Ionicons name="play-skip-forward" size={18} color="#ff9800" />
+                    <Text style={styles.quizSkipButtonText}>Skip</Text>
+                  </TouchableOpacity>
 
-
+                  {/* Submit Button - flex: 2 (only on last question) */}
+                  {currentQuestionIndex === quizData.data.length - 1 && (
+                    <TouchableOpacity
+                      onPress={handleQuizSubmit}
+                      activeOpacity={0.8}
+                      style={styles.quizSubmitButtonNew}
+                    >
+                      <LinearGradient
+                        colors={['#9B7EBD', '#280137']}
+                        style={styles.quizSubmitButtonGradient}
+                      >
+                        {quizLoading ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <>
+                            <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                            <Text style={styles.quizSubmitButtonText}>Submit</Text>
+                          </>
+                        )}
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
             </View>
           )}
         </View>
       </Modal>
+
+
+
 
     </>
   );
@@ -1084,6 +1205,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   // Quiz Modal Styles
+  // Quiz Modal Styles
   quizOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
@@ -1103,7 +1225,85 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 25,
     elevation: 15,
-    // Removed fixed maxHeight to make it dynamic
+  },
+
+  // Pre-Quiz Introduction Screen
+  quizIntroContainer: {
+    width: width * 0.9,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 15,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 25,
+    elevation: 15,
+  },
+  quizIntroGradient: {
+    paddingVertical: 40,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+  },
+  quizIntroIconContainer: {
+    marginBottom: 25,
+  },
+  quizIntroTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  quizIntroDescription: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    opacity: 0.95,
+    marginBottom: 35,
+    lineHeight: 24,
+    paddingHorizontal: 10,
+  },
+  quizIntroButtonsContainer: {
+    width: '100%',
+    gap: 15,
+  },
+  quizIntroStartButton: {
+    width: '100%',
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  quizIntroStartButtonGradient: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  quizIntroStartButtonText: {
+    fontSize: 18,
+    color: '#280137',
+    fontWeight: '700',
+  },
+  quizIntroSkipButton: {
+    flexDirection: 'row',
+    width: '100%',
+    paddingVertical: 16,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  quizIntroSkipButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 
   quizHeader: {
@@ -1119,12 +1319,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FFFFFF', // Changed from rgba to solid white
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10, // Added z-index
-    elevation: 5, // Added elevation for Android
-    shadowColor: '#000', // Added shadow
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1132,7 +1332,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-
   quizHeaderTitle: {
     fontSize: 24,
     fontWeight: '700',
@@ -1189,10 +1388,8 @@ const styles = StyleSheet.create({
   quizNumberTextActive: {
     color: '#FFFFFF',
   },
-
   quizContentContainer: {
     padding: 20,
-    // Removed maxHeight: '50%' to allow dynamic height
   },
   quizQuestionText: {
     fontSize: 16,
@@ -1203,7 +1400,6 @@ const styles = StyleSheet.create({
   },
   quizOptionsContainer: {
     gap: 12,
-    marginBottom: 20, // Added margin bottom for spacing before footer
   },
   quizOptionBox: {
     flexDirection: 'row',
@@ -1254,87 +1450,69 @@ const styles = StyleSheet.create({
     color: '#333',
     lineHeight: 20,
   },
+
+  // Footer with Two Rows
   quizFooter: {
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
+    gap: 12,
   },
-
-  quizNavigationContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 10,
-  minHeight: 48, // Ensures consistent height across all buttons
-},
-quizNavButton: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingVertical: 12,
-  paddingHorizontal: 20,
-  borderRadius: 25,
-  backgroundColor: '#F5F5F5',
-  borderWidth: 2,
-  borderColor: '#E0E0E0',
-  gap: 5,
-  flexShrink: 0, // Prevents wrapping
-  minHeight: 48, // Consistent height
-},
-quizSkipButtonNew: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingVertical: 12,
-  paddingHorizontal: 20,
-  borderRadius: 25,
-  backgroundColor: '#FFF3E0',
-  borderWidth: 2,
-  borderColor: '#ff9800',
-  gap: 5,
-  flexShrink: 0, // Prevents wrapping
-  minHeight: 48, // Consistent height
-},
-quizSkipButtonTextNew: {
-  fontSize: 14,
-  color: '#ff9800',
-  fontWeight: '600',
-  flexShrink: 0, // Prevents text wrapping
-},
-  quizSubmitButtonWrapper: {
-  flexShrink: 0, // Prevents wrapping
-  minWidth: 120, // Minimum width instead of maxWidth
-},
-quizSubmitButton: {
-  flexDirection: 'row',
-  paddingVertical: 12, // Match other buttons
-  paddingHorizontal: 20,
-  borderRadius: 25,
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 8,
-  minHeight: 48, // Consistent height
-  flexShrink: 0, // Prevents wrapping
-},
-quizSubmitButtonText: {
-  fontSize: 14, // Match other button text sizes
-  color: '#FFFFFF',
-  fontWeight: '600',
-  flexShrink: 0, // Prevents text wrapping
-},
- quizNavButtonText: {
-  fontSize: 14,
-  color: '#280137',
-  fontWeight: '600',
-  flexShrink: 0, // Prevents text wrapping
-},
-  quizSubmitButtonWrapper: {
+  quizNavigationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
+  quizNavButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 25,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    gap: 5,
     flex: 1,
-    marginLeft: 'auto',
+    justifyContent: 'center',
   },
-  quizSubmitButton: {
+  quizNavButtonText: {
+    fontSize: 14,
+    color: '#280137',
+    fontWeight: '600',
+  },
+  quizActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  quizSkipButtonNew: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 25,
+    backgroundColor: '#FFF3E0',
+    borderWidth: 2,
+    borderColor: '#ff9800',
+    gap: 5,
+  },
+  quizSkipButtonText: {
+    fontSize: 14,
+    color: '#ff9800',
+    fontWeight: '600',
+  },
+  quizSubmitButtonNew: {
+    flex: 2,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  quizSubmitButtonGradient: {
     flexDirection: 'row',
     paddingVertical: 14,
     paddingHorizontal: 25,
-    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
@@ -1344,6 +1522,7 @@ quizSubmitButtonText: {
     color: '#FFFFFF',
     fontWeight: '600',
   },
+
   // Quiz Success Screen
   quizSuccessContainer: {
     width: width * 0.85,
@@ -1399,6 +1578,15 @@ quizSubmitButtonText: {
     color: '#280137',
     fontWeight: '700',
   },
+  quizNavButtonDisabled: {
+    backgroundColor: '#F5F5F5',
+    borderColor: '#E0E0E0',
+    opacity: 0.5,
+  },
+  quizNavButtonTextDisabled: {
+    color: '#CCCCCC',
+  },
+
 
 });
 
