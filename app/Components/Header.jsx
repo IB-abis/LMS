@@ -16,6 +16,9 @@ import {
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import { useNotification } from './NotificationContext';
 
+import { TourGuideZone } from 'rn-tourguide';
+
+
 const { width, height } = Dimensions.get('window');
 
 const Header = ({
@@ -28,7 +31,26 @@ const Header = ({
   showMore = true,
   showBackButton = false,
   showSpinner = true,
+
 }) => {
+
+
+  
+
+const { start, canStart } = useTourGuideController();
+
+// Update the useEffect to properly start tutorial:
+useEffect(() => {
+  if (canStart) {
+    const timer = setTimeout(() => {
+      start();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }
+}, [canStart, start]);
+
+
+
   const { unreadCount } = useNotification();
   // API based spinner points
   const [spinnerPoints, setSpinnerPoints] = useState([]);
@@ -361,6 +383,8 @@ const Header = ({
     return () => spinnerRotation.stopAnimation();
   }, [showSpinner]);
 
+
+
   return (
     <>
       <View style={styles.header}>
@@ -370,55 +394,80 @@ const Header = ({
               <Ionicons name="arrow-back" size={30} color="#fff" />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
-              <Ionicons name="menu" size={30} color="#fff" />
-            </TouchableOpacity>
+            <TourGuideZone
+              zone={1}
+              text="Tap here to open the drawer menu 📱"
+              shape="circle"
+              borderRadius={22}
+            >
+              <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
+                <Ionicons name={showBackButton ? 'arrow-back' : 'menu'} size={30} color="#fff" />
+              </TouchableOpacity>
+            </TourGuideZone>
+
           )}
           <Text allowFontScaling={false} style={styles.headerTitle}>{title}</Text>
         </View>
         <View style={styles.headerRight}>
           {showSpinner && (
-            <TouchableOpacity
-              style={styles.spinnerButton}
-              onPress={openSpinner}
-              activeOpacity={0.8}
+            <TourGuideZone
+              zone={2}
+              text="Spin the wheel daily to earn points and rewards 🎰"
+              shape="circle"
+              borderRadius={20}
             >
-              <Animated.View
-                style={{
-                  transform: [{
-                    rotate: spinnerRotation.interpolate({
-                      inputRange: [0, 360],
-                      outputRange: ['0deg', '360deg'],
-                    }),
-                  }],
-                }}
+              <TouchableOpacity
+                style={styles.spinnerButton}
+                onPress={openSpinner}
+                activeOpacity={0.8}
               >
-                <Image
-                  source={require('../Images/spinner.png')}
+                <Animated.View
                   style={{
-                    width: 40,
-                    height: 40,
-                    transform: [{ translateX: 0 }, { translateY: 0 }],
+                    transform: [{
+                      rotate: spinnerRotation.interpolate({
+                        inputRange: [0, 360],
+                        outputRange: ['0deg', '360deg'],
+                      }),
+                    }],
                   }}
-                />
-              </Animated.View>
-            </TouchableOpacity>
+                >
+                  <Image
+                    source={require('../Images/spinner.png')}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      transform: [{ translateX: 0 }, { translateY: 0 }],
+                    }}
+                  />
+                </Animated.View>
+              </TouchableOpacity>
+            </TourGuideZone>
+
           )}
-         {showNotification && (
-  <TouchableOpacity 
-    style={styles.iconButton} 
-    onPress={onNotificationPress}
-  >
-    <Ionicons name="notifications-outline" size={24} color="#fff" />
-    {unreadCount > 0 && (
-      <View style={styles.notificationBadge}>
-        <Text allowFontScaling={false} style={styles.notificationBadgeText}>
-          {unreadCount > 99 ? '99+' : unreadCount}
-        </Text>
-      </View>
-    )}
-  </TouchableOpacity>
-)}
+          {showNotification && (
+            <TourGuideZone
+              zone={3}
+              text="Check your notifications and updates here 🔔"
+              shape="circle"
+              borderRadius={20}
+            >
+
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={onNotificationPress}
+              >
+                <Ionicons name="notifications-outline" size={24} color="#fff" />
+                {unreadCount > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <Text allowFontScaling={false} style={styles.notificationBadgeText}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </TourGuideZone>
+
+          )}
         </View>
       </View>
 
@@ -438,7 +487,7 @@ const Header = ({
           >
             <LinearGradient colors={['#2D2438', '#1a1a2e']} style={styles.spinnerContent}>
               <View style={styles.spinnerHeader}>
-                <Text  allowFontScaling={false} style={styles.spinnerTitle}>🎯 Spin & Win!</Text>
+                <Text allowFontScaling={false} style={styles.spinnerTitle}>🎯 Spin & Win!</Text>
                 <TouchableOpacity onPress={closeSpinner} style={styles.closeButton}>
                   <Ionicons name="close-circle" size={30} color="#fff" />
                 </TouchableOpacity>
@@ -478,21 +527,24 @@ const Header = ({
                 </Animated.View>
               </View>
 
-              <TouchableOpacity
-                style={styles.spinButton}
-                onPress={spinWheel}
-                disabled={isSpinning}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={isSpinning ? ['#666', '#888'] : ['#7B68EE', '#9D7FEA']}
-                  style={styles.spinButtonGradient}
+              {!hasClaimedToday && !selectedReward && (
+                <TouchableOpacity
+                  style={styles.spinButton}
+                  onPress={spinWheel}
+                  disabled={isSpinning}
+                  activeOpacity={0.8}
                 >
-                  <Text allowFontScaling={false} style={styles.spinButtonText}>
-                    {isSpinning ? 'SPINNING...' : 'SPIN NOW'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={isSpinning ? ['#888', '#666'] : ['#667eea', '#764ba2']}
+                    style={styles.spinButtonGradient}
+                  >
+                    <Text style={styles.spinButtonText}>
+                      {isSpinning ? 'SPINNING...' : 'SPIN NOW'}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
+
 
               {selectedReward && showConfetti && (
                 <Animated.View
@@ -623,25 +675,25 @@ const Header = ({
 const styles = StyleSheet.create({
 
   // Remove or replace notificationDot with:
-notificationBadge: {
-  position: 'absolute',
-  top: 4,
-  right: 4,
-  backgroundColor: '#ff4757',
-  borderRadius: 10,
-  minWidth: 18,
-  height: 18,
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingHorizontal: 5,
-  borderWidth: 2,
-  borderColor: '#1a1a2e',
-},
-notificationBadgeText: {
-  color: '#fff',
-  fontSize: 11,
-  fontWeight: 'bold',
-},
+  notificationBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: '#ff4757',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 5,
+    borderWidth: 2,
+    borderColor: '#1a1a2e',
+  },
+  notificationBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
 
   header: {
     flexDirection: 'row',
