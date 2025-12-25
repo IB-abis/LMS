@@ -5,14 +5,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
-  Easing,
-  Image,
+  Easing, findNodeHandle, Image,
   Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import { TourGuideZone, useTourGuideController } from 'rn-tourguide';
 import { useNotification } from './NotificationContext';
@@ -36,10 +36,19 @@ const Header = ({
   const { start, canStart } = useTourGuideController();
   const hasStartedRef = useRef(false);
 
+  // Refs for measuring header icons
+  const menuRef = useRef(null);
+  const spinnerRef = useRef(null);
+  const notifRef = useRef(null);
+
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [spinnerAnchor, setSpinnerAnchor] = useState(null);
+  const [notifAnchor, setNotifAnchor] = useState(null);
+
   // Add state to track if tutorial should be shown
   const [shouldShowTutorial, setShouldShowTutorial] = useState(false);
 
-  // Modified useEffect for starting tour
+  {/* // Modified useEffect for starting tour
   useEffect(() => {
     const checkAndStartTutorial = async () => {
       try {
@@ -59,7 +68,46 @@ const Header = ({
     };
 
     checkAndStartTutorial();
-  }, [canStart, start]);
+  }, [canStart, start]);*/ }
+
+  const insets = useSafeAreaInsets();
+
+  // Helper to measure a ref using measureInWindow and set center coordinates
+  const measureRef = (ref, setter) => {
+    try {
+      const node = findNodeHandle(ref?.current);
+      if (node) {
+        // measureInWindow via native handle
+        ref.current.measureInWindow((x, y, w, h) => {
+          const cx = x + w / 2;
+          const cy = y + h / 2;
+          // compute an offset to compensate for header padding vs safe-area
+          const HEADER_PADDING_TOP = 50; // matches styles.header.paddingTop
+          const offsetY = insets.top ? -(HEADER_PADDING_TOP - insets.top) : -HEADER_PADDING_TOP;
+          setter({ x: cx, y: cy, width: w, height: h, offsetY });
+        });
+      }
+    } catch (e) {
+      // ignore measurement errors
+    }
+  };
+
+  // Measure icons on mount and when layout changes
+  useEffect(() => {
+    // initial measure after a short delay to allow layout to settle
+    const timer = setTimeout(() => {
+      measureRef(menuRef, setMenuAnchor);
+      measureRef(spinnerRef, setSpinnerAnchor);
+      measureRef(notifRef, setNotifAnchor);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Expose onLayout handlers to re-measure when layout updates
+  const handleMenuLayout = () => measureRef(menuRef, setMenuAnchor);
+  const handleSpinnerLayout = () => measureRef(spinnerRef, setSpinnerAnchor);
+  const handleNotifLayout = () => measureRef(notifRef, setNotifAnchor);
 
 
 
@@ -404,12 +452,12 @@ const Header = ({
             <TourGuideZone
               zone={1}
               order={1}
-              text="Access the menu by tapping this icon to navigate through different sections of the app."
+              text={menuAnchor ? JSON.stringify({ text: 'Access the menu by tapping this icon to navigate through different sections of the app.', anchor: menuAnchor }) : 'Access the menu by tapping this icon to navigate through different sections of the app.'}
               shape="circle"
               tooltipBottomOffset={10}
               maskOffset={6}
             >
-              <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
+              <TouchableOpacity ref={menuRef} onLayout={handleMenuLayout} style={styles.menuButton} onPress={onMenuPress}>
                 <Ionicons name="menu" size={30} color="#fff" />
               </TouchableOpacity>
             </TourGuideZone>

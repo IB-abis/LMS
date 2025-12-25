@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as NavigationBar from "expo-navigation-bar";
+import * as ScreenCapture from "expo-screen-capture";
 import React, { useEffect } from "react";
 import { TourGuideProvider } from 'rn-tourguide';
 import { NotificationProvider } from "../app/Components/NotificationContext";
@@ -8,6 +9,7 @@ import CustomTooltip from './Components/CustomToolTip';
 
 export default function RootLayout() {
   useEffect(() => {
+     ScreenCapture.preventScreenCaptureAsync();
     NavigationBar.setVisibilityAsync("hidden");
   }, []);
 

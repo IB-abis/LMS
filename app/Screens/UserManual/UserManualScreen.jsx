@@ -1,10 +1,9 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import * as FileSystem from 'expo-file-system/legacy';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Animated,
+  ActivityIndicator,
+  Animated,
   BackHandler,
   Dimensions,
   ScrollView,
@@ -13,20 +12,22 @@ import {
   Text,
   View
 } from 'react-native';
+
 // ✅ Import universal components
 import { useNotification } from '@/app/Components/NotificationContext';
-import Pdf from 'react-native-pdf';
 import BottomNavigation from '../../Components/BottomNavigation';
 import CustomDrawer from '../../Components/CustomDrawer';
 import Header from '../../Components/Header';
-import { useBottomNav } from '../../Components/useBottomNav';
 import { useDrawer } from '../../Components/useDrawer';
 
+import { VideoView, useVideoPlayer } from 'expo-video';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+const USER_MANUAL_VIDEO_URL =
+  'https://media-abisaio-images.s3.ap-south-2.amazonaws.com/LMS_Media/Master/UserManual/User_Manual_Video.mp4';
 
 const UserManualScreen = ({ navigation }) => {
-
   const { openNotification } = useNotification();
 
   useFocusEffect(
@@ -45,49 +46,7 @@ const UserManualScreen = ({ navigation }) => {
     }, [navigation])
   );
 
-  const [localPdfUri, setLocalPdfUri] = useState(null);
-  const [pdfLoading, setPdfLoading] = useState(true);
-  const [pdfError, setPdfError] = useState(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const remoteUrl =
-      'https://media-abisaio-images.s3.ap-south-2.amazonaws.com/LMS_Media/Master/UserManual/6381c53d_End%20User%20Manual.pdf';
-    const localFilename = 'UserManual.pdf';
-    const localPath = `${FileSystem.documentDirectory}${localFilename}`;
-
-    const ensurePdf = async () => {
-      try {
-        setPdfLoading(true);
-        setPdfError(null);
-
-        const fileInfo = await FileSystem.getInfoAsync(localPath);
-        if (fileInfo.exists) {
-          if (!isMounted) return;
-          setLocalPdfUri(fileInfo.uri);
-          setPdfLoading(false);
-          return;
-        }
-
-        const { uri } = await FileSystem.downloadAsync(remoteUrl, localPath);
-        if (!isMounted) return;
-        setLocalPdfUri(uri);
-        setPdfLoading(false);
-      } catch (err) {
-        console.error('PDF download error', err);
-        if (!isMounted) return;
-        setPdfError('Failed to load User Manual');
-        setPdfLoading(false);
-      }
-    };
-
-    ensurePdf();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // (video) loading / error state handled below with `isLoading` / `isError`
 
   // ✅ Use the drawer hook - User Manual is at index 7
   const {
@@ -100,13 +59,55 @@ const UserManualScreen = ({ navigation }) => {
     handleMenuItemPress,
   } = useDrawer(7);
 
-  // ✅ Use the bottom nav hook
-  const {
-    selectedTab,
-    tabScaleAnims,
-    rotateAnims,
-    handleTabPress
-  } = useBottomNav('Dashboard');
+  const [selectedTab, setSelectedTab] = useState('Dashboard');
+  const tabScaleAnims = useRef([...Array(3)].map(() => new Animated.Value(1))).current;
+  
+  const rotateAnims = useRef([...Array(3)].map(() => new Animated.Value(0))).current;
+  
+  const handleTabPress = (index, tabName) => {
+    setSelectedTab(tabName);
+
+    Animated.sequence([
+      Animated.spring(tabScaleAnims[index], {
+        toValue: 0.8,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(tabScaleAnims[index], {
+        toValue: 1.2,
+        tension: 50,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+      Animated.spring(tabScaleAnims[index], {
+        toValue: 1,
+        tension: 50,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    Animated.sequence([
+      Animated.timing(rotateAnims[index], {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rotateAnims[index], {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    if (index === 1) {
+      navigation.navigate('Dashboard');
+    } else if (index === 2) {
+      navigation.navigate('Calendar');
+    } else if (index === 0) {
+      navigation.navigate('TrainingSession');
+    }
+  };
 
   // Animation values for PAGE CONTENT only
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -144,76 +145,110 @@ const UserManualScreen = ({ navigation }) => {
         }),
       ])
     ).start();
-  }, []);
+  }, [fadeAnim, slideAnim, pulseAnim]);
+
+  // Video state and handlers (using expo-video)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const player = useVideoPlayer(USER_MANUAL_VIDEO_URL, (p) => {
+    try {
+      // enable looping and start playback when created
+      p.loop = true;
+      p.play();
+    } catch (e) {
+      console.log('Error setting up video player:', e);
+      setIsLoading(false);
+      setIsError(true);
+      setErrorMessage('Failed to initialize video player.');
+    }
+  });
+
+  const handleVideoLoadEnd = () => {
+    setIsLoading(false);
+    setIsError(false);
+    setErrorMessage(null);
+  };
+
+  const handleVideoError = (msg) => {
+    console.log('User Manual video error:', msg);
+    setIsLoading(false);
+    setIsError(true);
+    setErrorMessage(msg || 'Failed to load User Manual video.');
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
 
-      <View style={styles.mainContent}>
-        {/* ✅ Universal Header Component */}
-        <Header title="User Manual" onMenuPress={toggleDrawer} onNotificationPress={openNotification} />
+      {/* ✅ Universal Header Component */}
+      <Header
+        title="User Manual"
+        onMenuPress={toggleDrawer}
+        onNotificationPress={openNotification}
+      />
 
-        {/* PDF Content */}
-        <ScrollView
-          style={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <Animated.View
-            style={[
-              styles.contentContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }]
-              }
-            ]}
-          >
-            <View style={styles.pdfContainer}>
-              {pdfLoading ? (
-  <View style={styles.loadingContainer}>
-    <ActivityIndicator size="large" color="#7B68EE" />
-    <Text allowFontScaling={false} style={styles.loadingText}>Loading User Manual...</Text>
-  </View>
-) : pdfError ? (
-  <View style={styles.errorContainer}>
-    <Ionicons name="alert-circle-outline" size={64} color="#ff4757" />
-    <Text allowFontScaling={false} style={styles.errorText}>{pdfError}</Text>
-  </View>
-) : (
-  <Pdf
-    source={{ uri: localPdfUri }}
-    style={styles.pdfViewer}
-    trustAllCerts={true}
-    onLoadComplete={(pages) => console.log(`PDF loaded with ${pages} pages`)}
-    onError={(e) => console.log('PDF Error:', e)}
-  />
-)}
+      {/* Main Content */}
+      <Animated.View
+        style={[
+          styles.mainContent,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+      >
+        <ScrollView style={styles.scrollContent} contentContainerStyle={styles.contentContainer}>
+          <View style={styles.successContainer}>
+            <View style={styles.videoContainer}>
+              {isLoading && !isError && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#7B68EE" />
+                  <Text style={styles.loadingText}>Loading User Manual video...</Text>
+                </View>
+              )}
 
+              {isError && (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="warning" size={40} color="#ff4757" />
+                  <Text style={styles.errorText}>{errorMessage || 'Failed to load User Manual video.'}</Text>
+                </View>
+              )}
+
+              {/* Native Video - expo-video */}
+              {!isError && (
+                <VideoView
+                  style={styles.videoNative}
+                  player={player}
+                  nativeControls
+                  contentFit="contain"
+                  allowsPictureInPicture
+                  onFirstFrameRender={() => handleVideoLoadEnd()}
+                />
+              )}
             </View>
-          </Animated.View>
-
-          <View style={{ height: 100 }} />
+          </View>
         </ScrollView>
-      </View>
+      </Animated.View>
 
       {/* ✅ Universal Bottom Navigation Component */}
       <BottomNavigation
         selectedTab={selectedTab}
         tabScaleAnims={tabScaleAnims}
         rotateAnims={rotateAnims}
-        handleTabPress={handleTabPress}
-        navigation={navigation}
+       handleTabPress={handleTabPress}
       />
 
       {/* ✅ Universal Drawer Component */}
       <CustomDrawer
-        drawerVisible={drawerVisible}
+        visible={drawerVisible}
+        selectedMenuItem={selectedMenuItem}
         drawerSlideAnim={drawerSlideAnim}
         overlayOpacity={overlayOpacity}
         menuItemAnims={menuItemAnims}
-        selectedMenuItem={selectedMenuItem}
-        handleMenuItemPress={(index) => handleMenuItemPress(index, navigation)}
-        toggleDrawer={toggleDrawer}
+        onClose={toggleDrawer}
+        onMenuItemPress={(index) => handleMenuItemPress(index, navigation)}
         navigation={navigation}
       />
     </View>
@@ -221,13 +256,13 @@ const UserManualScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  // old pdfViewer kept for reference but not used
   pdfViewer: {
-  width: '100%',
-  height: Dimensions.get('window').height - 220, // fits between header & bottom nav
-  borderRadius: 12,
-  backgroundColor: '#fff'
-},
-
+    width: '100%',
+    height: Dimensions.get('window').height - 220, // fits between header & bottom nav
+    borderRadius: 12,
+    backgroundColor: '#fff'
+  },
   container: {
     flex: 1,
     backgroundColor: '#1a1a2e',
@@ -244,12 +279,32 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
   },
-  pdfContainer: {
-    minHeight: 400,
+
+  videoNative: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
+  },
+  // renamed pdfContainer -> videoContainer but kept structure
+  videoContainer: {
+    width: '100%',
+    height: height - 280, // similar to original PDF height between header & nav
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    marginHorizontal: -20,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 24,
+  },
+  videoWebView: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
   },
   loadingContainer: {
+    position: 'absolute',
+    zIndex: 2,
     alignItems: 'center',
     paddingVertical: 60,
   },
@@ -259,6 +314,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   errorContainer: {
+    position: 'absolute',
+    zIndex: 2,
     alignItems: 'center',
     paddingVertical: 60,
   },
@@ -268,23 +325,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
     marginBottom: 24,
-  },
-  retryButton: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 4,
-  },
-  retryGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  retryText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   successContainer: {
     alignItems: 'center',
@@ -312,28 +352,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 32,
   },
-  openButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 6,
-    shadowColor: '#7B68EE',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    marginBottom: 16,
-  },
-  openGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-  },
-  openText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   infoText: {
     fontSize: 14,
     color: '#8B7AA3',
@@ -342,4 +360,3 @@ const styles = StyleSheet.create({
 });
 
 export default UserManualScreen;
-
