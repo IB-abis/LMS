@@ -215,7 +215,7 @@ const ELearningScreen = ({ navigation }) => {
 
   // Map API response item to row format used by your UI
   const mapApiItemToRow = (item, index) => {
-    const status = (item.status || item.userStatus || (item.completed ? 'Completed' : 'Pending')).toString().toUpperCase();
+    const status = (item.status || (item.completed ? 'Completed' : 'Pending')) ? String(item.status || (item.completed ? 'Completed' : 'Pending')).toUpperCase() : '';
 
     return {
       id: item.id ?? index,
@@ -223,7 +223,8 @@ const ELearningScreen = ({ navigation }) => {
       name: item.name ?? item.contentName ?? 'Untitled',
       contentName: (item.content?.contentName || item.contentName) ?? '',
       raw: item,
-      status, // ✅ ALWAYS UPPERCASE (so EXPIRED matches your check)
+      status, // ✅ UPPERCASE overall status (so EXPIRED matches your check)
+      userStatus: item.userStatus ?? '', // show this in the new Course Status column (preserve case)
       canView: item.viewAction === true
     };
   };
@@ -756,130 +757,142 @@ const ELearningScreen = ({ navigation }) => {
               })}
             </View>
 
-            {/* Table */}
+            {/* Table (horizontally scrollable to accommodate added columns) */}
             <View style={styles.tableContainer}>
-              {/* Table Header */}
-              <Animated.View
-                style={[
-                  styles.tableHeader,
-                  {
-                    opacity: tableHeaderAnim,
-                    transform: [{
-                      translateY: tableHeaderAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [20, 0],
-                      })
-                    }]
-                  }
-                ]}
-              >
-                <LinearGradient
-                  colors={['#7B68EE', '#9D7FEA']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.tableHeaderGradient}
-                >
-                  <Text allowFontScaling={false} style={[styles.headerCell, styles.sNoColumn]}>SNo.</Text>
-                  <Text allowFontScaling={false} style={[styles.headerCell, styles.nameColumn]}>Name</Text>
-                  <Text allowFontScaling={false} style={[styles.headerCell, styles.contentColumn]}>End Date</Text>
-                  <Text allowFontScaling={false} style={[styles.headerCell, styles.actionColumn]}>Action</Text>
-                </LinearGradient>
-              </Animated.View>
-
-              {/* Loading indicator */}
-              {loading && (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="small" color="#7B68EE" />
-                </View>
-              )}
-
-              {/* Error */}
-              {error && !loading && (
-                <View style={styles.emptyState}>
-                  <Ionicons name="alert-circle-outline" size={48} color="#8B7AA3" />
-                  <Text allowFontScaling={false} style={styles.emptyText}>Error: {error}</Text>
-                </View>
-              )}
-
-              {/* Table Rows */}
-              {!loading && !error && filteredCourses.map((course, index) => {
-                const scale = rowAnims[index].interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.95, 1],
-                });
-                const opacity = rowAnims[index].interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 1],
-                });
-                const translateX = rowAnims[index].interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-30, 0],
-                });
-
-                return (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={{ minWidth: width - 40 }}>
+                  {/* Table Header */}
                   <Animated.View
-                    key={course.id}
                     style={[
-                      styles.tableRow,
+                      styles.tableHeader,
                       {
-                        opacity,
-                        transform: [{ scale }, { translateX }]
+                        opacity: tableHeaderAnim,
+                        transform: [{
+                          translateY: tableHeaderAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [20, 0],
+                          })
+                        }]
                       }
                     ]}
                   >
-                    <TouchableOpacity
-                      onPress={() => handleRowPress(index, course)}
-                      activeOpacity={0.8}
-                      style={styles.rowContent}
+                    <LinearGradient
+                      colors={['#7B68EE', '#9D7FEA']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.tableHeaderGradient}
                     >
-
-                      <Text allowFontScaling={false} style={[styles.rowCell, styles.sNoColumn, styles.sNoText]}>
-                        {course.sNo}.
-                      </Text>
-                      <Text allowFontScaling={false} style={[styles.rowCell, styles.nameColumn, styles.nameText]}>
-                        {course.name}
-                      </Text>
-                      <Text allowFontScaling={false} style={[styles.rowCell, styles.contentColumn, styles.contentText]}>
-                        {formatToDDMMYYYY(course.raw?.endDate)}
-                      </Text>
-                      <View style={[styles.actionColumn, { alignItems: 'center' }]}>
-                        {course.status === 'EXPIRED' ? (
-                          <TouchableOpacity onPress={() => setExpiredCourse(course)}>
-                            <Text allowFontScaling={false} style={{ color: '#FF7070', fontWeight: '600' }}>Expired</Text>
-                          </TouchableOpacity>
-                        ) : course.canView && (
-
-                          <TouchableOpacity
-                            style={styles.eyeButton}
-                            onPress={async () => {
-                              const courseId = course.raw.id;
-                              navigation.navigate('CourseDetails', {
-                                courseId,
-                                employeeID: employeeID,
-                              });
-                            }}
-                          >
-                            <LinearGradient
-                              colors={['#7B68EE', '#9D7FEA']}
-                              style={styles.eyeGradient}
-                            >
-                              <Ionicons name="eye" size={18} color="#fff" />
-                            </LinearGradient>
-                          </TouchableOpacity>
-                        )}
-
-                      </View>
-                    </TouchableOpacity>
+                      <Text allowFontScaling={false} style={[styles.headerCell, styles.sNoColumn]}>SNo.</Text>
+                      <Text allowFontScaling={false} style={[styles.headerCell, styles.nameColumn]}>Name</Text>
+                      <Text allowFontScaling={false} style={[styles.headerCell, styles.statusColumn]}>Course Status</Text>
+                      <Text allowFontScaling={false} style={[styles.headerCell, styles.startDateColumn]}>Start Date</Text>
+                      <Text allowFontScaling={false} style={[styles.headerCell, styles.contentColumn]}>End Date</Text>
+                      <Text allowFontScaling={false} style={[styles.headerCell, styles.actionColumn]}>Action</Text>
+                    </LinearGradient>
                   </Animated.View>
-                );
-              })}
 
-              {!loading && !error && filteredCourses.length === 0 && (
-                <View style={styles.emptyState}>
-                  <Ionicons name="search-outline" size={48} color="#8B7AA3" />
-                  <Text allowFontScaling={false} style={styles.emptyText}>No courses found</Text>
+                  {/* Loading indicator */}
+                  {loading && (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator size="small" color="#7B68EE" />
+                    </View>
+                  )}
+
+                  {/* Error */}
+                  {error && !loading && (
+                    <View style={styles.emptyState}>
+                      <Ionicons name="alert-circle-outline" size={48} color="#8B7AA3" />
+                      <Text allowFontScaling={false} style={styles.emptyText}>Error: {error}</Text>
+                    </View>
+                  )}
+
+                  {/* Table Rows */}
+                  {!loading && !error && filteredCourses.map((course, index) => {
+                    const scale = rowAnims[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.95, 1],
+                    });
+                    const opacity = rowAnims[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    });
+                    const translateX = rowAnims[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-30, 0],
+                    });
+
+                    return (
+                      <Animated.View
+                        key={course.id}
+                        style={[
+                          styles.tableRow,
+                          {
+                            opacity,
+                            transform: [{ scale }, { translateX }]
+                          }
+                        ]}
+                      >
+                        <TouchableOpacity
+                          onPress={() => handleRowPress(index, course)}
+                          activeOpacity={0.8}
+                          style={styles.rowContent}
+                        >
+
+                          <Text allowFontScaling={false} style={[styles.rowCell, styles.sNoColumn, styles.sNoText]}>
+                            {course.sNo}.
+                          </Text>
+                          <Text allowFontScaling={false} style={[styles.rowCell, styles.nameColumn, styles.nameText]}>
+                            {course.name}
+                          </Text>
+                          <Text allowFontScaling={false} style={[styles.rowCell, styles.statusColumn, styles.contentText]}>
+                            {course.userStatus || '-'}
+                          </Text>
+                          <Text allowFontScaling={false} style={[styles.rowCell, styles.startDateColumn, styles.contentText]}>
+                            {formatToDDMMYYYY(course.raw?.startDate)}
+                          </Text>
+                          <Text allowFontScaling={false} style={[styles.rowCell, styles.contentColumn, styles.contentText]}>
+                            {formatToDDMMYYYY(course.raw?.endDate)}
+                          </Text>
+                          <View style={[styles.actionColumn, { alignItems: 'center' }]}>
+                            {course.status === 'EXPIRED' ? (
+                              <TouchableOpacity onPress={() => setExpiredCourse(course)}>
+                                <Text allowFontScaling={false} style={{ color: '#FF7070', fontWeight: '600' }}>Expired</Text>
+                              </TouchableOpacity>
+                            ) : course.canView && (
+
+                              <TouchableOpacity
+                                style={styles.eyeButton}
+                                onPress={async () => {
+                                  const courseId = course.raw.id;
+                                  navigation.navigate('CourseDetails', {
+                                    courseId,
+                                    employeeID: employeeID,
+                                  });
+                                }}
+                              >
+                                <LinearGradient
+                                  colors={['#7B68EE', '#9D7FEA']}
+                                  style={styles.eyeGradient}
+                                >
+                                  <Ionicons name="eye" size={18} color="#fff" />
+                                </LinearGradient>
+                              </TouchableOpacity>
+                            )}
+
+                          </View>
+                        </TouchableOpacity>
+                      </Animated.View>
+                    );
+                  })}
+
+                  {!loading && !error && filteredCourses.length === 0 && (
+                    <View style={styles.emptyState}>
+                      <Ionicons name="search-outline" size={48} color="#8B7AA3" />
+                      <Text allowFontScaling={false} style={styles.emptyText}>No courses found</Text>
+                    </View>
+                  )}
                 </View>
-              )}
+              </ScrollView>
             </View>
 
             {/* Bottom Padding */}
@@ -1283,6 +1296,14 @@ filterTabText: {
     flex: 1,
     textAlign: 'left',
   },
+  statusColumn: {
+    width: 120,
+    textAlign: 'left',
+  },
+  startDateColumn: {
+    flex: 1,
+    textAlign: 'left',
+  },
   actionColumn: {
     width: 60,
   },
@@ -1294,11 +1315,13 @@ filterTabText: {
     flexDirection: 'row',
     paddingVertical: 16,
     paddingHorizontal: 12,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   rowCell: {
     fontSize: 13,
     color: '#2D2D2D',
+    flexWrap: 'wrap',
+    paddingRight: 8,
   },
   sNoText: {
     fontWeight: '600',
@@ -1422,29 +1445,34 @@ filterTabText: {
     paddingRight: 36,
     backgroundColor: '#fff'
   },
-  dropdown: {
-    height: 36,
-    width: '100%',
-    backgroundColor: '#fff'
+  sNoColumn: {
+    width: 50,
+    textAlign: 'left'
   },
-  dropdownText: {
-    color: '#000'
+  nameColumn: {
+    width: 180,
+    textAlign: 'left',
   },
-
-  dateInput: {
-    height: 36,
-    borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    backgroundColor: '#fff'
+  statusColumn: {
+    width: 120,
+    textAlign: 'left',
   },
-
+  startDateColumn: {
+    width: 100,
+    textAlign: 'left',
+  },
+  contentColumn: {
+    width: 100,
+    textAlign: 'left',
+  },
+  actionColumn: {
+    width: 70,
+    textAlign: 'center'
+  },
   filterButtonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10
+    marginTop: 10,
   },
   resetButton: {
     backgroundColor: '#fff',

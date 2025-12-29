@@ -6,6 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   BackHandler,
   Dimensions,
@@ -16,7 +17,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 // ✅ Import universal components
 import { useNotification } from '@/app/Components/NotificationContext';
@@ -114,6 +115,24 @@ const CalendarScreen = ({ navigation }) => {
 
     fetchCalendarData();
   }, [trainingMode]);
+
+  // When user toggles training mode, clear previous data immediately
+  // then flip the mode so the fetch effect will run and populate new data.
+  const handleTrainingModeChange = (mode) => {
+    if (mode === trainingMode) return;
+
+    // Clear previous screen data immediately to avoid stale flash
+    setCalendarData([]);
+    setTasks([]);
+    setTaskAnims([]);
+    setSelectedDate(null);
+
+    // Show loader while new data is fetched
+    setLoading(true);
+
+    // Trigger fetch (useEffect dependent on trainingMode)
+    setTrainingMode(mode);
+  };
 
 
   const months = [
@@ -411,7 +430,7 @@ const CalendarScreen = ({ navigation }) => {
               styles.trainingToggleBtn,
               trainingMode === "Monthly" && styles.trainingToggleBtnActive
             ]}
-            onPress={() => setTrainingMode("Monthly")}
+            onPress={() => handleTrainingModeChange("Monthly")}
           >
             <Text
               allowFontScaling={false}
@@ -430,7 +449,7 @@ const CalendarScreen = ({ navigation }) => {
               styles.trainingToggleBtn,
               trainingMode === "My" && styles.trainingToggleBtnActive
             ]}
-            onPress={() => setTrainingMode("My")}
+            onPress={() => handleTrainingModeChange("My")}
           >
             <Text
               allowFontScaling={false}
@@ -444,6 +463,13 @@ const CalendarScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
+
+        {/* Loading overlay shown while switching modes */}
+        {loading && (
+          <View style={styles.loadingOverlay} pointerEvents="auto">
+            <ActivityIndicator size="large" color="#7B68EE" />
+          </View>
+        )}
 
         <ScrollView
           style={styles.scrollContent}
@@ -1100,6 +1126,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    zIndex: 9999,
   },
   modalContainer: {
     width: '85%',
