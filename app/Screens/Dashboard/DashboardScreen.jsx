@@ -2055,6 +2055,12 @@ const DashboardScreen = ({ navigation }) => {
                                                     'Authorization': `Bearer ${token}`
                                                 }
                                             });
+
+                                            // If unauthorized, force logout flow
+                                            if (response.status === 401) {
+                                                throw new Error('UNAUTHORIZED');
+                                            }
+
                                             if (!response.ok) {
                                                 throw new Error("Failed to fetch dashboard data");
                                             }
@@ -2067,13 +2073,41 @@ const DashboardScreen = ({ navigation }) => {
                                         } catch (error) {
                                             console.log("Dashboard refresh error:", error);
                                             setError(error.message);
-                                            showCustomAlert(
-                                                'error',
-                                                'Error',
-                                                error.message,
-                                                () => { },
-                                                false
-                                            );
+
+                                            // If token/session expired, prompt logout-only dialog
+                                            if (error?.message === 'UNAUTHORIZED' || (error?.message || '').toLowerCase().includes('unauthorized') || (error?.message || '').toLowerCase().includes('401')) {
+                                                const handleForceLogout = async () => {
+                                                    try {
+                                                        // clear relevant storage keys
+                                                        await AsyncStorage.multiRemove(['token', 'employeeID', 'applicationProfile', 'sapid', 'userName']);
+                                                    } catch (e) {
+                                                        console.warn('Error clearing storage during forced logout', e);
+                                                    }
+                                                    // Reset navigation to Login screen
+                                                    try {
+                                                        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+                                                    } catch (navErr) {
+                                                        // fallback
+                                                        navigation.navigate('Login');
+                                                    }
+                                                };
+
+                                                showCustomAlert(
+                                                    'info',
+                                                    'Logged out',
+                                                    'You have been logged out due to inactivity. Please login again.',
+                                                    handleForceLogout,
+                                                    false
+                                                );
+                                            } else {
+                                                showCustomAlert(
+                                                    'error',
+                                                    'Error',
+                                                    error.message,
+                                                    () => { },
+                                                    false
+                                                );
+                                            }
                                         } finally {
                                             setIsLoading(false);
                                         }

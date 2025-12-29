@@ -4,7 +4,7 @@
     "slug": "MyFirstApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/mm.png",
+    "icon": "./assets/images/LOGOO.png",
     "scheme": "myfirstapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

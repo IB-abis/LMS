@@ -441,6 +441,7 @@ const CoursesScreen = ({ navigation }) => {
                   onChangeText={handleSearchChange}
                   onSubmitEditing={onSearchSubmit}
                   style={styles.searchInput}
+                  allowFontScaling={false}
                 />
                 <TouchableOpacity style={styles.searchIconWrap} onPress={onSearchSubmit}>
                   <Ionicons name="search" size={20} color="#fff" />
@@ -555,7 +556,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={category}
                     onChange={(item) => setCategory(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -572,7 +574,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={level}
                     onChange={(item) => setLevel(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -589,7 +592,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={status}
                     onChange={(item) => setStatus(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -606,7 +610,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={globalCategory}
                     onChange={(item) => setGlobalCategory(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -623,7 +628,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={programId}
                     onChange={(item) => setProgramId(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -640,7 +646,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={createdById}
                     onChange={(item) => setCreatedById(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -911,7 +918,8 @@ pickerIcon: {
     backgroundColor: '#fff'
   },
   dropdownText: {
-    color: '#000'
+    color: '#000',
+    fontSize: 12
   },
 
   sortBullet: {

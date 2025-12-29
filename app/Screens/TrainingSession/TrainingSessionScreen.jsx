@@ -613,6 +613,7 @@ const TrainingSessionScreen = ({ navigation }) => {
                   placeholderTextColor="#8B7AA3"
                   value={searchText}
                   onChangeText={handleSearch}           // <-- calls API as user types
+                  allowFontScaling={false}
                 />
               </View>
 
@@ -738,7 +739,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     value={type}
                     onChange={(item) => setType(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -755,7 +757,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     value={userType}
                     onChange={(item) => setUserType(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -779,6 +782,7 @@ const TrainingSessionScreen = ({ navigation }) => {
                     onChange={(item) => setStatusFilter(item.value)}
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -796,6 +800,7 @@ const TrainingSessionScreen = ({ navigation }) => {
                     onChange={(item) => setCourseId(item.value)}
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -813,6 +818,7 @@ const TrainingSessionScreen = ({ navigation }) => {
                     onChange={(item) => setTrainerId(item.value)}
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -1191,7 +1197,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff'
   },
   dropdownText: {
-    color: '#000'
+    color: '#000',
+    fontSize: 12
   },
   dateInput: {
     height: 36,

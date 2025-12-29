@@ -39,6 +39,12 @@ const MicroLearningScreen = ({ navigation }) => {
   const [timeSpent, setTimeSpent] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  // Video-specific tracking
+  const playedRangesRef = useRef([]); // array of {s,e}
+  const lastVideoTimeRef = useRef(0);
+  const videoDurationRef = useRef(microlearning?.durationInSeconds || 0);
+  const videoCompletedRef = useRef(false);
+
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
   const timerStartedRef = useRef(false);
@@ -303,13 +309,83 @@ const MicroLearningScreen = ({ navigation }) => {
     console.log('WebView load end');
     setLoading(false);
     setLoadError(false);
-    startTimerOnce();
+    // For video content we will start tracking via WebView messages (do not start the generic timer)
+    if (fileToView?.type !== 'video') {
+      startTimerOnce();
+    }
   };
 
   const onWebViewError = (syntheticEvent) => {
     console.log('WebView error: ', syntheticEvent);
     setLoading(false);
     setLoadError(true);
+  };
+
+  // Helper to merge new played range into playedRangesRef
+  const addPlayedRange = (start, end) => {
+    if (end <= start) return;
+    const ranges = playedRangesRef.current.slice();
+    ranges.push({ s: start, e: end });
+    // merge
+    ranges.sort((a, b) => a.s - b.s);
+    const merged = [];
+    for (const r of ranges) {
+      if (!merged.length) merged.push(r);
+      else {
+        const last = merged[merged.length - 1];
+        if (r.s <= last.e + 0.1) {
+          last.e = Math.max(last.e, r.e);
+        } else merged.push(r);
+      }
+    }
+    playedRangesRef.current = merged;
+
+    // compute watched seconds
+    const watched = merged.reduce((acc, cur) => acc + Math.max(0, cur.e - cur.s), 0);
+    const rounded = Math.floor(watched);
+    setTimeSpent(rounded);
+
+    const duration = videoDurationRef.current || (microlearning?.durationInSeconds || 0);
+    // consider completed when covered >= duration (allow tiny epsilon)
+    if (!videoCompletedRef.current && duration > 0 && watched >= duration - 0.5) {
+      videoCompletedRef.current = true;
+      setIsCompleted(true);
+      recordCompletion();
+    }
+  };
+
+  const onVideoWebMessage = (event) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data?.type !== 'ml_video_event') return;
+
+      const { event: ev, currentTime, duration, paused } = data;
+
+      if (duration && duration > 0) videoDurationRef.current = duration;
+
+      // first load: mark loaded and clear loading
+      if (ev === 'loadedmetadata' || ev === 'initialized') {
+        setLoading(false);
+        setLoadError(false);
+      }
+
+      // time progression: if currentTime moved forward compared to last, add that delta
+      const last = lastVideoTimeRef.current || 0;
+      if (typeof currentTime === 'number') {
+        if (currentTime > last) {
+          addPlayedRange(last, currentTime);
+        }
+        lastVideoTimeRef.current = currentTime;
+      }
+
+      if (ev === 'ended') {
+        // ensure final range ends at duration
+        const dur = videoDurationRef.current || (microlearning?.durationInSeconds || 0);
+        addPlayedRange(lastVideoTimeRef.current || 0, dur);
+      }
+    } catch (err) {
+      // ignore bad messages
+    }
   };
 
 
@@ -417,10 +493,36 @@ const MicroLearningScreen = ({ navigation }) => {
                           <style>body,html{margin:0;padding:0;background:black;height:100%}video{width:100%;height:100%;background:black;}</style>
                         </head>
                         <body>
-                          <video controls autoplay playsinline webkit-playsinline>
+                          <video id="mlvideo" controls autoplay playsinline webkit-playsinline>
                             <source src="${fileToView.uri}" type="video/mp4" />
                             Your browser does not support the video tag.
                           </video>
+                          <script>
+                            (function(){
+                              var video = document.getElementById('mlvideo') || document.querySelector('video');
+                              function send(ev){
+                                try{
+                                  window.ReactNativeWebView.postMessage(JSON.stringify({
+                                    type: 'ml_video_event',
+                                    event: ev,
+                                    currentTime: video.currentTime,
+                                    duration: video.duration,
+                                    paused: video.paused,
+                                    playbackRate: video.playbackRate
+                                  }));
+                                }catch(e){}
+                              }
+                              if(!video){ send('no-video'); return; }
+                              video.addEventListener('loadedmetadata', function(){ send('loadedmetadata'); });
+                              video.addEventListener('timeupdate', function(){ send('timeupdate'); });
+                              video.addEventListener('play', function(){ send('play'); });
+                              video.addEventListener('pause', function(){ send('pause'); });
+                              video.addEventListener('ended', function(){ send('ended'); });
+                              video.addEventListener('ratechange', function(){ send('ratechange'); });
+                              video.addEventListener('seeked', function(){ send('seeked'); send('timeupdate'); });
+                              send('initialized');
+                            })();
+                          </script>
                         </body>
                       </html>
                     `
@@ -433,6 +535,7 @@ const MicroLearningScreen = ({ navigation }) => {
                   mixedContentMode="always"
                   onLoadEnd={onWebViewLoadEnd}
                   onError={onWebViewError}
+                  onMessage={onVideoWebMessage}
                   style={{ flex: 1 }}
                 />
               </View>

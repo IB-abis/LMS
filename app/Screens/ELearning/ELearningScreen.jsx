@@ -583,9 +583,18 @@ const ELearningScreen = ({ navigation }) => {
         friction: 3,
         useNativeDriver: true,
       }),
-    ]).start();
-
-
+    ]).start(() => {
+      // After animation, perform same behavior as Action column
+      if (course?.status === 'EXPIRED') {
+        setExpiredCourse(course);
+      } else if (course?.canView) {
+        const courseId = course.raw?.id;
+        navigation.navigate('CourseDetails', {
+          courseId,
+          employeeID: employeeID,
+        });
+      }
+    });
   };
 
 
@@ -691,6 +700,7 @@ const ELearningScreen = ({ navigation }) => {
                   placeholderTextColor="#8B7AA3"
                   value={searchText}
                   onChangeText={handleSearch}
+                  allowFontScaling={false}
                 />
               </View>
               <TouchableOpacity
@@ -995,7 +1005,8 @@ const ELearningScreen = ({ navigation }) => {
                     value={criteria}
                     onChange={(item) => setCriteria(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -1012,7 +1023,8 @@ const ELearningScreen = ({ navigation }) => {
                     value={selectedCreatedBy}
                     onChange={(item) => setSelectedCreatedBy(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
+                      selectedTextStyle={styles.dropdownText}
+                      placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -1444,6 +1456,15 @@ filterTabText: {
     overflow: 'visible',
     paddingRight: 36,
     backgroundColor: '#fff'
+  },
+  dropdown: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: '#fff'
+  },
+  dropdownText: {
+    fontSize: 12,
+    color: '#000'
   },
   sNoColumn: {
     width: 50,
