@@ -28,9 +28,9 @@ import { useBottomNav } from '../../Components/useBottomNav';
 
 const { width } = Dimensions.get('window');
 
-const API_DETAILS_BASE = 'https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainingSessionDetails';
-const API_ASSESSMENT_BASE = 'https://lms-api-qa.abisaio.com/api/v1/Assessment/GetAssessmentDetails';
-const API_SUBMIT_ASSESSMENT = 'https://lms-api-qa.abisaio.com/api/v1/Assessment/SubmitAssessment';
+const API_DETAILS_BASE = 'https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainingSessionDetails';
+const API_ASSESSMENT_BASE = 'https://lms-api.abisaio.com/api/v1/Assessment/GetAssessmentDetails';
+const API_SUBMIT_ASSESSMENT = 'https://lms-api.abisaio.com/api/v1/Assessment/SubmitAssessment';
 
 const TrainingDetailsScreen = ({ navigation, route }) => {
   const { openNotification } = useNotification();
@@ -282,7 +282,7 @@ const TrainingDetailsScreen = ({ navigation, route }) => {
 
   const downloadCertificate = async () => {
     try {
-      const url = `https://lms-api-qa.abisaio.com/api/v1/CertificateTemplate/generatepdf?EmployeeId=${employeeID}&templateId=${details.certificateID}&TrainingSessionID=${trainingSessionId}`;
+      const url = `https://lms-api.abisaio.com/api/v1/CertificateTemplate/generatepdf?EmployeeId=${employeeID}&templateId=${details.certificateID}&TrainingSessionID=${trainingSessionId}`;
 
       const fileUri = FileSystem.documentDirectory + `certificate_${trainingSessionId}.pdf`;
       const result = await FileSystem.downloadAsync(url, fileUri, {

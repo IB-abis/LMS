@@ -35,7 +35,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 
 const { width } = Dimensions.get('window');
 
-const API_BASE = 'https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainingSession';
+const API_BASE = 'https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainingSession';
 
 const TrainingSessionScreen = ({ navigation }) => {
   const { openNotification } = useNotification();
@@ -84,7 +84,7 @@ const TrainingSessionScreen = ({ navigation }) => {
     const fetchAux = async () => {
       try {
         // Course list
-        const cResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/Course/GetCourseList');
+        const cResp = await fetch('https://lms-api.abisaio.com/api/v1/Course/GetCourseList');
         const cJson = await cResp.json();
         if (cJson.succeeded && Array.isArray(cJson.data)) {
           setCoursesList(cJson.data);
@@ -93,7 +93,7 @@ const TrainingSessionScreen = ({ navigation }) => {
         }
 
         // Trainer list - endpoint you provided earlier (replace URL if different)
-        const tResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainer');
+        const tResp = await fetch('https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainer');
 
         const tJson = await tResp.json();
         if (tJson.succeeded && Array.isArray(tJson.data)) {

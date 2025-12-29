@@ -228,7 +228,7 @@ export default function LoginScreen() {
 
     const loginUser = async (username, password, source) => {
       try {
-        const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Login/Login", {
+        const response = await fetch("https://lms-api.abisaio.com/api/v1/Login/Login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password, source }),
@@ -291,7 +291,7 @@ export default function LoginScreen() {
   const fetchQuizQuestions = async (token) => {
     setQuizLoading(true);
     try {
-      const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Quiz", {
+      const response = await fetch("https://lms-api.abisaio.com/api/v1/Quiz", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -329,7 +329,7 @@ export default function LoginScreen() {
       async () => {
         setQuizLoading(true);
         try {
-          const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Quiz/Skip", {
+          const response = await fetch("https://lms-api.abisaio.com/api/v1/Quiz/Skip", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -392,7 +392,7 @@ export default function LoginScreen() {
 
       console.log('Submitting quiz data:', JSON.stringify(submissionData, null, 2));
 
-      const response = await fetch('https://lms-api-qa.abisaio.com/api/v1/Quiz/Submit', {
+      const response = await fetch('https://lms-api.abisaio.com/api/v1/Quiz/Submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import Header from '../../Components/Header';
 
-const API_SUBMIT_FEEDBACK = 'https://lms-api-qa.abisaio.com/api/v1/Feedback/Submit';
+const API_SUBMIT_FEEDBACK = 'https://lms-api.abisaio.com/api/v1/Feedback/Submit';
 
 const QUESTIONS = [
   "Overall, how do you rate the training you have just completed?",

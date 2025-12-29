@@ -14,9 +14,9 @@ import { WebView } from "react-native-webview";
 import Header from "../../Components/Header";
 
 const API_SAVE_PROGRESS =
-  "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/saveprogress";
+  "https://lms-api.abisaio.com/api/v1/ELearning/course/saveprogress";
 const API_GET_PROGRESS =
-  "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/getprogress";
+  "https://lms-api.abisaio.com/api/v1/ELearning/course/getprogress";
 
 const SCORMPlayerScreen = ({ route, navigation }) => {
   const { course, employeeID, token } = route.params;

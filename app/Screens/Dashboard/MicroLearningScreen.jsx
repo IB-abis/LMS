@@ -122,7 +122,7 @@ const MicroLearningScreen = ({ navigation }) => {
       const token = await AsyncStorage.getItem("token");
       if (!token || !microlearning) return;
 
-      const response = await fetch('https://lms-api-qa.abisaio.com/api/v1/Microlearning/RecordUserMicrolearning', {
+      const response = await fetch('https://lms-api.abisaio.com/api/v1/Microlearning/RecordUserMicrolearning', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

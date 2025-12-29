@@ -24,12 +24,12 @@ import {
 import { WebView } from "react-native-webview";
 import Header from '../../Components/Header';
 
-const API_COURSE_DETAILS = (courseId, employeeID) => `https://lms-api-qa.abisaio.com/api/v1/ELearning/course/details/${courseId}/${employeeID}`;
-const API_SAVE_PROGRESS = "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/saveprogress";
+const API_COURSE_DETAILS = (courseId, employeeID) => `https://lms-api.abisaio.com/api/v1/ELearning/course/details/${courseId}/${employeeID}`;
+const API_SAVE_PROGRESS = "https://lms-api.abisaio.com/api/v1/ELearning/course/saveprogress";
 const API_CERTIFICATE_PDF = (empId, templateId, trainingId) =>
-  `https://lms-api-qa.abisaio.com/api/v1/CertificateTemplate/generatepdf?EmployeeId=${empId}&templateId=${templateId}&TrainingSessionID=${trainingId}`;
+  `https://lms-api.abisaio.com/api/v1/CertificateTemplate/generatepdf?EmployeeId=${empId}&templateId=${templateId}&TrainingSessionID=${trainingId}`;
 const API_GET_PROGRESS = (courseId, userId) =>
-  `https://lms-api-qa.abisaio.com/api/v1/ELearning/course/getprogress/${courseId}/${userId}`;
+  `https://lms-api.abisaio.com/api/v1/ELearning/course/getprogress/${courseId}/${userId}`;
 
 
 const { width, height } = Dimensions.get("window");

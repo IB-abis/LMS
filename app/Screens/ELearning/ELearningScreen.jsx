@@ -109,7 +109,7 @@ const ELearningScreen = ({ navigation }) => {
   ];
 
   // ---------- fetch & data helpers ----------
-  const apiBase = 'https://lms-api-qa.abisaio.com/api/v1/ELearning/course/list';
+  const apiBase = 'https://lms-api.abisaio.com/api/v1/ELearning/course/list';
 
   // Helper: format JS Date or ISO string to YYYY-MM-DD
   const formatDate = (d) => {
@@ -152,7 +152,7 @@ const ELearningScreen = ({ navigation }) => {
   // Fetch trainers (CreatedBy dropdown list)
   const fetchCreatedByList = async () => {
     try {
-      const url = 'https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainer';
+      const url = 'https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainer';
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const resp = await fetch(url, { headers });
       if (!resp.ok) {

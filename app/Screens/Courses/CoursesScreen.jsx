@@ -153,7 +153,7 @@ const CoursesScreen = ({ navigation }) => {
     const fetchAuxLists = async () => {
       try {
         // programs
-        const pResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/Program/GetProgramList');
+        const pResp = await fetch('https://lms-api.abisaio.com/api/v1/Program/GetProgramList');
         const pJson = await pResp.json();
         if (pJson.succeeded && Array.isArray(pJson.data)) {
           setPrograms(pJson.data);
@@ -162,7 +162,7 @@ const CoursesScreen = ({ navigation }) => {
         }
 
         // createdBy list
-        const cbResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/Course/GetCourseCreatedByList');
+        const cbResp = await fetch('https://lms-api.abisaio.com/api/v1/Course/GetCourseCreatedByList');
         const cbJson = await cbResp.json();
         if (cbJson.succeeded && Array.isArray(cbJson.data)) {
           setCreatedByList(cbJson.data);
@@ -216,7 +216,7 @@ const CoursesScreen = ({ navigation }) => {
       params.append('ProgramID', effectiveProgramId);
       params.append('CreatedBy', effectiveCreatedBy);
 
-      const url = `https://lms-api-qa.abisaio.com/api/v1/Course/GetCourse?${params.toString()}`;
+      const url = `https://lms-api.abisaio.com/api/v1/Course/GetCourse?${params.toString()}`;
 
       // Log every API call for debugging (filters/sort/search)
       // eslint-disable-next-line no-console
@@ -231,7 +231,7 @@ const CoursesScreen = ({ navigation }) => {
           const biggerRpp = json.count + 10;
           const biggerParams = new URLSearchParams(params.toString());
           biggerParams.set('RowsPerPage', String(biggerRpp));
-          const biggerUrl = `https://lms-api-qa.abisaio.com/api/v1/Course/GetCourse?${biggerParams.toString()}`;
+          const biggerUrl = `https://lms-api.abisaio.com/api/v1/Course/GetCourse?${biggerParams.toString()}`;
           const newResponse = await fetch(biggerUrl);
           const newJson = await newResponse.json();
           if (newJson.succeeded && Array.isArray(newJson.data)) {

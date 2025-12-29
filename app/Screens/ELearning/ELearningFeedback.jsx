@@ -17,7 +17,7 @@ import {
 import Header from '../../Components/Header';
 
 
-const API_SUBMIT_FEEDBACK = 'https://lms-api-qa.abisaio.com/api/v1/ELearning/submitfeedback';
+const API_SUBMIT_FEEDBACK = 'https://lms-api.abisaio.com/api/v1/ELearning/submitfeedback';
 
 
 const QUESTIONS = [

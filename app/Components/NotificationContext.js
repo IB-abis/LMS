@@ -21,7 +21,7 @@ export const NotificationProvider = ({ children }) => {
     try {
       const employeeID = await AsyncStorage.getItem("employeeID");
       const res = await fetch(
-        `https://lms-api-qa.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`
+        `https://lms-api.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`
       );
       const json = await res.json();
 
@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
       const token = await AsyncStorage.getItem("token");
 
       await fetch(
-        `https://lms-api-qa.abisaio.com/api/v1/Notification/MarkNotificationAsRead?notificationId=${notificationId}`,
+        `https://lms-api.abisaio.com/api/v1/Notification/MarkNotificationAsRead?notificationId=${notificationId}`,
         {
           method: 'POST',
           headers: {
@@ -70,7 +70,7 @@ export const NotificationProvider = ({ children }) => {
   try {
     const employeeID = await AsyncStorage.getItem("employeeID");
     const res = await fetch(
-      `https://lms-api-qa.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`
+      `https://lms-api.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`
     );
     const json = await res.json();
     if (json?.data) {
