@@ -273,14 +273,15 @@ const CourseDetailsScreen = ({ route, navigation }) => {
       },
 
       {
-        key: "feedback",
-        title: "Feedback",
-        exists: feedbackActive,
-        active: feedbackActive && postCompleted, // Only after post completed
-        completed: feedbackCompleted,
-        available: feedbackActive && postCompleted,
-        subtitle: feedbackActive ? "Provide feedback" : "Locked"
-      }
+  key: "feedback",
+  title: "Feedback",
+  exists: feedbackActive,
+  active: feedbackActive, // ✅ If API says active, make it active
+  completed: feedbackCompleted,
+  available: feedbackActive, // ✅ If API says active, make it available
+  subtitle: feedbackActive ? "Provide feedback" : "Locked"
+}
+
     ];
   };
 
