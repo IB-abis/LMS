@@ -5,11 +5,11 @@ import React, { useEffect } from "react";
 import { TourGuideProvider } from 'rn-tourguide';
 import { NotificationProvider } from "../app/Components/NotificationContext";
 import AppNavigator from "../app/Navigation/AppNavigator";
-import CustomTooltip from './Components/CustomToolTip';
+
 
 export default function RootLayout() {
   useEffect(() => {
-     ScreenCapture.preventScreenCaptureAsync();
+    ScreenCapture.preventScreenCaptureAsync();
     NavigationBar.setVisibilityAsync("hidden");
   }, []);
 
@@ -22,23 +22,16 @@ export default function RootLayout() {
   };
 
   return (
+
     <NotificationProvider>
       <TourGuideProvider
-        {...{
-          backdropColor: 'rgba(15, 15, 35, 0.92)',
-          labels: {
-            previous: 'Back',
-            next: 'Next',
-            skip: 'Skip',
-            finish: 'Got it!',
-          },
-          onStop: handleTourStop,
-          verticalOffset: 14, // global vertical offset to nudge highlights/tooltips down
-          tooltipStyle: { paddingHorizontal: 6 }, // default tooltip padding (tweak as needed)
-        }}
-        tooltipComponent={CustomTooltip}
+        androidStatusBarVisible={true}
+        backdropColor="rgba(0, 0, 0, 0.7)"
+        labels={{ finish: "Let's Go!", skip: "Skip" }}
       >
+
         <AppNavigator />
+
       </TourGuideProvider>
     </NotificationProvider>
   );
