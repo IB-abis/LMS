@@ -153,7 +153,7 @@ const ExploreMoreScreen = ({ navigation }) => {
         const selectedCategory = categoryMapping[category] || category;
 
         const response = await fetch(
-          `https://lms-api.abisaio.com/api/v1/Course/GetGlobalCourse?UserID=${employeeID}&GlobalCategory=${encodeURIComponent(selectedCategory)}`
+          `https://lms-api-qa.abisaio.com/api/v1/Course/GetGlobalCourse?UserID=${employeeID}&GlobalCategory=${encodeURIComponent(selectedCategory)}`
         );
 
         const result = await response.json();

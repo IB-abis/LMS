@@ -101,7 +101,7 @@ export default function Ljmap({ containerBackgroundColor = '#fff' }) {
       return;
     }
 
-    const response = await fetch('https://lms-api.abisaio.com/api/v1/Journey/user-progress', {
+    const response = await fetch('https://lms-api-qa.abisaio.com/api/v1/Journey/user-progress', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

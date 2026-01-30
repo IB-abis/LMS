@@ -15,8 +15,8 @@ import {
 } from 'react-native';
 import Header from '../../Components/Header';
 
-const API_ASSESSMENT_BASE = 'https://lms-api.abisaio.com/api/v1/Assessment/GetAssessmentDetails';
-const API_SUBMIT_ASSESSMENT = 'https://lms-api.abisaio.com/api/v1/Assessment/SubmitAssessment';
+const API_ASSESSMENT_BASE = 'https://lms-api-qa.abisaio.com/api/v1/Assessment/GetAssessmentDetails';
+const API_SUBMIT_ASSESSMENT = 'https://lms-api-qa.abisaio.com/api/v1/Assessment/SubmitAssessment';
 
 const AssessmentScreen = ({ route, navigation }) => {
   const assessmentMeta = route?.params?.assessmentMeta ?? route?.params?.meta ?? null;

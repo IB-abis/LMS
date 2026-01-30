@@ -240,7 +240,7 @@ const DashboardScreen = ({ navigation }) => {
                 const currentDate = new Date();
                 const year = currentDate.getFullYear();
                 const month = currentDate.getMonth() + 1;
-                const apiUrl = `https://lms-api.abisaio.com/api/v1/Dashboard/GetDashboardData?UserID=${employeeID}&type=${applicationProfile}&year=${year}&month=${month}`;
+                const apiUrl = `https://lms-api-qa.abisaio.com/api/v1/Dashboard/GetDashboardData?UserID=${employeeID}&type=${applicationProfile}&year=${year}&month=${month}`;
                 const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -301,7 +301,7 @@ const DashboardScreen = ({ navigation }) => {
                 // Fetch fresh data from backend
                 console.log('🌐 Fetching fresh banner data from API');
                 const response = await fetch(
-                    'https://lms-api.abisaio.com/api/v1/Microlearning/GetActiveMicrolearning',
+                    'https://lms-api-qa.abisaio.com/api/v1/Microlearning/GetActiveMicrolearning',
                     {
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -509,7 +509,7 @@ const DashboardScreen = ({ navigation }) => {
             }
 
             const response = await axios.get(
-                'https://lms-api.abisaio.com/api/v1/Journey/user-progress',
+                'https://lms-api-qa.abisaio.com/api/v1/Journey/user-progress',
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -2049,7 +2049,7 @@ const DashboardScreen = ({ navigation }) => {
                                             if (!employeeID || !applicationProfile || !token) {
                                                 throw new Error("Required user data not found");
                                             }
-                                            const apiUrl = `https://lms-api.abisaio.com/api/v1/Dashboard/GetDashboardData?UserID=${employeeID}&type=${applicationProfile}&year=${currentDate.getFullYear()}&month=${currentDate.getMonth() + 1}`;
+                                            const apiUrl = `https://lms-api-qa.abisaio.com/api/v1/Dashboard/GetDashboardData?UserID=${employeeID}&type=${applicationProfile}&year=${currentDate.getFullYear()}&month=${currentDate.getMonth() + 1}`;
                                             const response = await fetch(apiUrl, {
                                                 headers: {
                                                     'Authorization': `Bearer ${token}`

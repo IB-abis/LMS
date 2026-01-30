@@ -35,7 +35,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 
 const { width } = Dimensions.get('window');
 
-const API_BASE = 'https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainingSession';
+const API_BASE = 'https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainingSession';
 
 const TrainingSessionScreen = ({ navigation }) => {
   const { openNotification } = useNotification();
@@ -84,7 +84,7 @@ const TrainingSessionScreen = ({ navigation }) => {
     const fetchAux = async () => {
       try {
         // Course list
-        const cResp = await fetch('https://lms-api.abisaio.com/api/v1/Course/GetCourseList');
+        const cResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/Course/GetCourseList');
         const cJson = await cResp.json();
         if (cJson.succeeded && Array.isArray(cJson.data)) {
           setCoursesList(cJson.data);
@@ -93,7 +93,7 @@ const TrainingSessionScreen = ({ navigation }) => {
         }
 
         // Trainer list - endpoint you provided earlier (replace URL if different)
-        const tResp = await fetch('https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainer');
+        const tResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainer');
 
         const tJson = await tResp.json();
         if (tJson.succeeded && Array.isArray(tJson.data)) {
@@ -739,8 +739,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     value={type}
                     onChange={(item) => setType(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -757,8 +757,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     value={userType}
                     onChange={(item) => setUserType(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -834,10 +834,22 @@ const TrainingSessionScreen = ({ navigation }) => {
                     value={createdFrom || new Date()}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    // onChange={(e, date) => {
+                    //   setShowCreatedFromPicker(Platform.OS === 'ios');
+                    //   if (date) setCreatedFrom(date);
+                    // }}
                     onChange={(e, date) => {
                       setShowCreatedFromPicker(Platform.OS === 'ios');
-                      if (date) setCreatedFrom(date);
+                      if (date) {
+                        setCreatedFrom(date);
+
+                        // 🔒 validation: agar To date chhoti hai to clear
+                        if (createdTo && new Date(createdTo) < new Date(date)) {
+                          setCreatedTo(null);
+                        }
+                      }
                     }}
+
                   />
                 )}
               </View>
@@ -849,15 +861,30 @@ const TrainingSessionScreen = ({ navigation }) => {
                   <Text allowFontScaling={false} style={{ color: createdTo ? '#000' : '#888' }}>{createdTo ? formatDate(createdTo) : 'Select date'}</Text>
                 </TouchableOpacity>
                 {showCreatedToPicker && (
+                  // <DateTimePicker
+                  //   value={createdTo || new Date()}
+                  //   mode="date"
+                  //   display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  //   onChange={(e, date) => {
+                  //     setShowCreatedToPicker(Platform.OS === 'ios');
+                  //     if (date) setCreatedTo(date);
+                  //   }}
+                  // />
+
                   <DateTimePicker
-                    value={createdTo || new Date()}
+                    value={createdTo || createdFrom || new Date()}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    minimumDate={createdFrom || undefined} // 🔒 MAIN VALIDATION
                     onChange={(e, date) => {
                       setShowCreatedToPicker(Platform.OS === 'ios');
+                      if (date && createdFrom && new Date(date) < new Date(createdFrom)) {
+                        return; // ❌ block invalid selection
+                      }
                       if (date) setCreatedTo(date);
                     }}
                   />
+
                 )}
               </View>
 
@@ -872,10 +899,23 @@ const TrainingSessionScreen = ({ navigation }) => {
                     value={trainingStart || new Date()}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    // onChange={(e, date) => {
+                    //   setShowTrainingStartPicker(Platform.OS === 'ios');
+                    //   if (date) setTrainingStart(date);
+                    // }}
+
                     onChange={(e, date) => {
                       setShowTrainingStartPicker(Platform.OS === 'ios');
-                      if (date) setTrainingStart(date);
+                      if (date) {
+                        setTrainingStart(date);
+
+                        // 🔒 validation: agar End date chhoti hai to clear
+                        if (trainingEnd && new Date(trainingEnd) < new Date(date)) {
+                          setTrainingEnd(null);
+                        }
+                      }
                     }}
+
                   />
                 )}
               </View>
@@ -887,15 +927,30 @@ const TrainingSessionScreen = ({ navigation }) => {
                   <Text allowFontScaling={false} style={{ color: trainingEnd ? '#000' : '#888' }}>{trainingEnd ? formatDate(trainingEnd) : 'Select date'}</Text>
                 </TouchableOpacity>
                 {showTrainingEndPicker && (
+                  // <DateTimePicker
+                  //   value={trainingEnd || new Date()}
+                  //   mode="date"
+                  //   display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  //   onChange={(e, date) => {
+                  //     setShowTrainingEndPicker(Platform.OS === 'ios');
+                  //     if (date) setTrainingEnd(date);
+                  //   }}
+                  // />
+
                   <DateTimePicker
-                    value={trainingEnd || new Date()}
+                    value={trainingEnd || trainingStart || new Date()}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    minimumDate={trainingStart || undefined} // 🔒 MAIN VALIDATION
                     onChange={(e, date) => {
                       setShowTrainingEndPicker(Platform.OS === 'ios');
+                      if (date && trainingStart && new Date(date) < new Date(trainingStart)) {
+                        return; // ❌ invalid
+                      }
                       if (date) setTrainingEnd(date);
                     }}
                   />
+
                 )}
               </View>
 
@@ -1175,24 +1230,25 @@ const styles = StyleSheet.create({
   filterGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingTop: 4,
   },
   filterCell: {
     width: '48%',
-    marginBottom: 12
+    marginBottom: 10
   },
-  filterLabel: { fontSize: 12, color: '#444', marginBottom: 6 },
+  filterLabel: { fontSize: 12, color: '#444', marginBottom: 2 },
   pickerWrap: {
     borderWidth: 1,
     borderColor: '#EEE',
     borderRadius: 8,
     position: 'relative',
     overflow: 'visible',
-    paddingRight: 36,
+    //paddingRight: 8,
     backgroundColor: '#fff'
   },
   dropdown: {
-    height: 36,
+    height: 40,
     width: '100%',
     backgroundColor: '#fff'
   },
@@ -1201,7 +1257,7 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   dateInput: {
-    height: 36,
+    height: 40,
     borderWidth: 1,
     borderColor: '#EEE',
     borderRadius: 8,

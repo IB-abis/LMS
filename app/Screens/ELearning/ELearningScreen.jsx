@@ -109,7 +109,7 @@ const ELearningScreen = ({ navigation }) => {
   ];
 
   // ---------- fetch & data helpers ----------
-  const apiBase = 'https://lms-api.abisaio.com/api/v1/ELearning/course/list';
+  const apiBase = 'https://lms-api-qa.abisaio.com/api/v1/ELearning/course/list';
 
   // Helper: format JS Date or ISO string to YYYY-MM-DD
   const formatDate = (d) => {
@@ -135,9 +135,10 @@ const ELearningScreen = ({ navigation }) => {
   };
 
   // Updated buildUrl to include FromDate, ToDate, CreatedBy and Criteria
-  const buildUrl = ({ userId, page = 1, rowsPerPage = 200, tabStatus = '', search = '', fromDate = '', toDate = '', createdBy = '0', criteriaParam = '' } = {}) => {
+  const buildUrl = ({ userId,userType = 'User', page = 1, rowsPerPage = 200, tabStatus = '', search = '', fromDate = '', toDate = '', createdBy = '0', criteriaParam = '' } = {}) => {
     const params = new URLSearchParams();
     params.append('UserID', String(userId));
+    params.append('UserType', userType);
     params.append('Page', String(page));
     params.append('FromDate', fromDate || '');
     params.append('ToDate', toDate || '');
@@ -152,7 +153,7 @@ const ELearningScreen = ({ navigation }) => {
   // Fetch trainers (CreatedBy dropdown list)
   const fetchCreatedByList = async () => {
     try {
-      const url = 'https://lms-api.abisaio.com/api/v1/TrainingSession/GetTrainer';
+      const url = 'https://lms-api-qa.abisaio.com/api/v1/TrainingSession/GetTrainer';
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const resp = await fetch(url, { headers });
       if (!resp.ok) {
@@ -1242,7 +1243,7 @@ filterTabGradient: {
   gap: 6,
   paddingVertical: 12,
   paddingHorizontal: 16,
-  minHeight: 44,  // Add consistent minimum height
+  minHeight: 30,  // Add consistent minimum height
 },
 filterTabInactive: {
   flexDirection: 'row',
@@ -1440,12 +1441,12 @@ filterTabText: {
   },
   filterCell: {
     width: '48%',
-    marginBottom: 12
+    marginBottom: 10
   },
   filterLabel: {
     fontSize: 12,
     color: '#444',
-    marginBottom: 6
+    marginBottom: 2
   },
 
   pickerWrap: {
@@ -1454,13 +1455,13 @@ filterTabText: {
     borderRadius: 8,
     position: 'relative',
     overflow: 'visible',
-    paddingRight: 36,
+    //paddingRight: 36,
     backgroundColor: '#fff'
   },
   dropdown: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    backgroundColor: '#fff'
+  height: 40,
+  paddingHorizontal: 8,
+  backgroundColor: '#fff',
   },
   dropdownText: {
     fontSize: 12,

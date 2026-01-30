@@ -92,7 +92,7 @@ const CertificateScreen = ({ navigation }) => {
         return;
       }
 
-      const apiUrl = `https://lms-api.abisaio.com/api/v1/CertificateTemplate/GetEmployeeCertificates?UserID=${employeeID}&Page=1&CertificateDate=&ExpiryDate=&Search=${encodeURIComponent(search)}&RowsPerPage=20&Sort=`;
+      const apiUrl = `https://lms-api-qa.abisaio.com/api/v1/CertificateTemplate/GetEmployeeCertificates?UserID=${employeeID}&Page=1&CertificateDate=&ExpiryDate=&Search=${encodeURIComponent(search)}&RowsPerPage=20&Sort=`;
 
       const response = await fetch(apiUrl);
       const json = await response.json();

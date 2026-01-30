@@ -14,9 +14,9 @@ import { WebView } from "react-native-webview";
 import Header from "../../Components/Header";
 
 const API_SAVE_PROGRESS =
-  "https://lms-api.abisaio.com/api/v1/ELearning/course/saveprogress";
+  "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/saveprogress";
 const API_GET_PROGRESS =
-  "https://lms-api.abisaio.com/api/v1/ELearning/course/getprogress";
+  "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/getprogress";
 
 const SCORMPlayerScreen = ({ route, navigation }) => {
   const { course, employeeID, token } = route.params;
@@ -86,21 +86,21 @@ const SCORMPlayerScreen = ({ route, navigation }) => {
                 const hash = parsed.lessonLocation.substring(
                   parsed.lessonLocation.indexOf("#")
                 );
-                setWebUrl(`https://lms.abisaio.com/${course.path}${hash}`);
+                setWebUrl(`https://lms-qa.abisaio.com/${course.path}${hash}`);
               } else {
-                setWebUrl(`https://lms.abisaio.com/${course.path}`);
+                setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
               }
             } catch (e) {
               console.log("⚠️ Error parsing scormDataJson:", e);
-              setWebUrl(`https://lms.abisaio.com/${course.path}`);
+              setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
             }
           } else {
             console.log("📄 No previous SCORM data, starting fresh.");
-            setWebUrl(`https://lms.abisaio.com/${course.path}`);
+            setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
           }
         } else {
           console.log("🆕 No previous progress found, starting fresh.");
-          setWebUrl(`https://lms.abisaio.com/${course.path}`);
+          setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
         }
 
         setWebSavedState(savedState);
@@ -304,6 +304,8 @@ const SCORMPlayerScreen = ({ route, navigation }) => {
           title={course?.name ?? "Course"}
           showBackButton
           onBackPress={handleExit}
+          showNotification={false}
+          showSpinner={false}
         />
         {isLoading || !webUrl ? (
           <View style={styles.loader}>

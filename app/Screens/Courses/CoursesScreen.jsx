@@ -35,7 +35,7 @@ const { width } = Dimensions.get('window');
 
 // Dropdown data for filter fields
 const CATEGORY_DATA = [
- 
+
   { label: 'Functional', value: 'Functional' },
   { label: 'Behavioural', value: 'Behavioural' },
   { label: 'Technical', value: 'Technical' },
@@ -43,7 +43,7 @@ const CATEGORY_DATA = [
 ];
 
 const LEVEL_DATA = [
- 
+
   { label: 'Beginner', value: 'Beginner' },
   { label: 'Intermediate', value: 'Intermediate' },
   { label: 'Advanced', value: 'Advanced' },
@@ -147,13 +147,19 @@ const CoursesScreen = ({ navigation }) => {
     const day = `${d.getDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
+  // ✅ Date comparison helper
+  const isBefore = (date1, date2) => {
+    if (!date1 || !date2) return false;
+    return date1.setHours(0, 0, 0, 0) < date2.setHours(0, 0, 0, 0);
+  };
+
 
   // Fetch programs list and createdBy list on mount
   useEffect(() => {
     const fetchAuxLists = async () => {
       try {
         // programs
-        const pResp = await fetch('https://lms-api.abisaio.com/api/v1/Program/GetProgramList');
+        const pResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/Program/GetProgramList');
         const pJson = await pResp.json();
         if (pJson.succeeded && Array.isArray(pJson.data)) {
           setPrograms(pJson.data);
@@ -162,7 +168,7 @@ const CoursesScreen = ({ navigation }) => {
         }
 
         // createdBy list
-        const cbResp = await fetch('https://lms-api.abisaio.com/api/v1/Course/GetCourseCreatedByList');
+        const cbResp = await fetch('https://lms-api-qa.abisaio.com/api/v1/Course/GetCourseCreatedByList');
         const cbJson = await cbResp.json();
         if (cbJson.succeeded && Array.isArray(cbJson.data)) {
           setCreatedByList(cbJson.data);
@@ -216,7 +222,7 @@ const CoursesScreen = ({ navigation }) => {
       params.append('ProgramID', effectiveProgramId);
       params.append('CreatedBy', effectiveCreatedBy);
 
-      const url = `https://lms-api.abisaio.com/api/v1/Course/GetCourse?${params.toString()}`;
+      const url = `https://lms-api-qa.abisaio.com/api/v1/Course/GetCourse?${params.toString()}`;
 
       // Log every API call for debugging (filters/sort/search)
       // eslint-disable-next-line no-console
@@ -231,7 +237,7 @@ const CoursesScreen = ({ navigation }) => {
           const biggerRpp = json.count + 10;
           const biggerParams = new URLSearchParams(params.toString());
           biggerParams.set('RowsPerPage', String(biggerRpp));
-          const biggerUrl = `https://lms-api.abisaio.com/api/v1/Course/GetCourse?${biggerParams.toString()}`;
+          const biggerUrl = `https://lms-api-qa.abisaio.com/api/v1/Course/GetCourse?${biggerParams.toString()}`;
           const newResponse = await fetch(biggerUrl);
           const newJson = await newResponse.json();
           if (newJson.succeeded && Array.isArray(newJson.data)) {
@@ -258,27 +264,27 @@ const CoursesScreen = ({ navigation }) => {
 
   // Initial fetch (use the provided initial API defaults with UserID=45460)
   useEffect(() => {
-  const loadData = async () => {
-    const storedUserId = (await AsyncStorage.getItem('employeeID')) || '';
+    const loadData = async () => {
+      const storedUserId = (await AsyncStorage.getItem('employeeID')) || '';
 
-    fetchCourses({
-      status: 'All',
-      rowsPerPage: 200,
-      category: '',
-      level: '',
-      sort: '',
-      search: '',
-      fromDate: '',
-      toDate: '',
-      userId: storedUserId,
-      globalCategory: '',
-      programId: '',
-      createdBy: ''
-    });
-  };
+      fetchCourses({
+        status: 'All',
+        rowsPerPage: 200,
+        category: '',
+        level: '',
+        sort: '',
+        search: '',
+        fromDate: '',
+        toDate: '',
+        userId: storedUserId,
+        globalCategory: '',
+        programId: '',
+        createdBy: ''
+      });
+    };
 
-  loadData();
-}, []);
+    loadData();
+  }, []);
 
   // Animated entrances
   useEffect(() => {
@@ -556,8 +562,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={category}
                     onChange={(item) => setCategory(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -574,8 +580,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={level}
                     onChange={(item) => setLevel(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -592,8 +598,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={status}
                     onChange={(item) => setStatus(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -610,8 +616,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={globalCategory}
                     onChange={(item) => setGlobalCategory(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -628,8 +634,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={programId}
                     onChange={(item) => setProgramId(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -646,8 +652,8 @@ const CoursesScreen = ({ navigation }) => {
                     value={createdById}
                     onChange={(item) => setCreatedById(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
                   />
                 </View>
               </View>
@@ -668,10 +674,23 @@ const CoursesScreen = ({ navigation }) => {
                     value={fromDate || new Date()}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    // onChange={(e, date) => {
+                    //   setShowFromDatePicker(Platform.OS === 'ios');
+                    //   if (date) setFromDate(date);
+                    // }}
+
                     onChange={(e, date) => {
                       setShowFromDatePicker(Platform.OS === 'ios');
-                      if (date) setFromDate(date);
+                      if (!date) return;
+
+                      setFromDate(date);
+
+                      // ✅ If To Date is before new From Date, reset To Date
+                      if (toDate && isBefore(toDate, date)) {
+                        setToDate(null);
+                      }
                     }}
+
                   />
                 )}
               </View>
@@ -692,15 +711,28 @@ const CoursesScreen = ({ navigation }) => {
                     value={toDate || new Date()}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    // onChange={(e, date) => {
+                    //   setShowToDatePicker(Platform.OS === 'ios');
+                    //   if (date) setToDate(date);
+                    // }}
                     onChange={(e, date) => {
                       setShowToDatePicker(Platform.OS === 'ios');
-                      if (date) setToDate(date);
+                      if (!date) return;
+
+                      // ❌ Prevent selecting To Date before From Date
+                      if (fromDate && isBefore(date, fromDate)) {
+                        alert('End Date cannot be before Start Date');
+                        return;
+                      }
+
+                      setToDate(date);
                     }}
+
                   />
                 )}
               </View>
 
-             
+
 
             </View>
 
@@ -867,10 +899,11 @@ const styles = StyleSheet.create({
   filterModal: {
     width: '92%',
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    maxHeight: '90%'
+    borderRadius: 14,
+    padding: 16,
+    maxHeight: '90%',
   },
+
   sortModal: {
     width: '80%',
     backgroundColor: '#fff',
@@ -883,44 +916,57 @@ const styles = StyleSheet.create({
   filterGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingTop: 4,
   },
   filterCell: {
     width: '48%',
     marginBottom: 12
   },
-  filterLabel: { fontSize: 12, color: '#444', marginBottom: 6 },
- pickerWrap: {
-  borderWidth: 1,
-  borderColor: '#EEE',
-  borderRadius: 8,
-  position: 'relative',
-  overflow: 'visible',     // <-- IMPORTANT
-  paddingRight: 36,
-  backgroundColor: '#fff'
-},
-picker: {
-  height: 36,
-  width: '100%',
-  color: '#000'             // <-- ensures selected text is visible
-},
-pickerIcon: {
-  position: 'absolute',
-  right: 10,
-  top: 9,                   // aligns perfectly with Picker height
-  zIndex: 20,
-}
-,
-
-  dropdown: {
-    height: 36,
-    width: '100%',
+  filterLabel: {
+    fontSize: 12,
+    color: '#555',
+    marginBottom: 2,
+    fontWeight: '500',
+  },
+  pickerWrap: {
+    borderWidth: 1,
+    borderColor: '#EEE',
+    borderRadius: 8,
+    position: 'relative',
+    overflow: 'visible',     // <-- IMPORTANT
+    //paddingRight: 10,
     backgroundColor: '#fff'
   },
+  picker: {
+    height: 36,
+    width: '100%',
+    color: '#000'             // <-- ensures selected text is visible
+  },
+  pickerIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 9,                   // aligns perfectly with Picker height
+    zIndex: 20,
+  }
+  ,
+
+  dropdown: {
+    height: 40,               // same as date input
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#EEE',
+    paddingHorizontal: 8,
+  },
+
   dropdownText: {
     color: '#000',
-    fontSize: 12
+    fontSize: 13,
+    lineHeight: 12,
   },
+
 
   sortBullet: {
     width: 8,
@@ -931,19 +977,20 @@ pickerIcon: {
   },
 
   dateInput: {
-    height: 36,
+    height: 40,
     borderWidth: 1,
     borderColor: '#EEE',
     borderRadius: 8,
     justifyContent: 'center',
     paddingHorizontal: 8,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
+
 
   filterButtonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10
+    marginTop: 14
   },
   resetButton: {
     backgroundColor: '#fff',

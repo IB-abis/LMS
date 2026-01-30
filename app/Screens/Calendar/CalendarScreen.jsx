@@ -77,7 +77,7 @@ const CalendarScreen = ({ navigation }) => {
         const profileType = applicationProfile || 'Admin';
 
         const res = await fetch(
-          `https://lms-api.abisaio.com/api/v1/Calendar/GetCalendarData?UserID=${userID}&type=${trainingMode === "Monthly" ? "Admin" : "User"
+          `https://lms-api-qa.abisaio.com/api/v1/Calendar/GetCalendarData?UserID=${userID}&type=${trainingMode === "Monthly" ? "Admin" : "User"
           }`
         );
         const json = await res.json();

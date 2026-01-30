@@ -24,7 +24,7 @@ import {
 import { WebView } from "react-native-webview";
 import Header from '../../Components/Header';
 
-const API_COURSE_DETAILS = (courseId, employeeID) => `https://lms-api.abisaio.com/api/v1/ELearning/course/details/${courseId}/${employeeID}`;
+const API_COURSE_DETAILS = (courseId, employeeID) => `https://lms-api-qa.abisaio.com/api/v1/ELearning/course/details/79/5518/user`;
 const API_SAVE_PROGRESS = "https://lms-api.abisaio.com/api/v1/ELearning/course/saveprogress";
 const API_CERTIFICATE_PDF = (empId, templateId, trainingId) =>
   `https://lms-api.abisaio.com/api/v1/CertificateTemplate/generatepdf?EmployeeId=${empId}&templateId=${templateId}&TrainingSessionID=${trainingId}`;

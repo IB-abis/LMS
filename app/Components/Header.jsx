@@ -185,7 +185,7 @@ const Header = ({
     try {
       const token = await AsyncStorage.getItem("token");
 
-      const res = await fetch("https://lms-api.abisaio.com/api/v1/Dashboard/SpinWheel", {
+      const res = await fetch("https://lms-api-qa.abisaio.com/api/v1/Dashboard/SpinWheel", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -275,7 +275,7 @@ const Header = ({
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        `https://lms-api.abisaio.com/api/v1/Dashboard/SavePoints?points=${points}`,
+        `https://lms-api-qa.abisaio.com/api/v1/Dashboard/SavePoints?points=${points}`,
         {
           method: "POST",
           headers: {
