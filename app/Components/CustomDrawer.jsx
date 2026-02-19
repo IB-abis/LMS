@@ -420,7 +420,7 @@ const CustomDrawer = ({
         const loadUserName = async () => {
             try {
                 const storedName = await AsyncStorage.getItem("name");
-                const storedProfile = await AsyncStorage.getItem("applicationProfile");
+                const storedProfile = "User";
                 if (storedName) {
                     setUserName(storedName);
                     setProfile(storedProfile);

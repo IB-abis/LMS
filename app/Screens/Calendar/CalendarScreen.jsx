@@ -66,10 +66,9 @@ const CalendarScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchCalendarData = async () => {
       try {
-        const [userID, applicationProfile] = await Promise.all([
-          AsyncStorage.getItem('employeeID'),
-          AsyncStorage.getItem('applicationProfile'),
-        ]);
+      const userID = await AsyncStorage.getItem('employeeID');
+const applicationProfile = "User";
+
 
         if (!userID) return;
 
