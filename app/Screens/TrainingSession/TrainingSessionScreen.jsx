@@ -741,6 +741,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -759,6 +761,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -783,6 +787,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -801,6 +807,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -819,6 +827,8 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -1240,8 +1250,8 @@ const styles = StyleSheet.create({
   filterLabel: { fontSize: 12, color: '#444', marginBottom: 2 },
   pickerWrap: {
     borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
+    borderColor: '#979797',
+    // borderRadius:5,
     position: 'relative',
     overflow: 'visible',
     //paddingRight: 8,
@@ -1259,8 +1269,8 @@ const styles = StyleSheet.create({
   dateInput: {
     height: 40,
     borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
+    borderColor: '#979797',
+    // borderRadius: 8,
     justifyContent: 'center',
     paddingHorizontal: 8,
     backgroundColor: '#fff'
@@ -1276,7 +1286,7 @@ const styles = StyleSheet.create({
     borderColor: '#7B68EE',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -1284,7 +1294,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#7B68EE',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -1292,8 +1302,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
+    borderColor: '#979797',
+    // borderRadius: 8,
     marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1304,7 +1314,7 @@ const styles = StyleSheet.create({
   sortBullet: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    // borderRadius: 4,
     backgroundColor: '#7B68EE',
     marginRight: 12,
   },

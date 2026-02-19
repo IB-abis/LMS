@@ -123,6 +123,13 @@ const ELearningScreen = ({ navigation }) => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  // ✅ Helper to compare dates without time
+  const isBefore = (date1, date2) => {
+    if (!date1 || !date2) return false;
+    return date1.setHours(0, 0, 0, 0) < date2.setHours(0, 0, 0, 0);
+  };
+
+
   // Helper: format JS Date or ISO string to DD-MM-YYYY
   const formatToDDMMYYYY = (d) => {
     if (!d) return '-';
@@ -135,7 +142,7 @@ const ELearningScreen = ({ navigation }) => {
   };
 
   // Updated buildUrl to include FromDate, ToDate, CreatedBy and Criteria
-  const buildUrl = ({ userId,userType = 'User', page = 1, rowsPerPage = 200, tabStatus = '', search = '', fromDate = '', toDate = '', createdBy = '0', criteriaParam = '' } = {}) => {
+  const buildUrl = ({ userId, userType = 'User', page = 1, rowsPerPage = 200, tabStatus = '', search = '', fromDate = '', toDate = '', createdBy = '0', criteriaParam = '' } = {}) => {
     const params = new URLSearchParams();
     params.append('UserID', String(userId));
     params.append('UserType', userType);
@@ -335,7 +342,7 @@ const ELearningScreen = ({ navigation }) => {
       // fetch trainers for CreatedBy dropdown (if token required it will use token state)
       await fetchCreatedByList();
 
-     
+
       await fetchCoursesFromApi({ tab: initialFilter, search: initialSearch, page: 1, rowsPerPage });
     } catch (err) {
       setError(String(err));
@@ -371,10 +378,10 @@ const ELearningScreen = ({ navigation }) => {
     }
   };
   useEffect(() => {
-  if (employeeID) {
-    fetchCounts();
-  }
-}, [employeeID]);
+    if (employeeID) {
+      fetchCounts();
+    }
+  }, [employeeID]);
 
 
 
@@ -744,7 +751,7 @@ const ELearningScreen = ({ navigation }) => {
                           style={styles.filterTabGradient}
                         >
                           <Ionicons name={filter.icon} size={18} color="#fff" />
-                          <Text allowFontScaling={false}   numberOfLines={1} style={styles.filterTabTextActive}>
+                          <Text allowFontScaling={false} numberOfLines={1} style={styles.filterTabTextActive}>
                             {filter.label === 'PENDING' ? `PENDING [${pendingCount}]` :
                               filter.label === 'COMPLETED' ? `COMPLETED [${completedCount}]` :
                                 'ALL'}
@@ -754,7 +761,7 @@ const ELearningScreen = ({ navigation }) => {
                       ) : (
                         <View style={styles.filterTabInactive}>
                           <Ionicons name={filter.icon} size={18} color="#7B68EE" />
-                          <Text allowFontScaling={false}   numberOfLines={1} style={styles.filterTabText}>
+                          <Text allowFontScaling={false} numberOfLines={1} style={styles.filterTabText}>
                             {filter.label === 'PENDING' ? `PENDING [${pendingCount}]` :
                               filter.label === 'COMPLETED' ? `COMPLETED [${completedCount}]` :
                                 'ALL'}
@@ -1006,8 +1013,10 @@ const ELearningScreen = ({ navigation }) => {
                     value={criteria}
                     onChange={(item) => setCriteria(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -1024,8 +1033,11 @@ const ELearningScreen = ({ navigation }) => {
                     value={selectedCreatedBy}
                     onChange={(item) => setSelectedCreatedBy(item.value)}
                     style={styles.dropdown}
-                      selectedTextStyle={styles.dropdownText}
-                      placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
+
                   />
                 </View>
               </View>
@@ -1078,10 +1090,24 @@ const ELearningScreen = ({ navigation }) => {
           value={startDate ? new Date(startDate) : new Date()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
+          // onChange={(e, selected) => {
+          //   setShowStartPicker(Platform.OS === "ios");
+          //   if (selected) setStartDate(formatDate(selected));
+          // }}
+
           onChange={(e, selected) => {
             setShowStartPicker(Platform.OS === "ios");
-            if (selected) setStartDate(formatDate(selected));
+            if (!selected) return;
+
+            const newStart = formatDate(selected);
+            setStartDate(newStart);
+
+            // ✅ If End Date is before new Start Date → reset End Date
+            if (endDate && isBefore(new Date(endDate), new Date(newStart))) {
+              setEndDate('');
+            }
           }}
+
         />
       )}
 
@@ -1090,10 +1116,24 @@ const ELearningScreen = ({ navigation }) => {
           value={endDate ? new Date(endDate) : new Date()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
+          // onChange={(e, selected) => {
+          //   setShowEndPicker(Platform.OS === "ios");
+          //   if (selected) setEndDate(formatDate(selected));
+          // }}
+
           onChange={(e, selected) => {
             setShowEndPicker(Platform.OS === "ios");
-            if (selected) setEndDate(formatDate(selected));
+            if (!selected) return;
+
+            // ❌ Block End Date before Start Date
+            if (startDate && isBefore(new Date(selected), new Date(startDate))) {
+              alert('End Date cannot be before Start Date');
+              return;
+            }
+
+            setEndDate(formatDate(selected));
           }}
+
         />
       )}
 
@@ -1101,7 +1141,7 @@ const ELearningScreen = ({ navigation }) => {
 
 
 
-         {/* Bottom nav and drawer - unchanged */}
+      {/* Bottom nav and drawer - unchanged */}
       <BottomNavigation
         selectedTab={selectedTab}
         tabScaleAnims={tabScaleAnims}
@@ -1225,51 +1265,51 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-filterTabsContainer: {
-  flexDirection: 'row',
-  gap: 10,
-  marginBottom: 20,
-  justifyContent: 'center',  // Add this to center the buttons
-},
-filterTab: {
-  borderRadius: 12,
-  overflow: 'hidden',
-  // Remove flex: 1 if present here
-},
-filterTabGradient: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 6,
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  minHeight: 30,  // Add consistent minimum height
-},
-filterTabInactive: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 6,
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  backgroundColor: 'rgba(123, 104, 238, 0.1)',
-  borderWidth: 1,
-  borderColor: 'rgba(123, 104, 238, 0.3)',
-  borderRadius: 12,
-  minHeight: 44,  // Add consistent minimum height
-},
-filterTabTextActive: {
-  color: '#fff',
-  fontSize: 13,
-  fontWeight: '600',
-  numberOfLines: 1,  // This won't work in stylesheet, see below
-},
-filterTabText: {
-  color: '#7B68EE',
-  fontSize: 13,
-  fontWeight: '600',
-  numberOfLines: 1,  // This won't work in stylesheet, see below
-},
+  filterTabsContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+    justifyContent: 'center',  // Add this to center the buttons
+  },
+  filterTab: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    // Remove flex: 1 if present here
+  },
+  filterTabGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minHeight: 30,  // Add consistent minimum height
+  },
+  filterTabInactive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(123, 104, 238, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(38, 0, 255, 0.3)',
+    borderRadius: 12,
+    minHeight: 44,  // Add consistent minimum height
+  },
+  filterTabTextActive: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+    numberOfLines: 1,  // This won't work in stylesheet, see below
+  },
+  filterTabText: {
+    color: '#7B68EE',
+    fontSize: 13,
+    fontWeight: '600',
+    numberOfLines: 1,  // This won't work in stylesheet, see below
+  },
 
   tableContainer: {
     flex: 1,
@@ -1423,7 +1463,7 @@ filterTabText: {
   filterModal: {
     width: '92%',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    // borderRadius: 12,
     padding: 14,
     maxHeight: '90%'
   },
@@ -1451,17 +1491,26 @@ filterTabText: {
 
   pickerWrap: {
     borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
+    borderColor: '#979797',
+    // borderRadius: 8,
     position: 'relative',
     overflow: 'visible',
     //paddingRight: 36,
     backgroundColor: '#fff'
   },
   dropdown: {
-  height: 40,
-  paddingHorizontal: 8,
-  backgroundColor: '#fff',
+    height: 40,
+    paddingHorizontal: 8,
+    backgroundColor: '#fff',
+  },
+  dateInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#979797',
+    // borderRadius: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    backgroundColor: '#fff',
   },
   dropdownText: {
     fontSize: 12,
@@ -1502,7 +1551,7 @@ filterTabText: {
     borderColor: '#7B68EE',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -1510,7 +1559,7 @@ filterTabText: {
     backgroundColor: '#7B68EE',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },

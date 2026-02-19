@@ -475,7 +475,7 @@ const CoursesScreen = ({ navigation }) => {
               <View style={styles.tableHeader}>
                 <Text allowFontScaling={false} style={[styles.headerCell, styles.sNoColumn]}>SNo.</Text>
                 <Text allowFontScaling={false} style={[styles.headerCell, styles.courseNameColumn]}>Course Name</Text>
-                <Text allowFontScaling={false} style={[styles.headerCell, styles.statusColumn]}>Status</Text>
+                <Text allowFontScaling={false} style={[styles.headerCell, styles.statusColumn]}>   Status</Text>
                 <Text allowFontScaling={false} style={[styles.headerCell, styles.actionColumn]}>Action</Text>
               </View>
 
@@ -561,9 +561,12 @@ const CoursesScreen = ({ navigation }) => {
                     placeholder=""
                     value={category}
                     onChange={(item) => setCategory(item.value)}
+                    dropdownPosition='auto'
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -582,6 +585,8 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -600,6 +605,8 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -618,6 +625,8 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -636,6 +645,8 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -654,6 +665,8 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
+                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
+
                   />
                 </View>
               </View>
@@ -931,8 +944,8 @@ const styles = StyleSheet.create({
   },
   pickerWrap: {
     borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
+    borderColor: '#979797',
+    // borderRadius: 8,
     position: 'relative',
     overflow: 'visible',     // <-- IMPORTANT
     //paddingRight: 10,
@@ -950,15 +963,14 @@ const styles = StyleSheet.create({
     zIndex: 20,
   }
   ,
-
   dropdown: {
-    height: 40,               // same as date input
+    height: 40,
     width: '100%',
     backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#EEE',
-    paddingHorizontal: 8,
+  },
+  dropdownText: {
+    color: '#000',
+    fontSize: 12
   },
 
   dropdownText: {
@@ -971,7 +983,7 @@ const styles = StyleSheet.create({
   sortBullet: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    // borderRadius: 4,
     backgroundColor: '#7B68EE',
     marginRight: 12,
   },
@@ -979,8 +991,8 @@ const styles = StyleSheet.create({
   dateInput: {
     height: 40,
     borderWidth: 1,
-    borderColor: '#EEE',
-    borderRadius: 8,
+    borderColor: '#979797',
+    // borderRadius: 8,
     justifyContent: 'center',
     paddingHorizontal: 8,
     backgroundColor: '#fff',
@@ -998,7 +1010,7 @@ const styles = StyleSheet.create({
     borderColor: '#7B68EE',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -1006,7 +1018,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#7B68EE',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
   },
