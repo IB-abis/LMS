@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -30,7 +31,7 @@ const Header = ({
   showSpinner = true,
 
 }) => {
-
+const navigation = useNavigation();
 
   // Add useTourGuideController hook
   const { start, canStart } = useTourGuideController();
@@ -465,6 +466,17 @@ const Header = ({
           <Text allowFontScaling={false} style={styles.headerTitle}>{title}</Text>
         </View>
         <View style={styles.headerRight}>
+          {/* Report Icon */}
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate('Report')}
+          >
+            <Image
+              source={require('../Images/report.png')}
+              style={{ width: 24, height: 24 }}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           {showSpinner && (
             <TourGuideZone
               zone={2}

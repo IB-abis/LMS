@@ -20,6 +20,7 @@ import ELearningScreen from "../Screens/ELearning/ELearningScreen";
 import Exploremore from "../Screens/LearningHub/Exploremore";
 import LearningHubScreen from "../Screens/LearningHub/LearningHubScreen";
 import LoginScreen from "../Screens/Login/LoginScreen";
+import ReportScreen from "../Screens/Report/ReportScreen";
 import SplashScreen from "../Screens/Splash";
 import AssessmentScreen from "../Screens/TrainingSession/AssessmentScreen";
 import FeedbackScreen from "../Screens/TrainingSession/Feedback";
@@ -56,33 +57,33 @@ export default function AppNavigator() {
 
   // Check if user is logged in
   const checkLogin = async () => {
-  const token = await AsyncStorage.getItem("token");
-  const isQuizEnabled = await AsyncStorage.getItem("isQuizEnabled");
+    const token = await AsyncStorage.getItem("token");
+    const isQuizEnabled = await AsyncStorage.getItem("isQuizEnabled");
 
-  if (token && token !== "") {
-    // If quiz is enabled, force user to login screen
-    if (isQuizEnabled === "true") {
-      await AsyncStorage.removeItem("token"); // Clear token to force re-login
+    if (token && token !== "") {
+      // If quiz is enabled, force user to login screen
+      if (isQuizEnabled === "true") {
+        await AsyncStorage.removeItem("token"); // Clear token to force re-login
+        setIsLoggedIn(false);
+        setInitialRoute("Login");
+      } else {
+        setIsLoggedIn(true);
+        setInitialRoute("Dashboard");
+      }
+    } else {
       setIsLoggedIn(false);
       setInitialRoute("Login");
-    } else {
-      setIsLoggedIn(true);
-      setInitialRoute("Dashboard");
     }
-  } else {
-    setIsLoggedIn(false);
-    setInitialRoute("Login");
-  }
 
-  setIsSplashVisible(false);
-};
+    setIsSplashVisible(false);
+  };
 
   // Logout function
   const performLogout = async () => {
     await AsyncStorage.removeItem("token");
     setIsLoggedIn(false);
     setInitialRoute("Login");
-    
+
     // Clear all timers
     if (inactivityTimer.current) {
       clearTimeout(inactivityTimer.current);
@@ -117,7 +118,7 @@ export default function AppNavigator() {
   // Reset inactivity timer
   const resetInactivityTimer = () => {
     lastActivityTime.current = Date.now();
-    
+
     if (inactivityTimer.current) {
       clearTimeout(inactivityTimer.current);
     }
@@ -143,47 +144,52 @@ export default function AppNavigator() {
         }
         return false;
       },
-    })
+    }),
   ).current;
 
   // Handle AppState changes (background/foreground)
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", async (nextAppState) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
-      ) {
-        // App came to foreground
-        console.log("App came to foreground");
+    const subscription = AppState.addEventListener(
+      "change",
+      async (nextAppState) => {
+        if (
+          appState.current.match(/inactive|background/) &&
+          nextAppState === "active"
+        ) {
+          // App came to foreground
+          console.log("App came to foreground");
 
-        if (isLoggedIn && backgroundTimestamp.current) {
-          const timeInBackground = Date.now() - backgroundTimestamp.current;
-          
-          // If app was in background for more than 30 minutes, logout
-          if (timeInBackground >= INACTIVITY_TIMEOUT) {
-            console.log("App was in background for 30+ minutes - logging out");
-            await performLogout();
-          } else {
-            // Reset inactivity timer when app comes to foreground
-            resetInactivityTimer();
+          if (isLoggedIn && backgroundTimestamp.current) {
+            const timeInBackground = Date.now() - backgroundTimestamp.current;
+
+            // If app was in background for more than 30 minutes, logout
+            if (timeInBackground >= INACTIVITY_TIMEOUT) {
+              console.log(
+                "App was in background for 30+ minutes - logging out",
+              );
+              await performLogout();
+            } else {
+              // Reset inactivity timer when app comes to foreground
+              resetInactivityTimer();
+            }
+
+            backgroundTimestamp.current = null;
           }
-          
-          backgroundTimestamp.current = null;
-        }
-      } else if (
-        appState.current === "active" &&
-        nextAppState.match(/inactive|background/)
-      ) {
-        // App went to background
-        console.log("App went to background");
-        
-        if (isLoggedIn) {
-          backgroundTimestamp.current = Date.now();
-        }
-      }
+        } else if (
+          appState.current === "active" &&
+          nextAppState.match(/inactive|background/)
+        ) {
+          // App went to background
+          console.log("App went to background");
 
-      appState.current = nextAppState;
-    });
+          if (isLoggedIn) {
+            backgroundTimestamp.current = Date.now();
+          }
+        }
+
+        appState.current = nextAppState;
+      },
+    );
 
     return () => {
       subscription.remove();
@@ -214,7 +220,9 @@ export default function AppNavigator() {
 
   // Show Splash screen
   if (isSplashVisible) {
-    return <SplashScreen onFinish={handleSplashFinish} navigation={LoginScreen} />;
+    return (
+      <SplashScreen onFinish={handleSplashFinish} navigation={LoginScreen} />
+    );
   }
 
   // Wait until initialRoute is set
@@ -235,12 +243,16 @@ export default function AppNavigator() {
         <Stack.Screen name="TrainingSession" component={TrainingSession} />
         <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="ELearning" component={ELearningScreen} />
+        <Stack.Screen name="Report" component={ReportScreen} />
 
         <Stack.Screen name="Certificate" component={CertificateScreen} />
         <Stack.Screen name="UserManual" component={UserManualScreen} />
         <Stack.Screen name="Exploremore" component={Exploremore} />
         <Stack.Screen name="ActionviewScreen" component={ActionviewScreen} />
-        <Stack.Screen name="TrainingDetails" component={TrainingDetailsScreen} />
+        <Stack.Screen
+          name="TrainingDetails"
+          component={TrainingDetailsScreen}
+        />
         <Stack.Screen name="VirtualTraining" component={VirtualTraining} />
         <Stack.Screen name="Assessment" component={AssessmentScreen} />
         <Stack.Screen name="Feedback" component={FeedbackScreen} />
