@@ -472,8 +472,8 @@ const navigation = useNavigation();
             onPress={() => navigation.navigate('Report')}
           >
             <Image
-              source={require('../Images/report.png')}
-              style={{ width: 24, height: 24 }}
+              source={require('../Images/REPORT1.png')}
+              style={{ width: 70, height: 24 }}
               resizeMode="contain"
             />
           </TouchableOpacity>
@@ -785,7 +785,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
   },

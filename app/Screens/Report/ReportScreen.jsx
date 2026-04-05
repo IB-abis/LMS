@@ -137,7 +137,7 @@ const ReportScreen = ({ navigation }) => {
                                     <Text style={[styles.headerCell, { flex: 1 }]}>
                                         Name
                                     </Text>
-                                    <Text style={[styles.headerCell, { flex: 1 }]}>
+                                    <Text style={[styles.headerCell, { flex: 0 }]}>
                                         Created On
                                     </Text>
                                 </View>
@@ -148,7 +148,7 @@ const ReportScreen = ({ navigation }) => {
                                         <Text style={[styles.rowCell, { flex: 1 }]}>
                                             {item.name}
                                         </Text>
-                                        <Text style={[styles.rowCell, { flex: 1 }]}>
+                                        <Text style={[styles.rowCell, { flex: 0 }]}>
                                             {item.createdOn}
                                         </Text>
                                     </View>
@@ -170,7 +170,7 @@ const ReportScreen = ({ navigation }) => {
                                     <Text style={[styles.headerCell, { flex: 1 }]}>
                                         Title
                                     </Text>
-                                    <Text style={[styles.headerCell, { flex: 1 }]}>
+                                    <Text style={[styles.headerCell, { flex: 0 }]}>
                                         Created On
                                     </Text>
                                 </View>
@@ -181,7 +181,7 @@ const ReportScreen = ({ navigation }) => {
                                         <Text style={[styles.rowCell, { flex: 1 }]}>
                                             {item.title}
                                         </Text>
-                                        <Text style={[styles.rowCell, { flex: 1 }]}>
+                                        <Text style={[styles.rowCell, { flex: 0 }]}>
                                             {item.createdOn}
                                         </Text>
                                     </View>

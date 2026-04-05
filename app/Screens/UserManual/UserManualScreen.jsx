@@ -276,7 +276,7 @@ const UserManualScreen = ({ navigation }) => {
         overlayOpacity={overlayOpacity}
         menuItemAnims={menuItemAnims}
         onClose={toggleDrawer}
-        onMenuItemPress={(index) => handleMenuItemPress(index, navigation)}
+        handleMenuItemPress={(index) => handleMenuItemPress(index, navigation)}
         navigation={navigation}
       />
     </View>
