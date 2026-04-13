@@ -212,10 +212,10 @@ const TrainingSessionScreen = ({ navigation }) => {
 
         // ✅ Fetch all filters once and fill counts
         Promise.all([
-          fetchSessions(null, storedEmployeeID, storedToken, 1, 100),        // ALL
-          fetchSessions('Planned', storedEmployeeID, storedToken, 1, 20),    // UPCOMING
-          fetchSessions('Completed', storedEmployeeID, storedToken, 1, 20),  // COMPLETED
-          fetchSessions('incomplete', storedEmployeeID, storedToken, 1, 20), // INCOMPLETE
+          fetchSessions(null, storedEmployeeID, storedToken, 1, 100, {}, true),        // ALL (Updates List)
+          fetchSessions('Planned', storedEmployeeID, storedToken, 1, 20, {}, false),    // UPCOMING (Counts Only)
+          fetchSessions('Completed', storedEmployeeID, storedToken, 1, 20, {}, false),  // COMPLETED (Counts Only)
+          fetchSessions('incomplete', storedEmployeeID, storedToken, 1, 20, {}, false), // INCOMPLETE (Counts Only)
         ]);
 
       } catch (err) {
@@ -241,11 +241,14 @@ const TrainingSessionScreen = ({ navigation }) => {
     authToken = token,
     page = 1,
     rows = 20,
-    opts = {} // <- new overrides object
+    opts = {}, // <- new overrides object
+    updateList = true // <- controls whether to overwrite the main list state
   ) => {
     if (!userId || !authToken) return;
-    setLoading(true);
-    setError(null);
+    if (updateList) {
+      setLoading(true);
+      setError(null);
+    }
 
     try {
       // use overrides or state values
@@ -317,13 +320,15 @@ const TrainingSessionScreen = ({ navigation }) => {
         };
       });
 
-      setSessions(mapped);
-      // if a search string is active we still filter local mapping; otherwise set all
-      if (effectiveSearch && effectiveSearch.trim().length > 0) {
-        const q = effectiveSearch.toLowerCase();
-        setFilteredSessions(mapped.filter(s => s.name.toLowerCase().includes(q)));
-      } else {
-        setFilteredSessions(mapped);
+      if (updateList) {
+        setSessions(mapped);
+        // if a search string is active we still filter local mapping; otherwise set all
+        if (effectiveSearch && effectiveSearch.trim().length > 0) {
+          const q = effectiveSearch.toLowerCase();
+          setFilteredSessions(mapped.filter(s => s.name.toLowerCase().includes(q)));
+        } else {
+          setFilteredSessions(mapped);
+        }
       }
 
       // update counts if provided by API
@@ -331,12 +336,14 @@ const TrainingSessionScreen = ({ navigation }) => {
       const label = tabStatus === null ? 'ALL' : (tabStatus === 'Planned' ? 'UPCOMING' : (tabStatus === 'Completed' ? 'COMPLETED' : (tabStatus.toLowerCase() === 'incomplete' ? 'INCOMPLETE' : 'ALL')));
       setCounts(prev => ({ ...prev, [label]: c }));
 
-      setLoading(false);
+      if (updateList) setLoading(false);
     } catch (err) {
       console.warn('fetchSessions error', err);
-      setLoading(false);
-      setError('Failed to load sessions');
-      Alert.alert('Error', err.message || 'Failed to fetch training sessions');
+      if (updateList) {
+        setLoading(false);
+        setError('Failed to load sessions');
+        Alert.alert('Error', err.message || 'Failed to fetch training sessions');
+      }
     }
   };
 

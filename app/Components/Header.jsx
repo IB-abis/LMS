@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -31,7 +31,7 @@ const Header = ({
   showSpinner = true,
 
 }) => {
-const navigation = useNavigation();
+  const navigation = useNavigation();
 
   // Add useTourGuideController hook
   const { start, canStart } = useTourGuideController();
@@ -459,7 +459,7 @@ const navigation = useNavigation();
               maskOffset={6}
             >
               <TouchableOpacity ref={menuRef} onLayout={handleMenuLayout} style={styles.menuButton} onPress={onMenuPress}>
-                <Ionicons name="menu" size={30} color="#fff" />
+                <Ionicons name="menu" size={24} color="#fff" />
               </TouchableOpacity>
             </TourGuideZone>
           )}
@@ -504,8 +504,8 @@ const navigation = useNavigation();
                   <Image
                     source={require('../Images/spinner.png')}
                     style={{
-                      width: 40,
-                      height: 40,
+                      width: 30,
+                      height: 30,
                       transform: [{ translateX: 0 }, { translateY: 0 }],
                     }}
                   />
@@ -783,11 +783,13 @@ const styles = StyleSheet.create({
     height: 45,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: -14,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#fff',
+    marginLeft: -5,
   },
   headerRight: {
     flexDirection: 'row',
@@ -815,6 +817,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 10,
   },
   spinnerModalContainer: {
     flex: 1,

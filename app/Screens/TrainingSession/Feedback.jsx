@@ -6,13 +6,13 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableWithoutFeedback,
   View
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../../Components/Header';
 
 const API_SUBMIT_FEEDBACK = 'https://lms-api-qa.abisaio.com/api/v1/Feedback/Submit';
@@ -122,7 +122,13 @@ const FeedbackScreen = ({ navigation, route }) => {
     <LinearGradient colors={['#4A3B7C', '#2D1B69', '#1a1a2e']} style={{ flex: 1 }}>
       <Header title="Training Feedback" showBackButton onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView 
+        contentContainerStyle={styles.container} 
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.infoBox}>
           <Text allowFontScaling={false} style={styles.infoText}><Text allowFontScaling={false} style={styles.bold}>Course:</Text> {details.title}</Text>
           <Text allowFontScaling={false} style={styles.infoText}><Text allowFontScaling={false} style={styles.bold}>Date:</Text> {new Date(details.trainingBatches.trainingDate).toLocaleString()}</Text>
@@ -179,7 +185,7 @@ const FeedbackScreen = ({ navigation, route }) => {
           </LinearGradient>
         </TouchableWithoutFeedback>
 
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </LinearGradient>
   );
 };

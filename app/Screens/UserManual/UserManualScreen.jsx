@@ -151,12 +151,23 @@ const UserManualScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [videoSource, setVideoSource] = useState(null);
 
-  const player = useVideoPlayer(USER_MANUAL_VIDEO_URL, (p) => {
+  useEffect(() => {
+    // Defer loading the heavy video so UI stays responsive on mount
+    const timer = setTimeout(() => {
+      setVideoSource(USER_MANUAL_VIDEO_URL);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const player = useVideoPlayer(videoSource, (p) => {
     try {
-      // enable looping and start playback when created
-      p.loop = true;
-      p.play();
+      if (videoSource) {
+        // enable looping and start playback when created
+        p.loop = true;
+        p.play();
+      }
     } catch (e) {
       console.log('Error setting up video player:', e);
       setIsLoading(false);
