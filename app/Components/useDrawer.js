@@ -109,3 +109,6 @@ export const useDrawer = (currentScreenIndex = 0) => {
         handleMenuItemPress,
     };
 };
+
+// Dummy default export — required by Expo Router route scanning
+export default function UseDrawerPlaceholder() { return null; }

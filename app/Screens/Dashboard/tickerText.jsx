@@ -47,3 +47,6 @@ const stylesMarquee = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
+
+// Dummy default export — required by Expo Router route scanning
+export default function TickerTextPlaceholder() { return null; }

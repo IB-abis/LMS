@@ -113,3 +113,6 @@ useEffect(() => {
     </NotificationContext.Provider>
   );
 };
+
+// Dummy default export — required by Expo Router route scanning
+export default function NotificationContextPlaceholder() { return null; }

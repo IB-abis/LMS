@@ -7,7 +7,6 @@
     "icon": "./assets/images/LOGOO.png",
     "scheme": "myfirstapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -50,7 +49,8 @@
           }
         }
       ],
-      "expo-video"
+      "expo-video",
+      "@config-plugins/react-native-blob-util"
     ],
     "experiments": {
       "typedRoutes": false,

@@ -21,9 +21,8 @@ import Header from '../../Components/Header';
 import { useBottomNav } from '../../Components/useBottomNav';
 import { useDrawer } from '../../Components/useDrawer';
 
-// Added imports from ExploreMore logic
-import Pdf from 'react-native-pdf';
-
+// react-native-pdf requires a native build (EAS Build) — not supported in Expo Go
+// PDF rendering is handled via WebView with Google Docs viewer fallback
 const { width } = Dimensions.get('window');
 
 const MicroLearningScreen = ({ navigation }) => {
@@ -468,15 +467,16 @@ const MicroLearningScreen = ({ navigation }) => {
               />
             )}
 
-            {/* INLINE: PDF (react-native-pdf) - using Exploremore.jsx logic */}
+            {/* INLINE: PDF via Webview */}
             {fileToView?.type === 'pdf' && fileToView.uri && (
               <View style={styles.viewerBox}>
-                <Pdf
-                  source={{ uri: fileToView.uri }}
-                  trustAllCerts={false}
-                  onLoadComplete={onPdfLoadComplete}
-                  onError={onPdfError}
+                <WebView
+                  source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileToView.uri)}` }}
                   style={styles.pdfViewer}
+                  onLoadEnd={() => onPdfLoadComplete(1, fileToView.uri)}
+                  onError={onPdfError}
+                  startInLoadingState={true}
+                  scalesPageToFit={true}
                 />
               </View>
             )}

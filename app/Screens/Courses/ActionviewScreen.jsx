@@ -507,7 +507,8 @@ import {
 } from 'react-native';
 // ✅ Import universal components
 import { useNotification } from '@/app/Components/NotificationContext';
-import Pdf from 'react-native-pdf';
+// react-native-pdf requires a native build (EAS Build) — not supported in Expo Go
+// PDF rendering is handled via WebView with Google Docs viewer fallback
 import { WebView } from 'react-native-webview';
 import BottomNavigation from '../../Components/BottomNavigation';
 import Header from '../../Components/Header';
@@ -852,10 +853,11 @@ const { openNotification } = useNotification();
 
             <View style={styles.viewerWrapper}>
               {fileToView?.type === "pdf" ? (
-                <Pdf
-                  source={{ uri: fileToView.uri }}
-                  trustAllCerts={false}
+                <WebView
+                  source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileToView.uri)}` }}
                   style={styles.pdfViewer}
+                  startInLoadingState={true}
+                  scalesPageToFit={true}
                 />
               ) : (
                 <WebView
