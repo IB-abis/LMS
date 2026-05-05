@@ -1,6 +1,5 @@
-
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { useNavigation } from "@react-navigation/native";
 import CheckBox from "expo-checkbox";
@@ -16,8 +15,8 @@ import {
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 
 import {
   ActivityIndicator,
@@ -25,12 +24,12 @@ import {
   Image,
   Keyboard,
   Linking,
-  TextInput
+  TextInput,
 } from "react-native";
 
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export default function LoginScreen() {
   const navigation = useNavigation();
@@ -44,12 +43,12 @@ export default function LoginScreen() {
   // Custom Alert States
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
-    type: 'info',
-    title: '',
-    message: '',
+    type: "info",
+    title: "",
+    message: "",
     showCancel: false,
-    onConfirm: () => { },
-    onCancel: () => { }
+    onConfirm: () => {},
+    onCancel: () => {},
   });
 
   // Animation values
@@ -79,7 +78,14 @@ export default function LoginScreen() {
     loadSavedCredentials();
   }, []);
 
-  const showCustomAlert = (type, title, message, onConfirm = () => { }, showCancel = false, onCancel = () => { }) => {
+  const showCustomAlert = (
+    type,
+    title,
+    message,
+    onConfirm = () => {},
+    showCancel = false,
+    onCancel = () => {},
+  ) => {
     setAlertConfig({ type, title, message, showCancel, onConfirm, onCancel });
     setAlertVisible(true);
   };
@@ -130,7 +136,7 @@ export default function LoginScreen() {
             easing: Easing.ease,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
     } else {
       Animated.parallel([
@@ -150,46 +156,46 @@ export default function LoginScreen() {
 
   const getAlertStyle = () => {
     switch (alertConfig.type) {
-      case 'success':
+      case "success":
         return {
-          icon: 'checkmark-circle',
-          colors: ['#4CAF50', '#45a049'],
-          iconBg: '#E8F5E9',
+          icon: "checkmark-circle",
+          colors: ["#4CAF50", "#45a049"],
+          iconBg: "#E8F5E9",
         };
-      case 'error':
+      case "error":
         return {
-          icon: 'close-circle',
-          colors: ['#f44336', '#d32f2f'],
-          iconBg: '#FFEBEE',
+          icon: "close-circle",
+          colors: ["#f44336", "#d32f2f"],
+          iconBg: "#FFEBEE",
         };
-      case 'warning':
+      case "warning":
         return {
-          icon: 'warning',
-          colors: ['#ff9800', '#f57c00'],
-          iconBg: '#FFF3E0',
+          icon: "warning",
+          colors: ["#ff9800", "#f57c00"],
+          iconBg: "#FFF3E0",
         };
-      case 'confirm':
+      case "confirm":
         return {
-          icon: 'help-circle',
-          colors: ['#9B7EBD', '#280137'],
-          iconBg: '#F3E5F5',
+          icon: "help-circle",
+          colors: ["#9B7EBD", "#280137"],
+          iconBg: "#F3E5F5",
         };
       default:
         return {
-          icon: 'information-circle',
-          colors: ['#2196F3', '#1976D2'],
-          iconBg: '#E3F2FD',
+          icon: "information-circle",
+          colors: ["#2196F3", "#1976D2"],
+          iconBg: "#E3F2FD",
         };
     }
   };
 
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
       if (!state.isConnected) {
         showCustomAlert(
           "warning",
           "No Internet Connection",
-          "Please connect to Mobile Data or Wi-Fi."
+          "Please connect to Mobile Data or Wi-Fi.",
         );
       }
     });
@@ -199,14 +205,16 @@ export default function LoginScreen() {
 
   // Quiz Modal States
   const [quizVisible, setQuizVisible] = useState(false);
-  const [quizData, setQuizData] = useState({ data: [], title: "", description: "" });
+  const [quizData, setQuizData] = useState({
+    data: [],
+    title: "",
+    description: "",
+  });
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [quizToken, setQuizToken] = useState("");
   const [quizLoading, setQuizLoading] = useState(false);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
-
-
 
   const handleLogin = async () => {
     const net = await NetInfo.fetch();
@@ -214,13 +222,17 @@ export default function LoginScreen() {
       showCustomAlert(
         "warning",
         "No Internet Connection",
-        "Please connect to Mobile Data or Wi-Fi."
+        "Please connect to Mobile Data or Wi-Fi.",
       );
       return;
     }
 
     if (!username || !password) {
-      showCustomAlert('error', 'Missing Information', 'Please enter both username and password.');
+      showCustomAlert(
+        "error",
+        "Missing Information",
+        "Please enter both username and password.",
+      );
       return;
     }
 
@@ -228,16 +240,22 @@ export default function LoginScreen() {
 
     const loginUser = async (username, password, source) => {
       try {
-        const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Login/Login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password, source }),
-        });
+        const response = await fetch(
+          "https://lms-api.abisaio.com/api/v1/Login/Login",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, source }),
+          },
+        );
         const result = await response.json();
         return result;
       } catch (error) {
         console.error("Login API Error:", error);
-        return { succeeded: false, message: "Something went wrong. Please try again." };
+        return {
+          succeeded: false,
+          message: "Something went wrong. Please try again.",
+        };
       }
     };
 
@@ -265,7 +283,11 @@ export default function LoginScreen() {
             ["rememberMe", "true"],
           ]);
         } else {
-          await AsyncStorage.multiRemove(["savedUsername", "savedPassword", "rememberMe"]);
+          await AsyncStorage.multiRemove([
+            "savedUsername",
+            "savedPassword",
+            "rememberMe",
+          ]);
         }
 
         // Check if quiz is enabled
@@ -275,12 +297,20 @@ export default function LoginScreen() {
         } else {
           navigation.replace("Dashboard");
         }
-
       } catch (e) {
-        showCustomAlert('error', 'Storage Error', 'Failed to save login data. Please try again.');
+        showCustomAlert(
+          "error",
+          "Storage Error",
+          "Failed to save login data. Please try again.",
+        );
       }
     } else {
-      showCustomAlert('error', 'Login Failed', response?.message || 'Invalid credentials. Please check your username and password.');
+      showCustomAlert(
+        "error",
+        "Login Failed",
+        response?.message ||
+          "Invalid credentials. Please check your username and password.",
+      );
     }
   };
 
@@ -291,11 +321,11 @@ export default function LoginScreen() {
   const fetchQuizQuestions = async (token) => {
     setQuizLoading(true);
     try {
-      const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Quiz", {
+      const response = await fetch("https://lms-api.abisaio.com/api/v1/Quiz", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -305,16 +335,23 @@ export default function LoginScreen() {
         // Store the entire result with title and description
         setQuizData(result);
         setQuizTitle(result.title || "Quiz Alert!");
-        setQuizDescription(result.description || "Something exciting is up for grabs for first 500 learners. Ready to begin?");
+        setQuizDescription(
+          result.description ||
+            "Something exciting is up for grabs for first 500 learners. Ready to begin?",
+        );
         setCurrentQuestionIndex(-1); // Set to -1 to show intro screen
         setQuizVisible(true);
       } else {
-        showCustomAlert('error', 'Quiz Error', 'Failed to load quiz questions.');
+        showCustomAlert(
+          "error",
+          "Quiz Error",
+          "Failed to load quiz questions.",
+        );
         navigation.replace("Dashboard");
       }
     } catch (error) {
       console.error("Quiz Fetch Error:", error);
-      showCustomAlert('error', 'Quiz Error', 'Failed to load quiz questions.');
+      showCustomAlert("error", "Quiz Error", "Failed to load quiz questions.");
       navigation.replace("Dashboard");
     } finally {
       setQuizLoading(false);
@@ -323,61 +360,73 @@ export default function LoginScreen() {
 
   const handleQuizSkip = () => {
     showCustomAlert(
-      'confirm',
-      'Skip Quiz',
-      'Are you sure you want to skip the quiz? You can take it later.',
+      "confirm",
+      "Skip Quiz",
+      "Are you sure you want to skip the quiz? You can take it later.",
       async () => {
         setQuizLoading(true);
         try {
-          const response = await fetch("https://lms-api-qa.abisaio.com/api/v1/Quiz/Skip", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${quizToken}`
+          const response = await fetch(
+            "https://lms-api.abisaio.com/api/v1/Quiz/Skip",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${quizToken}`,
+              },
             },
-          });
+          );
           const result = await response.json();
 
           if (result?.succeeded) {
             setQuizVisible(false);
             navigation.replace("Dashboard");
           } else {
-            showCustomAlert('error', 'Error', 'Failed to skip quiz. Please try again.');
+            showCustomAlert(
+              "error",
+              "Error",
+              "Failed to skip quiz. Please try again.",
+            );
           }
         } catch (error) {
           console.error("Quiz Skip Error:", error);
-          showCustomAlert('error', 'Error', 'Failed to skip quiz. Please try again.');
+          showCustomAlert(
+            "error",
+            "Error",
+            "Failed to skip quiz. Please try again.",
+          );
         } finally {
           setQuizLoading(false);
         }
       },
       true,
-      () => { }
+      () => {},
     );
   };
 
   const [successData, setSuccessData] = useState({
-    title: '',
-    description: '',
-    message: ''
+    title: "",
+    description: "",
+    message: "",
   });
-
 
   const handleQuizSubmit = async () => {
     // Check if quiz data exists
     if (!quizData || !quizData.data || quizData.data.length === 0) {
-      showCustomAlert('error', 'Error', 'No quiz data available.');
+      showCustomAlert("error", "Error", "No quiz data available.");
       return;
     }
 
     // Check for unanswered questions - FIXED: Use quizData.data.filter()
-    const unansweredQuestions = quizData.data.filter(q => !selectedAnswers[q.id]);
+    const unansweredQuestions = quizData.data.filter(
+      (q) => !selectedAnswers[q.id],
+    );
 
     if (unansweredQuestions.length > 0) {
       showCustomAlert(
-        'warning',
-        'Incomplete Quiz',
-        `Please answer all questions before submitting. You have ${unansweredQuestions.length} unanswered question${unansweredQuestions.length > 1 ? 's' : ''}.`
+        "warning",
+        "Incomplete Quiz",
+        `Please answer all questions before submitting. You have ${unansweredQuestions.length} unanswered question${unansweredQuestions.length > 1 ? "s" : ""}.`,
       );
       return;
     }
@@ -385,69 +434,80 @@ export default function LoginScreen() {
     setQuizLoading(true);
     try {
       // Prepare submission data - FIXED: Use quizData.data.map()
-      const submissionData = quizData.data.map(q => ({
+      const submissionData = quizData.data.map((q) => ({
         questionId: q.id,
-        selectedOption: selectedAnswers[q.id]
+        selectedOption: selectedAnswers[q.id],
       }));
 
-      console.log('Submitting quiz data:', JSON.stringify(submissionData, null, 2));
+      console.log(
+        "Submitting quiz data:",
+        JSON.stringify(submissionData, null, 2),
+      );
 
-      const response = await fetch('https://lms-api-qa.abisaio.com/api/v1/Quiz/Submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${quizToken}`
+      const response = await fetch(
+        "https://lms-api.abisaio.com/api/v1/Quiz/Submit",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${quizToken}`,
+          },
+          body: JSON.stringify(submissionData),
         },
-        body: JSON.stringify(submissionData)
-      });
+      );
 
       const result = await response.json();
 
-      console.log('Quiz submit response:', result);
+      console.log("Quiz submit response:", result);
 
       if (result?.succeeded) {
-        await AsyncStorage.setItem('isQuizEnabled', 'false');
+        await AsyncStorage.setItem("isQuizEnabled", "false");
         setSuccessData({
-          title: result?.title || 'Success!',
-          description: result?.description || 'Your prize awaits.',
-          message: result?.message || ''
+          title: result?.title || "Success!",
+          description: result?.description || "Your prize awaits.",
+          message: result?.message || "",
         });
         setQuizSubmitted(true);
       } else {
-        showCustomAlert('error', 'Submission Failed', result?.message || 'Failed to submit quiz. Please try again.');
+        showCustomAlert(
+          "error",
+          "Submission Failed",
+          result?.message || "Failed to submit quiz. Please try again.",
+        );
       }
     } catch (error) {
-      console.error('Quiz Submit Error:', error);
-      showCustomAlert('error', 'Submission Failed', 'Failed to submit quiz. Please try again.');
+      console.error("Quiz Submit Error:", error);
+      showCustomAlert(
+        "error",
+        "Submission Failed",
+        "Failed to submit quiz. Please try again.",
+      );
     } finally {
       setQuizLoading(false);
     }
   };
 
   const getSuccessIcon = () => {
-    if (successData.title?.toLowerCase().includes('mic')) {
-      return 'mic';
+    if (successData.title?.toLowerCase().includes("mic")) {
+      return "mic";
     }
 
-    if (successData.description?.toLowerCase().includes('prize')) {
-      return 'gift';
+    if (successData.description?.toLowerCase().includes("prize")) {
+      return "gift";
     }
 
-    return 'trophy'; // default fallback
+    return "trophy"; // default fallback
   };
 
-
-
-
   const handleOptionSelect = (questionId, option) => {
-    setSelectedAnswers(prev => ({
+    setSelectedAnswers((prev) => ({
       ...prev,
-      [questionId]: option
+      [questionId]: option,
     }));
   };
 
   const getQuestionStatus = (questionId) => {
-    return selectedAnswers[questionId] ? 'answered' : 'unanswered';
+    return selectedAnswers[questionId] ? "answered" : "unanswered";
   };
 
   const handleForgotPassword = () => {
@@ -464,31 +524,44 @@ export default function LoginScreen() {
       .catch((err) => console.error("An error occurred", err));
   };
 
-
   useEffect(() => {
     const backAction = () => {
       showCustomAlert(
-        'confirm',
-        'Exit App',
-        'Are you sure you want to exit the application?',
+        "confirm",
+        "Exit App",
+        "Are you sure you want to exit the application?",
         () => BackHandler.exitApp(),
         true,
-        () => { }
+        () => {},
       );
       return true;
     };
 
-    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction,
+    );
     return () => backHandler.remove();
   }, []);
 
   const alertStyle = getAlertStyle();
   const iconRotateInterpolate = iconRotate.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ["0deg", "360deg"],
   });
 
-  const handleAlertConfirm = () => { setAlertVisible(false); setTimeout(() => { alertConfig.onConfirm(); }, 300); }; const handleAlertCancel = () => { setAlertVisible(false); setTimeout(() => { alertConfig.onCancel(); }, 300); };
+  const handleAlertConfirm = () => {
+    setAlertVisible(false);
+    setTimeout(() => {
+      alertConfig.onConfirm();
+    }, 300);
+  };
+  const handleAlertCancel = () => {
+    setAlertVisible(false);
+    setTimeout(() => {
+      alertConfig.onCancel();
+    }, 300);
+  };
 
   return (
     <>
@@ -503,14 +576,14 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <LinearGradient
-            colors={['#FFFFFF', '#230131ff']}
+            colors={["#FFFFFF", "#230131ff"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={styles.container}
           >
             <View style={styles.illustrationContainer}>
               <Image
-                source={require('../../Images/Login_images/img1.png')}
+                source={require("../../Images/Login_images/img1.png")}
                 style={styles.illustration}
                 resizeMode="cover"
               />
@@ -520,14 +593,14 @@ export default function LoginScreen() {
               <View style={styles.logoContainer}>
                 <View style={styles.imageRow}>
                   <Image
-                    source={require('../../Images/Login_images/img2.png')}
+                    source={require("../../Images/Login_images/img2.png")}
                     style={styles.img2}
                     resizeMode="contain"
                   />
                 </View>
                 <View style={[styles.imageRow, { marginTop: -50 }]}>
                   <Image
-                    source={require('../../Images/Login_images/img3.png')}
+                    source={require("../../Images/Login_images/img3.png")}
                     style={styles.img3}
                     resizeMode="contain"
                   />
@@ -535,7 +608,12 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="person-outline" size={20} color="#9B7EBD" style={styles.inputIcon} />
+                <Ionicons
+                  name="person-outline"
+                  size={20}
+                  color="#9B7EBD"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Employee ID"
@@ -546,7 +624,12 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#9B7EBD" style={styles.inputIcon} />
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#9B7EBD"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="MyIB Password"
@@ -556,8 +639,15 @@ export default function LoginScreen() {
                   onChangeText={setPassword}
                   autoCapitalize="none"
                 />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                  <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#999" />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color="#999"
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -573,15 +663,21 @@ export default function LoginScreen() {
                     color={rememberMe ? "#280137" : "#999"}
                     style={styles.checkbox}
                   />
-                  <Text allowFontScaling={false} style={styles.rememberMeText}>Remember me</Text>
+                  <Text allowFontScaling={false} style={styles.rememberMeText}>
+                    Remember me
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleForgotPassword}>
-                  <Text allowFontScaling={false} style={styles.forgotText}>Forgot password?</Text>
+                  <Text allowFontScaling={false} style={styles.forgotText}>
+                    Forgot password?
+                  </Text>
                 </TouchableOpacity>
-
               </View>
 
-              <TouchableOpacity activeOpacity={0.8} onPress={!loading ? handleLogin : null}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={!loading ? handleLogin : null}
+              >
                 <LinearGradient
                   colors={["#9B7EBD", "#280137"]}
                   start={{ x: 0, y: 0 }}
@@ -591,7 +687,12 @@ export default function LoginScreen() {
                   {loading ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text allowFontScaling={false} style={styles.loginButtonText}>Login</Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.loginButtonText}
+                    >
+                      Login
+                    </Text>
                   )}
                 </LinearGradient>
               </TouchableOpacity>
@@ -607,7 +708,9 @@ export default function LoginScreen() {
         animationType="none"
         onRequestClose={() => setAlertVisible(false)}
       >
-        <TouchableWithoutFeedback onPress={alertConfig.showCancel ? handleAlertCancel : null}>
+        <TouchableWithoutFeedback
+          onPress={alertConfig.showCancel ? handleAlertCancel : null}
+        >
           <Animated.View style={[styles.alertOverlay, { opacity: fadeAnim }]}>
             <TouchableWithoutFeedback>
               <Animated.View
@@ -616,7 +719,7 @@ export default function LoginScreen() {
                   {
                     transform: [
                       { scale: scaleAnim },
-                      { translateY: slideAnim }
+                      { translateY: slideAnim },
                     ],
                     opacity: fadeAnim,
                   },
@@ -639,7 +742,7 @@ export default function LoginScreen() {
                         backgroundColor: alertStyle.iconBg,
                         transform: [
                           { rotate: iconRotateInterpolate },
-                          { scale: iconPulse }
+                          { scale: iconPulse },
                         ],
                       },
                     ]}
@@ -662,10 +765,14 @@ export default function LoginScreen() {
                 {/* Alert Content */}
                 <View style={styles.alertContent}>
                   {alertConfig.title && (
-                    <Text allowFontScaling={false} style={styles.alertTitle}>{alertConfig.title}</Text>
+                    <Text allowFontScaling={false} style={styles.alertTitle}>
+                      {alertConfig.title}
+                    </Text>
                   )}
                   {alertConfig.message && (
-                    <Text allowFontScaling={false} style={styles.alertMessage}>{alertConfig.message}</Text>
+                    <Text allowFontScaling={false} style={styles.alertMessage}>
+                      {alertConfig.message}
+                    </Text>
                   )}
                 </View>
 
@@ -677,11 +784,19 @@ export default function LoginScreen() {
                       onPress={handleAlertCancel}
                       activeOpacity={0.8}
                     >
-                      <Text allowFontScaling={false} style={styles.alertCancelButtonText}>Cancel</Text>
+                      <Text
+                        allowFontScaling={false}
+                        style={styles.alertCancelButtonText}
+                      >
+                        Cancel
+                      </Text>
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity
-                    style={[styles.alertConfirmButtonWrapper, { flex: alertConfig.showCancel ? 1 : 1 }]}
+                    style={[
+                      styles.alertConfirmButtonWrapper,
+                      { flex: alertConfig.showCancel ? 1 : 1 },
+                    ]}
                     onPress={handleAlertConfirm}
                     activeOpacity={0.8}
                   >
@@ -691,7 +806,12 @@ export default function LoginScreen() {
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
                     >
-                      <Text allowFontScaling={false} style={styles.alertConfirmButtonText}>OK</Text>
+                      <Text
+                        allowFontScaling={false}
+                        style={styles.alertConfirmButtonText}
+                      >
+                        OK
+                      </Text>
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
@@ -706,14 +826,14 @@ export default function LoginScreen() {
         visible={quizVisible}
         animationType="fade"
         transparent={true}
-        onRequestClose={() => { }}
+        onRequestClose={() => {}}
       >
         <View style={styles.quizOverlay}>
           {quizSubmitted ? (
             // Success Screen (unchanged)
             <View style={styles.quizSuccessContainer}>
               <LinearGradient
-                colors={['#9B7EBD', '#280137']}
+                colors={["#9B7EBD", "#280137"]}
                 style={styles.quizSuccessGradient}
               >
                 {/* Close Button */}
@@ -730,20 +850,15 @@ export default function LoginScreen() {
 
                 {/* Success Icon */}
                 <View style={styles.quizSuccessIconContainer}>
-                <Ionicons name="gift" size={90} color="#FFFFFF" />
-
-
+                  <Ionicons name="gift" size={90} color="#FFFFFF" />
                 </View>
 
                 {/* Success Message */}
-                <Text style={styles.quizSuccessTitle}>
-                  {successData.title}
-                </Text>
+                <Text style={styles.quizSuccessTitle}>{successData.title}</Text>
 
                 <Text style={styles.quizSuccessMessage}>
                   {successData.description}
                 </Text>
-
 
                 {/* Go to Dashboard Button */}
                 <TouchableOpacity
@@ -755,10 +870,12 @@ export default function LoginScreen() {
                   activeOpacity={0.8}
                 >
                   <LinearGradient
-                    colors={['#FFFFFF', '#F5F5F5']}
+                    colors={["#FFFFFF", "#F5F5F5"]}
                     style={styles.quizSuccessButtonGradient}
                   >
-                    <Text style={styles.quizSuccessButtonText}>Go to Dashboard</Text>
+                    <Text style={styles.quizSuccessButtonText}>
+                      Go to Dashboard
+                    </Text>
                     <Ionicons name="arrow-forward" size={24} color="#280137" />
                   </LinearGradient>
                 </TouchableOpacity>
@@ -768,7 +885,7 @@ export default function LoginScreen() {
             // Pre-Quiz Introduction Screen
             <View style={styles.quizIntroContainer}>
               <LinearGradient
-                colors={['#9B7EBD', '#280137']}
+                colors={["#9B7EBD", "#280137"]}
                 style={styles.quizIntroGradient}
               >
                 {/* Quiz Icon */}
@@ -777,9 +894,12 @@ export default function LoginScreen() {
                 </View>
 
                 {/* Title and Description */}
-                <Text style={styles.quizIntroTitle}>{quizData.title || "Quiz Alert!"}</Text>
+                <Text style={styles.quizIntroTitle}>
+                  {quizData.title || "Quiz Alert!"}
+                </Text>
                 <Text style={styles.quizIntroDescription}>
-                  {quizData.description || "Something exciting is up for grabs for first 500 learners. Ready to begin?"}
+                  {quizData.description ||
+                    "Something exciting is up for grabs for first 500 learners. Ready to begin?"}
                 </Text>
 
                 {/* Action Buttons */}
@@ -790,11 +910,13 @@ export default function LoginScreen() {
                     activeOpacity={0.8}
                   >
                     <LinearGradient
-                      colors={['#FFFFFF', '#F5F5F5']}
+                      colors={["#FFFFFF", "#F5F5F5"]}
                       style={styles.quizIntroStartButtonGradient}
                     >
                       <Ionicons name="play" size={24} color="#280137" />
-                      <Text style={styles.quizIntroStartButtonText}>Start Quiz</Text>
+                      <Text style={styles.quizIntroStartButtonText}>
+                        Start Quiz
+                      </Text>
                     </LinearGradient>
                   </TouchableOpacity>
 
@@ -803,8 +925,14 @@ export default function LoginScreen() {
                     style={styles.quizIntroSkipButton}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="close-circle-outline" size={24} color="#FFFFFF" />
-                    <Text style={styles.quizIntroSkipButtonText}>Skip Quiz</Text>
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={24}
+                      color="#FFFFFF"
+                    />
+                    <Text style={styles.quizIntroSkipButtonText}>
+                      Skip Quiz
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </LinearGradient>
@@ -814,7 +942,7 @@ export default function LoginScreen() {
             <View style={styles.quizContainer}>
               {/* Quiz Header */}
               <LinearGradient
-                colors={['#9B7EBD', '#280137']}
+                colors={["#9B7EBD", "#280137"]}
                 style={styles.quizHeader}
               >
                 <Text style={styles.quizHeaderTitle}>Daily Quiz</Text>
@@ -835,14 +963,17 @@ export default function LoginScreen() {
                       style={[
                         styles.quizNumberBox,
                         selectedAnswers[q.id] && styles.quizNumberBoxAnswered,
-                        currentQuestionIndex === index && styles.quizNumberBoxActive,
+                        currentQuestionIndex === index &&
+                          styles.quizNumberBoxActive,
                       ]}
                     >
                       <Text
                         style={[
                           styles.quizNumberText,
-                          selectedAnswers[q.id] && styles.quizNumberTextAnswered,
-                          currentQuestionIndex === index && styles.quizNumberTextActive,
+                          selectedAnswers[q.id] &&
+                            styles.quizNumberTextAnswered,
+                          currentQuestionIndex === index &&
+                            styles.quizNumberTextActive,
                         ]}
                       >
                         {index + 1}
@@ -862,34 +993,45 @@ export default function LoginScreen() {
 
                     {/* Options - Only A, B, C */}
                     <View style={styles.quizOptionsContainer}>
-                      {['A', 'B', 'C'].map(option => (
+                      {["A", "B", "C"].map((option) => (
                         <TouchableOpacity
                           key={option}
                           onPress={() =>
-                            handleOptionSelect(quizData.data[currentQuestionIndex].id, option)
+                            handleOptionSelect(
+                              quizData.data[currentQuestionIndex].id,
+                              option,
+                            )
                           }
                           activeOpacity={0.7}
                           style={[
                             styles.quizOptionBox,
-                            selectedAnswers[quizData.data[currentQuestionIndex].id] === option &&
-                            styles.quizOptionBoxSelected,
+                            selectedAnswers[
+                              quizData.data[currentQuestionIndex].id
+                            ] === option && styles.quizOptionBoxSelected,
                           ]}
                         >
                           <View
                             style={[
                               styles.quizOptionCircle,
-                              selectedAnswers[quizData.data[currentQuestionIndex].id] === option &&
-                              styles.quizOptionCircleSelected,
+                              selectedAnswers[
+                                quizData.data[currentQuestionIndex].id
+                              ] === option && styles.quizOptionCircleSelected,
                             ]}
                           >
-                            {selectedAnswers[quizData.data[currentQuestionIndex].id] === option && (
+                            {selectedAnswers[
+                              quizData.data[currentQuestionIndex].id
+                            ] === option && (
                               <View style={styles.quizOptionCircleInner} />
                             )}
                           </View>
                           <View style={styles.quizOptionTextContainer}>
                             <Text style={styles.quizOptionLabel}>{option}</Text>
                             <Text style={styles.quizOptionText}>
-                              {quizData.data[currentQuestionIndex][`option${option}`]}
+                              {
+                                quizData.data[currentQuestionIndex][
+                                  `option${option}`
+                                ]
+                              }
                             </Text>
                           </View>
                         </TouchableOpacity>
@@ -905,12 +1047,16 @@ export default function LoginScreen() {
                 <View style={styles.quizNavigationRow}>
                   {/* Previous Button */}
                   <TouchableOpacity
-                    onPress={() => currentQuestionIndex > 0 && setCurrentQuestionIndex(prev => prev - 1)}
+                    onPress={() =>
+                      currentQuestionIndex > 0 &&
+                      setCurrentQuestionIndex((prev) => prev - 1)
+                    }
                     activeOpacity={currentQuestionIndex > 0 ? 0.8 : 1}
                     disabled={currentQuestionIndex === 0}
                     style={[
                       styles.quizNavButton,
-                      currentQuestionIndex === 0 && styles.quizNavButtonDisabled
+                      currentQuestionIndex === 0 &&
+                        styles.quizNavButtonDisabled,
                     ]}
                   >
                     <Ionicons
@@ -918,34 +1064,50 @@ export default function LoginScreen() {
                       size={18}
                       color={currentQuestionIndex === 0 ? "#CCCCCC" : "#280137"}
                     />
-                    <Text style={[
-                      styles.quizNavButtonText,
-                      currentQuestionIndex === 0 && styles.quizNavButtonTextDisabled
-                    ]}>
+                    <Text
+                      style={[
+                        styles.quizNavButtonText,
+                        currentQuestionIndex === 0 &&
+                          styles.quizNavButtonTextDisabled,
+                      ]}
+                    >
                       Previous
                     </Text>
                   </TouchableOpacity>
 
                   {/* Next Button */}
                   <TouchableOpacity
-                    onPress={() => currentQuestionIndex < quizData.data.length - 1 && setCurrentQuestionIndex(prev => prev + 1)}
-                    activeOpacity={currentQuestionIndex < quizData.data.length - 1 ? 0.8 : 1}
+                    onPress={() =>
+                      currentQuestionIndex < quizData.data.length - 1 &&
+                      setCurrentQuestionIndex((prev) => prev + 1)
+                    }
+                    activeOpacity={
+                      currentQuestionIndex < quizData.data.length - 1 ? 0.8 : 1
+                    }
                     disabled={currentQuestionIndex === quizData.data.length - 1}
                     style={[
                       styles.quizNavButton,
-                      currentQuestionIndex === quizData.data.length - 1 && styles.quizNavButtonDisabled
+                      currentQuestionIndex === quizData.data.length - 1 &&
+                        styles.quizNavButtonDisabled,
                     ]}
                   >
-                    <Text style={[
-                      styles.quizNavButtonText,
-                      currentQuestionIndex === quizData.data.length - 1 && styles.quizNavButtonTextDisabled
-                    ]}>
+                    <Text
+                      style={[
+                        styles.quizNavButtonText,
+                        currentQuestionIndex === quizData.data.length - 1 &&
+                          styles.quizNavButtonTextDisabled,
+                      ]}
+                    >
                       Next
                     </Text>
                     <Ionicons
                       name="chevron-forward"
                       size={18}
-                      color={currentQuestionIndex === quizData.data.length - 1 ? "#CCCCCC" : "#280137"}
+                      color={
+                        currentQuestionIndex === quizData.data.length - 1
+                          ? "#CCCCCC"
+                          : "#280137"
+                      }
                     />
                   </TouchableOpacity>
                 </View>
@@ -958,7 +1120,11 @@ export default function LoginScreen() {
                     activeOpacity={0.8}
                     style={styles.quizSkipButtonNew}
                   >
-                    <Ionicons name="play-skip-forward" size={18} color="#ff9800" />
+                    <Ionicons
+                      name="play-skip-forward"
+                      size={18}
+                      color="#ff9800"
+                    />
                     <Text style={styles.quizSkipButtonText}>Skip</Text>
                   </TouchableOpacity>
 
@@ -970,15 +1136,21 @@ export default function LoginScreen() {
                       style={styles.quizSubmitButtonNew}
                     >
                       <LinearGradient
-                        colors={['#9B7EBD', '#280137']}
+                        colors={["#9B7EBD", "#280137"]}
                         style={styles.quizSubmitButtonGradient}
                       >
                         {quizLoading ? (
                           <ActivityIndicator size="small" color="#FFFFFF" />
                         ) : (
                           <>
-                            <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-                            <Text style={styles.quizSubmitButtonText}>Submit</Text>
+                            <Ionicons
+                              name="checkmark-circle"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.quizSubmitButtonText}>
+                              Submit
+                            </Text>
                           </>
                         )}
                       </LinearGradient>
@@ -990,10 +1162,6 @@ export default function LoginScreen() {
           )}
         </View>
       </Modal>
-
-
-
-
     </>
   );
 }
@@ -1003,12 +1171,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   illustrationContainer: {
-    width: '100%',
-    height: '60%',
+    width: "100%",
+    height: "60%",
   },
   illustration: {
-    width: '100%',
-    height: '90%',
+    width: "100%",
+    height: "90%",
   },
   card: {
     backgroundColor: "#FFFFFF",
@@ -1104,16 +1272,16 @@ const styles = StyleSheet.create({
   // Custom Alert Styles
   alertOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   alertContainer: {
     width: width * 0.85,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#000',
+    overflow: "hidden",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 15,
@@ -1124,10 +1292,10 @@ const styles = StyleSheet.create({
   },
   alertTopBar: {
     height: 5,
-    width: '100%',
+    width: "100%",
   },
   alertIconSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 25,
     marginBottom: 20,
   },
@@ -1135,9 +1303,9 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 5,
@@ -1150,46 +1318,46 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   alertContent: {
     paddingHorizontal: 25,
     paddingBottom: 25,
-    alignItems: 'center',
+    alignItems: "center",
   },
   alertTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: "#333",
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   alertMessage: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     lineHeight: 24,
   },
   alertButtonContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 20,
     paddingBottom: 20,
     gap: 12,
   },
   alertCancelButton: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     borderRadius: 25,
     paddingVertical: 14,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
+    borderColor: "#E0E0E0",
+    alignItems: "center",
   },
   alertCancelButtonText: {
-    color: '#666',
+    color: "#666",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   alertConfirmButtonWrapper: {
     flex: 1,
@@ -1197,27 +1365,27 @@ const styles = StyleSheet.create({
   alertConfirmButton: {
     borderRadius: 25,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
   },
   alertConfirmButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   // Quiz Modal Styles
   // Quiz Modal Styles
   quizOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   quizContainer: {
     width: width * 0.95,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#000',
+    overflow: "hidden",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 15,
@@ -1231,8 +1399,8 @@ const styles = StyleSheet.create({
   quizIntroContainer: {
     width: width * 0.9,
     borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#000',
+    overflow: "hidden",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 15,
@@ -1244,87 +1412,87 @@ const styles = StyleSheet.create({
   quizIntroGradient: {
     paddingVertical: 40,
     paddingHorizontal: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   quizIntroIconContainer: {
     marginBottom: 25,
   },
   quizIntroTitle: {
     fontSize: 26,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: "700",
+    color: "#FFFFFF",
     marginBottom: 15,
-    textAlign: 'center',
+    textAlign: "center",
   },
   quizIntroDescription: {
     fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
+    color: "#FFFFFF",
+    textAlign: "center",
     opacity: 0.95,
     marginBottom: 35,
     lineHeight: 24,
     paddingHorizontal: 10,
   },
   quizIntroButtonsContainer: {
-    width: '100%',
+    width: "100%",
     gap: 15,
   },
   quizIntroStartButton: {
-    width: '100%',
+    width: "100%",
     borderRadius: 25,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   quizIntroStartButtonGradient: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 16,
     paddingHorizontal: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
   },
   quizIntroStartButtonText: {
     fontSize: 18,
-    color: '#280137',
-    fontWeight: '700',
+    color: "#280137",
+    fontWeight: "700",
   },
   quizIntroSkipButton: {
-    flexDirection: 'row',
-    width: '100%',
+    flexDirection: "row",
+    width: "100%",
     paddingVertical: 16,
     paddingHorizontal: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
     borderRadius: 25,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: "#FFFFFF",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
   quizIntroSkipButtonText: {
     fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: "#FFFFFF",
+    fontWeight: "600",
   },
 
   quizHeader: {
     paddingVertical: 20,
     paddingHorizontal: 25,
-    alignItems: 'center',
-    position: 'relative',
+    alignItems: "center",
+    position: "relative",
   },
   quizCloseButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 15,
     right: 15,
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 10,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -1334,120 +1502,120 @@ const styles = StyleSheet.create({
   },
   quizHeaderTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: "700",
+    color: "#FFFFFF",
     marginBottom: 5,
   },
   quizHeaderSubtitle: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     opacity: 0.9,
   },
   quizNumbersContainer: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: "#F0F0F0",
   },
   quizNumbersLabel: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 10,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   quizNumbersGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
   },
   quizNumberBox: {
     width: 45,
     height: 45,
     borderRadius: 10,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     borderWidth: 2,
-    borderColor: '#E0E0E0',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: "#E0E0E0",
+    justifyContent: "center",
+    alignItems: "center",
   },
   quizNumberBoxAnswered: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    backgroundColor: "#E8F5E9",
+    borderColor: "#4CAF50",
   },
   quizNumberBoxActive: {
-    backgroundColor: '#280137',
-    borderColor: '#9B7EBD',
+    backgroundColor: "#280137",
+    borderColor: "#9B7EBD",
   },
   quizNumberText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
+    fontWeight: "600",
+    color: "#666",
   },
   quizNumberTextAnswered: {
-    color: '#4CAF50',
+    color: "#4CAF50",
   },
   quizNumberTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   quizContentContainer: {
     padding: 20,
   },
   quizQuestionText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     lineHeight: 24,
     marginBottom: 20,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   quizOptionsContainer: {
     gap: 12,
   },
   quizOptionBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderRadius: 15,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: "#FAFAFA",
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
   },
   quizOptionBoxSelected: {
-    backgroundColor: '#F3E5F5',
-    borderColor: '#9B7EBD',
+    backgroundColor: "#F3E5F5",
+    borderColor: "#9B7EBD",
   },
   quizOptionCircle: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#999',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: "#999",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   quizOptionCircleSelected: {
-    borderColor: '#280137',
+    borderColor: "#280137",
   },
   quizOptionCircleInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#280137',
+    backgroundColor: "#280137",
   },
   quizOptionTextContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   quizOptionLabel: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#280137',
+    fontWeight: "700",
+    color: "#280137",
     marginRight: 8,
   },
   quizOptionText: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     lineHeight: 20,
   },
 
@@ -1455,80 +1623,80 @@ const styles = StyleSheet.create({
   quizFooter: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: "#F0F0F0",
     gap: 12,
   },
   quizNavigationRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: 10,
   },
   quizNavButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderRadius: 25,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
     gap: 5,
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   quizNavButtonText: {
     fontSize: 14,
-    color: '#280137',
-    fontWeight: '600',
+    color: "#280137",
+    fontWeight: "600",
   },
   quizActionRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
   },
   quizSkipButtonNew: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 14,
     paddingHorizontal: 18,
     borderRadius: 25,
-    backgroundColor: '#FFF3E0',
+    backgroundColor: "#FFF3E0",
     borderWidth: 2,
-    borderColor: '#ff9800',
+    borderColor: "#ff9800",
     gap: 5,
   },
   quizSkipButtonText: {
     fontSize: 14,
-    color: '#ff9800',
-    fontWeight: '600',
+    color: "#ff9800",
+    fontWeight: "600",
   },
   quizSubmitButtonNew: {
     flex: 2,
     borderRadius: 25,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   quizSubmitButtonGradient: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 14,
     paddingHorizontal: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
   },
   quizSubmitButtonText: {
     fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: "#FFFFFF",
+    fontWeight: "600",
   },
 
   // Quiz Success Screen
   quizSuccessContainer: {
     width: width * 0.85,
     borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#000',
+    overflow: "hidden",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 15,
@@ -1540,53 +1708,50 @@ const styles = StyleSheet.create({
   quizSuccessGradient: {
     paddingVertical: 50,
     paddingHorizontal: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   quizSuccessIconContainer: {
     marginBottom: 25,
   },
   quizSuccessTitle: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: "700",
+    color: "#FFFFFF",
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   quizSuccessMessage: {
     fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
+    color: "#FFFFFF",
+    textAlign: "center",
     opacity: 0.9,
     marginBottom: 30,
     lineHeight: 24,
   },
   quizSuccessButton: {
-    width: '100%',
+    width: "100%",
     borderRadius: 25,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   quizSuccessButtonGradient: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 16,
     paddingHorizontal: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
   },
   quizSuccessButtonText: {
     fontSize: 18,
-    color: '#280137',
-    fontWeight: '700',
+    color: "#280137",
+    fontWeight: "700",
   },
   quizNavButtonDisabled: {
-    backgroundColor: '#F5F5F5',
-    borderColor: '#E0E0E0',
+    backgroundColor: "#F5F5F5",
+    borderColor: "#E0E0E0",
     opacity: 0.5,
   },
   quizNavButtonTextDisabled: {
-    color: '#CCCCCC',
+    color: "#CCCCCC",
   },
-
-
 });
-

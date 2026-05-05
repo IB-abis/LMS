@@ -1,10 +1,8 @@
-
-
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useRef, useState } from 'react';
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   BackHandler,
@@ -15,17 +13,17 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 // ✅ Import universal components
-import { useNotification } from '@/app/Components/NotificationContext';
-import BottomNavigation from '../../Components/BottomNavigation';
-import CustomDrawer from '../../Components/CustomDrawer';
-import Header from '../../Components/Header';
-import { useBottomNav } from '../../Components/useBottomNav';
-import { useDrawer } from '../../Components/useDrawer';
+import { useNotification } from "@/app/Components/NotificationContext";
+import BottomNavigation from "../../Components/BottomNavigation";
+import CustomDrawer from "../../Components/CustomDrawer";
+import Header from "../../Components/Header";
+import { useBottomNav } from "../../Components/useBottomNav";
+import { useDrawer } from "../../Components/useDrawer";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const CertificateScreen = ({ navigation }) => {
   const { openNotification } = useNotification();
@@ -33,20 +31,20 @@ const CertificateScreen = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        navigation.navigate('Dashboard');
+        navigation.navigate("Dashboard");
         return true;
       };
 
       const subscription = BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress
+        "hardwareBackPress",
+        onBackPress,
       );
 
       return () => subscription.remove();
-    }, [navigation])
+    }, [navigation]),
   );
 
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [filteredCertificates, setFilteredCertificates] = useState([]);
 
   // ✅ Use the drawer hook - Certificates is at index 6
@@ -61,18 +59,16 @@ const CertificateScreen = ({ navigation }) => {
   } = useDrawer(6);
 
   // ✅ Use the bottom nav hook
-  const {
-    selectedTab,
-    tabScaleAnims,
-    rotateAnims,
-    handleTabPress
-  } = useBottomNav('Dashboard');
+  const { selectedTab, tabScaleAnims, rotateAnims, handleTabPress } =
+    useBottomNav("Dashboard");
 
   // Animation values for PAGE CONTENT only
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const searchBarAnim = useRef(new Animated.Value(0)).current;
-  const cardAnims = useRef([...Array(6)].map(() => new Animated.Value(0))).current;
+  const cardAnims = useRef(
+    [...Array(6)].map(() => new Animated.Value(0)),
+  ).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Certificates data (from API)
@@ -80,10 +76,10 @@ const CertificateScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
 
   // Fetch Certificates from API
-  const fetchCertificates = async (search = '') => {
+  const fetchCertificates = async (search = "") => {
     try {
       setLoading(true);
-      const employeeID = await AsyncStorage.getItem('employeeID');
+      const employeeID = await AsyncStorage.getItem("employeeID");
 
       if (!employeeID) {
         console.warn("Employee ID missing in AsyncStorage");
@@ -92,7 +88,7 @@ const CertificateScreen = ({ navigation }) => {
         return;
       }
 
-      const apiUrl = `https://lms-api-qa.abisaio.com/api/v1/CertificateTemplate/GetEmployeeCertificates?UserID=${employeeID}&Page=1&CertificateDate=&ExpiryDate=&Search=${encodeURIComponent(search)}&RowsPerPage=20&Sort=`;
+      const apiUrl = `https://lms-api.abisaio.com/api/v1/CertificateTemplate/GetEmployeeCertificates?UserID=${employeeID}&Page=1&CertificateDate=&ExpiryDate=&Search=${encodeURIComponent(search)}&RowsPerPage=20&Sort=`;
 
       const response = await fetch(apiUrl);
       const json = await response.json();
@@ -100,16 +96,16 @@ const CertificateScreen = ({ navigation }) => {
       if (json?.succeeded && Array.isArray(json.data) && json.data.length > 0) {
         const formatted = json.data.map((item, index) => ({
           id: item.certificateID?.toString() || String(index),
-          courseName: item.courseName || '-',
-          courseType: item.courseType || '-',
-          certificateDate: item.certificateDate || '-',
+          courseName: item.courseName || "-",
+          courseType: item.courseType || "-",
+          certificateDate: item.certificateDate || "-",
           certificateCode: item.trainingSessionID
             ? `TS-${item.trainingSessionID}`
             : item.eLearningCourseID
               ? `EL-${item.eLearningCourseID}`
-              : '-',
-          expiryDate: item.expiryDate || '-',
-          template: ['blue', 'gold', 'elegant'][index % 3],
+              : "-",
+          expiryDate: item.expiryDate || "-",
+          template: ["blue", "gold", "elegant"][index % 3],
         }));
 
         setCertificates(formatted);
@@ -119,7 +115,7 @@ const CertificateScreen = ({ navigation }) => {
         setFilteredCertificates([]);
       }
     } catch (error) {
-      console.error('Certificate API error:', error);
+      console.error("Certificate API error:", error);
       setCertificates([]);
       setFilteredCertificates([]);
     } finally {
@@ -158,14 +154,17 @@ const CertificateScreen = ({ navigation }) => {
 
     // Staggered card animations
     cardAnims.forEach((anim, index) => {
-      setTimeout(() => {
-        Animated.spring(anim, {
-          toValue: 1,
-          tension: 40,
-          friction: 7,
-          useNativeDriver: true,
-        }).start();
-      }, 500 + index * 100);
+      setTimeout(
+        () => {
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 40,
+            friction: 7,
+            useNativeDriver: true,
+          }).start();
+        },
+        500 + index * 100,
+      );
     });
 
     // Pulse animation
@@ -181,7 +180,7 @@ const CertificateScreen = ({ navigation }) => {
           duration: 2000,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -211,29 +210,29 @@ const CertificateScreen = ({ navigation }) => {
   // Get certificate template colors
   const getTemplateColors = (template) => {
     switch (template) {
-      case 'blue':
+      case "blue":
         return {
-          border: '#1E3A8A',
-          gradient: ['#3B82F6', '#1E40AF'],
-          accent: '#60A5FA',
+          border: "#1E3A8A",
+          gradient: ["#3B82F6", "#1E40AF"],
+          accent: "#60A5FA",
         };
-      case 'gold':
+      case "gold":
         return {
-          border: '#B45309',
-          gradient: ['#F59E0B', '#D97706'],
-          accent: '#FCD34D',
+          border: "#B45309",
+          gradient: ["#F59E0B", "#D97706"],
+          accent: "#FCD34D",
         };
-      case 'elegant':
+      case "elegant":
         return {
-          border: '#7B68EE',
-          gradient: ['#7B68EE', '#9D7FEA'],
-          accent: '#A78BFA',
+          border: "#7B68EE",
+          gradient: ["#7B68EE", "#9D7FEA"],
+          accent: "#A78BFA",
         };
       default:
         return {
-          border: '#7B68EE',
-          gradient: ['#7B68EE', '#9D7FEA'],
-          accent: '#A78BFA',
+          border: "#7B68EE",
+          gradient: ["#7B68EE", "#9D7FEA"],
+          accent: "#A78BFA",
         };
     }
   };
@@ -244,7 +243,11 @@ const CertificateScreen = ({ navigation }) => {
 
       <View style={styles.mainContent}>
         {/* ✅ Universal Header Component */}
-        <Header title="Certificates" onMenuPress={toggleDrawer} onNotificationPress={openNotification} />
+        <Header
+          title="Certificates"
+          onMenuPress={toggleDrawer}
+          onNotificationPress={openNotification}
+        />
 
         {/* Search Bar */}
         <Animated.View
@@ -252,17 +255,24 @@ const CertificateScreen = ({ navigation }) => {
             styles.searchContainer,
             {
               opacity: searchBarAnim,
-              transform: [{
-                translateY: searchBarAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [20, 0],
-                })
-              }]
-            }
+              transform: [
+                {
+                  translateY: searchBarAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
+              ],
+            },
           ]}
         >
           <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color="#8B7AA3" style={styles.searchIcon} />
+            <Ionicons
+              name="search"
+              size={20}
+              color="#8B7AA3"
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="Search here.."
@@ -273,7 +283,7 @@ const CertificateScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity style={styles.filterButton}>
             <LinearGradient
-              colors={['#7B68EE', '#9D7FEA']}
+              colors={["#7B68EE", "#9D7FEA"]}
               style={styles.filterGradient}
             >
               <Ionicons name="options" size={20} color="#fff" />
@@ -290,7 +300,9 @@ const CertificateScreen = ({ navigation }) => {
             {loading ? (
               <View style={styles.emptyState}>
                 <FontAwesome5 name="spinner" size={40} color="#7B68EE" />
-                <Text allowFontScaling={false} style={styles.emptyText}>Loading certificates...</Text>
+                <Text allowFontScaling={false} style={styles.emptyText}>
+                  Loading certificates...
+                </Text>
               </View>
             ) : (
               <>
@@ -324,26 +336,71 @@ const CertificateScreen = ({ navigation }) => {
                       ]}
                     >
                       <View style={styles.certificateDetailsBox}>
-                        <Text allowFontScaling={false} style={styles.certificateTitle}>{cert.courseName}</Text>
+                        <Text
+                          allowFontScaling={false}
+                          style={styles.certificateTitle}
+                        >
+                          {cert.courseName}
+                        </Text>
 
                         <View style={styles.detailRow}>
-                          <Text allowFontScaling={false} style={styles.detailLabel}>Course Type:</Text>
-                          <Text allowFontScaling={false} style={styles.detailValue}>{cert.courseType}</Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailLabel}
+                          >
+                            Course Type:
+                          </Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailValue}
+                          >
+                            {cert.courseType}
+                          </Text>
                         </View>
 
                         <View style={styles.detailRow}>
-                          <Text allowFontScaling={false} style={styles.detailLabel}>Certificate Date:</Text>
-                          <Text allowFontScaling={false} style={styles.detailValue}>{cert.certificateDate}</Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailLabel}
+                          >
+                            Certificate Date:
+                          </Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailValue}
+                          >
+                            {cert.certificateDate}
+                          </Text>
                         </View>
 
                         <View style={styles.detailRow}>
-                          <Text allowFontScaling={false} style={styles.detailLabel}>Certificate Code:</Text>
-                          <Text allowFontScaling={false} style={styles.detailValue}>{cert.certificateCode}</Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailLabel}
+                          >
+                            Certificate Code:
+                          </Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailValue}
+                          >
+                            {cert.certificateCode}
+                          </Text>
                         </View>
 
                         <View style={styles.detailRow}>
-                          <Text allowFontScaling={false} style={styles.detailLabel}>Expiry Date:</Text>
-                          <Text allowFontScaling={false} style={styles.detailValue}>{cert.expiryDate}</Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailLabel}
+                          >
+                            Expiry Date:
+                          </Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.detailValue}
+                          >
+                            {cert.expiryDate}
+                          </Text>
                         </View>
 
                         <View style={styles.actionButtons}>
@@ -357,12 +414,19 @@ const CertificateScreen = ({ navigation }) => {
                             </LinearGradient>
                           </TouchableOpacity>*/}
 
-                          <TouchableOpacity style={[styles.actionButton, { marginLeft: 10 }]}>
+                          <TouchableOpacity
+                            style={[styles.actionButton, { marginLeft: 10 }]}
+                          >
                             <LinearGradient
                               colors={colors.gradient}
                               style={styles.viewButton}
                             >
-                              <Text allowFontScaling={false} style={styles.viewText}>View</Text>
+                              <Text
+                                allowFontScaling={false}
+                                style={styles.viewText}
+                              >
+                                View
+                              </Text>
                             </LinearGradient>
                           </TouchableOpacity>
                         </View>
@@ -373,8 +437,14 @@ const CertificateScreen = ({ navigation }) => {
 
                 {filteredCertificates.length === 0 && (
                   <View style={styles.emptyState}>
-                    <FontAwesome5 name="certificate" size={48} color="#8B7AA3" />
-                    <Text allowFontScaling={false} style={styles.emptyText}>No certificates found</Text>
+                    <FontAwesome5
+                      name="certificate"
+                      size={48}
+                      color="#8B7AA3"
+                    />
+                    <Text allowFontScaling={false} style={styles.emptyText}>
+                      No certificates found
+                    </Text>
                   </View>
                 )}
               </>
@@ -415,31 +485,31 @@ const styles = StyleSheet.create({
   },
   certificateTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1a1a2e',
+    fontWeight: "bold",
+    color: "#1a1a2e",
     marginBottom: 12,
   },
   container: {
     flex: 1,
-    backgroundColor: '#f4f7fe',
+    backgroundColor: "#f4f7fe",
   },
   mainContent: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: "#1a1a2e",
   },
   searchContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 20,
     paddingBottom: 20,
     gap: 12,
-    alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    alignItems: "center",
+    backgroundColor: "#1a1a2e",
   },
   searchBar: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2c2c54',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2c2c54",
     borderRadius: 25,
     paddingHorizontal: 20,
     height: 50,
@@ -450,24 +520,24 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
   },
   filterButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 4,
   },
   filterGradient: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   scrollContent: {
     flex: 1,
-    backgroundColor: '#f4f7fe',
+    backgroundColor: "#f4f7fe",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     paddingTop: 20,
@@ -476,79 +546,79 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   certificateCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 20,
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
   },
   detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   detailLabel: {
     fontSize: 14,
-    color: '#8B7AA3',
-    fontWeight: '500',
+    color: "#8B7AA3",
+    fontWeight: "500",
   },
   detailValue: {
     fontSize: 14,
-    color: '#2D2D2D',
-    fontWeight: '600',
+    color: "#2D2D2D",
+    fontWeight: "600",
     flex: 1,
-    textAlign: 'right',
+    textAlign: "right",
   },
   actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 15,
   },
   actionButton: {
     flex: 1,
   },
   downloadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 12,
     borderRadius: 25,
     marginRight: 10,
     elevation: 3,
   },
   downloadText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 8,
   },
   viewButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 12,
     borderRadius: 25,
     marginLeft: 10,
     elevation: 3,
   },
   viewText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 50,
   },
   emptyText: {
     marginTop: 15,
     fontSize: 18,
-    color: '#8B7AA3',
+    color: "#8B7AA3",
   },
 });
 

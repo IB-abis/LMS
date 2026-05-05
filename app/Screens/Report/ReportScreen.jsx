@@ -1,5 +1,5 @@
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Animated,
@@ -9,271 +9,251 @@ import {
     StatusBar,
     StyleSheet,
     Text,
-    View
-} from 'react-native';
+    View,
+} from "react-native";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { useNotification } from '@/app/Components/NotificationContext';
-import BottomNavigation from '../../Components/BottomNavigation';
-import CustomDrawer from '../../Components/CustomDrawer';
-import Header from '../../Components/Header';
-import { useDrawer } from '../../Components/useDrawer';
+import { useNotification } from "@/app/Components/NotificationContext";
+import BottomNavigation from "../../Components/BottomNavigation";
+import CustomDrawer from "../../Components/CustomDrawer";
+import Header from "../../Components/Header";
+import { useDrawer } from "../../Components/useDrawer";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const ReportScreen = ({ navigation }) => {
+  const { openNotification } = useNotification();
 
-    const { openNotification } = useNotification();
+  const [selectedTab, setSelectedTab] = useState("Dashboard");
+  const [courses, setCourses] = useState([]);
+  const [trainingSessions, setTrainingSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const [selectedTab, setSelectedTab] = useState('Dashboard');
-    const [courses, setCourses] = useState([]);
-    const [trainingSessions, setTrainingSessions] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const tabScaleAnims = useRef(
+    [...Array(3)].map(() => new Animated.Value(1)),
+  ).current;
+  const rotateAnims = useRef(
+    [...Array(3)].map(() => new Animated.Value(0)),
+  ).current;
 
-    const tabScaleAnims = useRef([...Array(3)].map(() => new Animated.Value(1))).current;
-    const rotateAnims = useRef([...Array(3)].map(() => new Animated.Value(0))).current;
+  // Back handler
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate("Dashboard");
+        return true;
+      };
 
-    // Back handler
-    useFocusEffect(
-        React.useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('Dashboard');
-                return true;
-            };
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
 
-            const subscription = BackHandler.addEventListener(
-                'hardwareBackPress',
-                onBackPress
-            );
+      return () => subscription.remove();
+    }, [navigation]),
+  );
 
-            return () => subscription.remove();
-        }, [navigation])
-    );
+  // Drawer
+  const {
+    drawerVisible,
+    selectedMenuItem,
+    drawerSlideAnim,
+    overlayOpacity,
+    menuItemAnims,
+    toggleDrawer,
+    handleMenuItemPress,
+  } = useDrawer(5);
 
-    // Drawer
-    const {
-        drawerVisible,
-        selectedMenuItem,
-        drawerSlideAnim,
-        overlayOpacity,
-        menuItemAnims,
-        toggleDrawer,
-        handleMenuItemPress,
-    } = useDrawer(5);
+  // Fetch Report API
+  const fetchReports = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    // Fetch Report API
-    const fetchReports = async () => {
-        try {
+      const response = await fetch(
+        "https://lms-api.abisaio.com/api/v1/Reports/GetLatest",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
-            const token = await AsyncStorage.getItem("token");
+      const data = await response.json();
 
-            const response = await fetch(
-                "https://lms-api-qa.abisaio.com/api/v1/Reports/GetLatest",
-                {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                }
-            );
+      setCourses(data?.courses || []);
+      setTrainingSessions(data?.trainingSessions || []);
+    } catch (error) {
+      console.log("Report API Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            const data = await response.json();
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
-            setCourses(data?.courses || []);
-            setTrainingSessions(data?.trainingSessions || []);
+  const handleTabPress = (index, tabName) => {
+    setSelectedTab(tabName);
 
-        } catch (error) {
-            console.log("Report API Error:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    if (index === 1) {
+      navigation.navigate("Dashboard");
+    } else if (index === 2) {
+      navigation.navigate("Calendar");
+    } else if (index === 0) {
+      navigation.navigate("TrainingSession");
+    }
+  };
 
-    useEffect(() => {
-        fetchReports();
-    }, []);
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
 
+      <View style={styles.mainContent}>
+        <Header
+          title="Report"
+          onMenuPress={toggleDrawer}
+          onNotificationPress={openNotification}
+        />
 
-    const handleTabPress = (index, tabName) => {
-        setSelectedTab(tabName);
+        {/* Scrollable Content */}
+        <ScrollView style={styles.scrollContainer}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#7B68EE" />
+          ) : (
+            <>
+              {/* Courses Table */}
+              <Text style={styles.sectionTitle}>Courses</Text>
 
-        if (index === 1) {
-            navigation.navigate('Dashboard');
-        } else if (index === 2) {
-            navigation.navigate('Calendar');
-        } else if (index === 0) {
-            navigation.navigate('TrainingSession');
-        }
-    };
+              <View style={styles.tableContainer}>
+                {/* Header */}
+                <View style={styles.tableHeader}>
+                  <Text style={[styles.headerCell, { flex: 1 }]}>Name</Text>
+                  <Text style={[styles.headerCell, { flex: 0 }]}>
+                    Created On
+                  </Text>
+                </View>
 
-    return (
-        <View style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
+                {/* Rows */}
+                {courses.map((item, index) => (
+                  <View key={index} style={styles.tableRow}>
+                    <Text style={[styles.rowCell, { flex: 1 }]}>
+                      {item.name}
+                    </Text>
+                    <Text style={[styles.rowCell, { flex: 0 }]}>
+                      {item.createdOn}
+                    </Text>
+                  </View>
+                ))}
+              </View>
 
-            <View style={styles.mainContent}>
+              {/* Training Sessions Table */}
 
-                <Header
-                    title="Report"
-                    onMenuPress={toggleDrawer}
-                    onNotificationPress={openNotification}
-                />
+              <Text style={styles.sectionTitle}>Training Sessions</Text>
 
-                {/* Scrollable Content */}
-                <ScrollView style={styles.scrollContainer}>
+              <View style={styles.tableContainer}>
+                {/* Header */}
+                <View style={styles.tableHeader}>
+                  <Text style={[styles.headerCell, { flex: 1 }]}>Title</Text>
+                  <Text style={[styles.headerCell, { flex: 0 }]}>
+                    Created On
+                  </Text>
+                </View>
 
-                    {loading ? (
-                        <ActivityIndicator size="large" color="#7B68EE" />
-                    ) : (
-                        <>
-                            {/* Courses Table */}
-                            <Text style={styles.sectionTitle}>Courses</Text>
+                {/* Rows */}
+                {trainingSessions.map((item, index) => (
+                  <View key={index} style={styles.tableRow}>
+                    <Text style={[styles.rowCell, { flex: 1 }]}>
+                      {item.title}
+                    </Text>
+                    <Text style={[styles.rowCell, { flex: 0 }]}>
+                      {item.createdOn}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </View>
+      <BottomNavigation
+        selectedTab={selectedTab}
+        tabScaleAnims={tabScaleAnims}
+        rotateAnims={rotateAnims}
+        handleTabPress={handleTabPress}
+        navigation={navigation}
+      />
 
-                            <View style={styles.tableContainer}>
-
-                                {/* Header */}
-                                <View style={styles.tableHeader}>
-                                    <Text style={[styles.headerCell, { flex: 1 }]}>
-                                        Name
-                                    </Text>
-                                    <Text style={[styles.headerCell, { flex: 0 }]}>
-                                        Created On
-                                    </Text>
-                                </View>
-
-                                {/* Rows */}
-                                {courses.map((item, index) => (
-                                    <View key={index} style={styles.tableRow}>
-                                        <Text style={[styles.rowCell, { flex: 1 }]}>
-                                            {item.name}
-                                        </Text>
-                                        <Text style={[styles.rowCell, { flex: 0 }]}>
-                                            {item.createdOn}
-                                        </Text>
-                                    </View>
-                                ))}
-
-                            </View>
-
-
-                            {/* Training Sessions Table */}
-
-                            <Text style={styles.sectionTitle}>
-                                Training Sessions
-                            </Text>
-
-                            <View style={styles.tableContainer}>
-
-                                {/* Header */}
-                                <View style={styles.tableHeader}>
-                                    <Text style={[styles.headerCell, { flex: 1 }]}>
-                                        Title
-                                    </Text>
-                                    <Text style={[styles.headerCell, { flex: 0 }]}>
-                                        Created On
-                                    </Text>
-                                </View>
-
-                                {/* Rows */}
-                                {trainingSessions.map((item, index) => (
-                                    <View key={index} style={styles.tableRow}>
-                                        <Text style={[styles.rowCell, { flex: 1 }]}>
-                                            {item.title}
-                                        </Text>
-                                        <Text style={[styles.rowCell, { flex: 0 }]}>
-                                            {item.createdOn}
-                                        </Text>
-                                    </View>
-                                ))}
-
-                            </View>
-
-                        </>
-                    )}
-   <View style={{ height: 100 }} />
-                </ScrollView>
-
-            </View>
-            <BottomNavigation
-                selectedTab={selectedTab}
-                tabScaleAnims={tabScaleAnims}
-                rotateAnims={rotateAnims}
-                handleTabPress={handleTabPress}
-                navigation={navigation}
-            />
-
-            <CustomDrawer
-                drawerVisible={drawerVisible}
-                drawerSlideAnim={drawerSlideAnim}
-                overlayOpacity={overlayOpacity}
-                menuItemAnims={menuItemAnims}
-                selectedMenuItem={selectedMenuItem}
-                handleMenuItemPress={(index) =>
-                    handleMenuItemPress(index, navigation)
-                }
-                toggleDrawer={toggleDrawer}
-                navigation={navigation}
-            />
-
-        </View>
-    );
+      <CustomDrawer
+        drawerVisible={drawerVisible}
+        drawerSlideAnim={drawerSlideAnim}
+        overlayOpacity={overlayOpacity}
+        menuItemAnims={menuItemAnims}
+        selectedMenuItem={selectedMenuItem}
+        handleMenuItemPress={(index) => handleMenuItemPress(index, navigation)}
+        toggleDrawer={toggleDrawer}
+        navigation={navigation}
+      />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1a1a2e",
+  },
 
-    container: {
-        flex: 1,
-        backgroundColor: '#1a1a2e',
-    },
+  mainContent: {
+    flex: 1,
+  },
 
-    mainContent: {
-        flex: 1,
-    },
+  scrollContainer: {
+    padding: 16,
+  },
 
-    scrollContainer: {
-        padding: 16,
-    },
+  sectionTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 15,
+  },
 
-    sectionTitle: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        marginTop: 15
-    },
+  tableContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
 
-    tableContainer: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginBottom: 20
-    },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#7B68EE",
+    padding: 12,
+  },
 
-    tableHeader: {
-        flexDirection: 'row',
-        backgroundColor: '#7B68EE',
-        padding: 12
-    },
+  headerCell: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
 
-    headerCell: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 14
-    },
+  tableRow: {
+    flexDirection: "row",
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
 
-    tableRow: {
-        flexDirection: 'row',
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee'
-    },
-
-    rowCell: {
-        fontSize: 13,
-        color: '#333'
-    }
-
+  rowCell: {
+    fontSize: 13,
+    color: "#333",
+  },
 });
 
 export default ReportScreen;

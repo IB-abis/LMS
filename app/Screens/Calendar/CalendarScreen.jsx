@@ -1,10 +1,8 @@
-
-
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useRef, useState } from 'react';
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -18,35 +16,34 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 // ✅ Import universal components
-import { useNotification } from '@/app/Components/NotificationContext';
-import BottomNavigation from '../../Components/BottomNavigation';
-import CustomDrawer from '../../Components/CustomDrawer';
-import Header from '../../Components/Header';
-import { useBottomNav } from '../../Components/useBottomNav';
-import { useDrawer } from '../../Components/useDrawer';
+import { useNotification } from "@/app/Components/NotificationContext";
+import BottomNavigation from "../../Components/BottomNavigation";
+import CustomDrawer from "../../Components/CustomDrawer";
+import Header from "../../Components/Header";
+import { useBottomNav } from "../../Components/useBottomNav";
+import { useDrawer } from "../../Components/useDrawer";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const CalendarScreen = ({ navigation }) => {
-
   const { openNotification } = useNotification();
 
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        navigation.navigate('Dashboard');
+        navigation.navigate("Dashboard");
         return true;
       };
 
       const subscription = BackHandler.addEventListener(
-        'hardwareBackPress',
-        onBackPress
+        "hardwareBackPress",
+        onBackPress,
       );
 
       return () => subscription.remove();
-    }, [navigation])
+    }, [navigation]),
   );
 
   // Always normalize date (ignore time, ignore timezone)
@@ -62,22 +59,21 @@ const CalendarScreen = ({ navigation }) => {
   // Monthly = Admin, My Trainings = User
   const [trainingMode, setTrainingMode] = useState("Monthly"); // "Monthly" | "My"
 
-
   useEffect(() => {
     const fetchCalendarData = async () => {
       try {
-      const userID = await AsyncStorage.getItem('employeeID');
-const applicationProfile = "User";
-
+        const userID = await AsyncStorage.getItem("employeeID");
+        const applicationProfile = "User";
 
         if (!userID) return;
 
         // Fallback to 'User' if somehow missing
-        const profileType = applicationProfile || 'Admin';
+        const profileType = applicationProfile || "Admin";
 
         const res = await fetch(
-          `https://lms-api-qa.abisaio.com/api/v1/Calendar/GetCalendarData?UserID=${userID}&type=${trainingMode === "Monthly" ? "Admin" : "User"
-          }`
+          `https://lms-api.abisaio.com/api/v1/Calendar/GetCalendarData?UserID=${userID}&type=${
+            trainingMode === "Monthly" ? "Admin" : "User"
+          }`,
         );
         const json = await res.json();
 
@@ -89,7 +85,7 @@ const applicationProfile = "User";
           const todayMonth = today.getMonth();
           const todayYear = today.getFullYear();
 
-          const todayTasks = json.data.filter(item => {
+          const todayTasks = json.data.filter((item) => {
             const d = normalizeDate(item.trainingDate);
             return (
               d.getDate() === todayDate &&
@@ -102,11 +98,11 @@ const applicationProfile = "User";
           setTaskAnims(todayTasks.map(() => new Animated.Value(0)));
 
           setSelectedDate(todayDate);
-          setCurrentMonth(today.toLocaleString('default', { month: 'long' }));
+          setCurrentMonth(today.toLocaleString("default", { month: "long" }));
           setCurrentYear(todayYear);
         }
       } catch (err) {
-        console.error('Error fetching calendar data:', err);
+        console.error("Error fetching calendar data:", err);
       } finally {
         setLoading(false);
       }
@@ -133,10 +129,19 @@ const applicationProfile = "User";
     setTrainingMode(mode);
   };
 
-
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   const [selectedTask, setSelectedTask] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -166,9 +171,12 @@ const applicationProfile = "User";
     setCurrentYear(newYear);
 
     const today = new Date();
-    if (today.getFullYear() === newYear && today.getMonth() === months.indexOf(newMonth)) {
+    if (
+      today.getFullYear() === newYear &&
+      today.getMonth() === months.indexOf(newMonth)
+    ) {
       setSelectedDate(today.getDate());
-      const filtered = calendarData.filter(x => {
+      const filtered = calendarData.filter((x) => {
         const d = normalizeDate(x.trainingDate);
         return (
           d.getFullYear() === newYear &&
@@ -202,9 +210,12 @@ const applicationProfile = "User";
     setCurrentYear(newYear);
 
     const today = new Date();
-    if (today.getFullYear() === newYear && today.getMonth() === months.indexOf(newMonth)) {
+    if (
+      today.getFullYear() === newYear &&
+      today.getMonth() === months.indexOf(newMonth)
+    ) {
       setSelectedDate(today.getDate());
-      const filtered = calendarData.filter(x => {
+      const filtered = calendarData.filter((x) => {
         const d = normalizeDate(x.trainingDate);
         return (
           d.getFullYear() === newYear &&
@@ -234,12 +245,8 @@ const applicationProfile = "User";
   } = useDrawer(4);
 
   // ✅ Use the bottom nav hook
-  const {
-    selectedTab,
-    tabScaleAnims,
-    rotateAnims,
-    handleTabPress
-  } = useBottomNav('Calendar');
+  const { selectedTab, tabScaleAnims, rotateAnims, handleTabPress } =
+    useBottomNav("Calendar");
 
   // Animation values for PAGE CONTENT only
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -250,7 +257,7 @@ const applicationProfile = "User";
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Calendar data
-  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const generateCalendarDays = () => {
     const monthIndex = months.indexOf(currentMonth);
     const date = new Date(currentYear, monthIndex, 1);
@@ -267,7 +274,7 @@ const applicationProfile = "User";
 
     for (let i = 1; i <= daysInMonth; i++) {
       const fullDate = new Date(currentYear, date.getMonth(), i);
-      const event = calendarData.find(item => {
+      const event = calendarData.find((item) => {
         const d = new Date(item.trainingDate);
         return (
           d.getDate() === fullDate.getDate() &&
@@ -285,7 +292,10 @@ const applicationProfile = "User";
     }
 
     while (days.length < 42) {
-      days.push({ day: days.length - (firstDay + daysInMonth) + 1, isCurrentMonth: false });
+      days.push({
+        day: days.length - (firstDay + daysInMonth) + 1,
+        isCurrentMonth: false,
+      });
     }
 
     return days;
@@ -322,14 +332,17 @@ const applicationProfile = "User";
     }, 300);
 
     taskAnims.forEach((anim, index) => {
-      setTimeout(() => {
-        Animated.spring(anim, {
-          toValue: 1,
-          tension: 40,
-          friction: 7,
-          useNativeDriver: true,
-        }).start();
-      }, 600 + index * 150);
+      setTimeout(
+        () => {
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 40,
+            friction: 7,
+            useNativeDriver: true,
+          }).start();
+        },
+        600 + index * 150,
+      );
     });
 
     Animated.loop(
@@ -344,16 +357,20 @@ const applicationProfile = "User";
           duration: 2000,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
   const getEventColor = (type) => {
     switch (type) {
-      case 'classroom': return '#A855F7';
-      case 'virtual': return '#FF6B6B';
-      case 'self': return '#667eea';
-      default: return '#667eea';
+      case "classroom":
+        return "#A855F7";
+      case "virtual":
+        return "#FF6B6B";
+      case "self":
+        return "#667eea";
+      default:
+        return "#667eea";
     }
   };
 
@@ -361,14 +378,17 @@ const applicationProfile = "User";
     if (!taskAnims || taskAnims.length === 0) return;
 
     taskAnims.forEach((anim, index) => {
-      setTimeout(() => {
-        Animated.spring(anim, {
-          toValue: 1,
-          tension: 40,
-          friction: 7,
-          useNativeDriver: true,
-        }).start();
-      }, 200 + index * 150);
+      setTimeout(
+        () => {
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 40,
+            friction: 7,
+            useNativeDriver: true,
+          }).start();
+        },
+        200 + index * 150,
+      );
     });
   }, [taskAnims]);
 
@@ -395,24 +415,27 @@ const applicationProfile = "User";
     return "Good Evening";
   };
 
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
 
       <Animated.View style={[styles.mainContent, { opacity: fadeAnim }]}>
         {/* ✅ Universal Header Component */}
-        <Header title="Calendar" onMenuPress={toggleDrawer} onNotificationPress={openNotification} />
+        <Header
+          title="Calendar"
+          onMenuPress={toggleDrawer}
+          onNotificationPress={openNotification}
+        />
 
         {/* Greeting Section */}
         <Animated.View
           style={[
             styles.greetingSection,
-            { transform: [{ translateY: slideAnim }] }
+            { transform: [{ translateY: slideAnim }] },
           ]}
         >
           <LinearGradient
-            colors={['rgba(123, 104, 238, 0.2)', 'rgba(123, 104, 238, 0.05)']}
+            colors={["rgba(123, 104, 238, 0.2)", "rgba(123, 104, 238, 0.05)"]}
             style={styles.greetingCard}
           >
             <Text allowFontScaling={false} style={styles.greetingText}>
@@ -427,7 +450,7 @@ const applicationProfile = "User";
           <TouchableOpacity
             style={[
               styles.trainingToggleBtn,
-              trainingMode === "Monthly" && styles.trainingToggleBtnActive
+              trainingMode === "Monthly" && styles.trainingToggleBtnActive,
             ]}
             onPress={() => handleTrainingModeChange("Monthly")}
           >
@@ -435,7 +458,7 @@ const applicationProfile = "User";
               allowFontScaling={false}
               style={[
                 styles.trainingToggleText,
-                trainingMode === "Monthly" && styles.trainingToggleTextActive
+                trainingMode === "Monthly" && styles.trainingToggleTextActive,
               ]}
             >
               Monthly Trainings
@@ -446,7 +469,7 @@ const applicationProfile = "User";
           <TouchableOpacity
             style={[
               styles.trainingToggleBtn,
-              trainingMode === "My" && styles.trainingToggleBtnActive
+              trainingMode === "My" && styles.trainingToggleBtnActive,
             ]}
             onPress={() => handleTrainingModeChange("My")}
           >
@@ -454,14 +477,13 @@ const applicationProfile = "User";
               allowFontScaling={false}
               style={[
                 styles.trainingToggleText,
-                trainingMode === "My" && styles.trainingToggleTextActive
+                trainingMode === "My" && styles.trainingToggleTextActive,
               ]}
             >
               My Trainings
             </Text>
           </TouchableOpacity>
         </View>
-
 
         {/* Loading overlay shown while switching modes */}
         {loading && (
@@ -477,16 +499,28 @@ const applicationProfile = "User";
           {/* Legend */}
           <View style={styles.legendContainer}>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#A855F7' }]} />
-              <Text allowFontScaling={false} style={styles.legendText}>Classroom Training</Text>
+              <View
+                style={[styles.legendDot, { backgroundColor: "#A855F7" }]}
+              />
+              <Text allowFontScaling={false} style={styles.legendText}>
+                Classroom Training
+              </Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#FF6B6B' }]} />
-              <Text allowFontScaling={false} style={styles.legendText}>Virtual Training</Text>
+              <View
+                style={[styles.legendDot, { backgroundColor: "#FF6B6B" }]}
+              />
+              <Text allowFontScaling={false} style={styles.legendText}>
+                Virtual Training
+              </Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#667eea' }]} />
-              <Text allowFontScaling={false} style={styles.legendText}>Self Enroll</Text>
+              <View
+                style={[styles.legendDot, { backgroundColor: "#667eea" }]}
+              />
+              <Text allowFontScaling={false} style={styles.legendText}>
+                Self Enroll
+              </Text>
             </View>
           </View>
 
@@ -496,29 +530,41 @@ const applicationProfile = "User";
               styles.calendarCard,
               {
                 opacity: calendarAnim,
-                transform: [{
-                  scale: calendarAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.9, 1],
-                  })
-                }]
-              }
+                transform: [
+                  {
+                    scale: calendarAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.9, 1],
+                    }),
+                  },
+                ],
+              },
             ]}
           >
             <LinearGradient
-              colors={['#fff', '#f8f9ff']}
+              colors={["#fff", "#f8f9ff"]}
               style={styles.calendarGradient}
             >
               {/* Month Header */}
               <View style={styles.monthHeader}>
-                <TouchableOpacity style={styles.monthButton} onPress={handlePrevMonth}>
+                <TouchableOpacity
+                  style={styles.monthButton}
+                  onPress={handlePrevMonth}
+                >
                   <Ionicons name="chevron-back" size={24} color="#7B68EE" />
                 </TouchableOpacity>
                 <View style={styles.monthTextContainer}>
-                  <Text allowFontScaling={false} style={styles.monthText}>{currentMonth}</Text>
-                  <Text allowFontScaling={false} style={styles.yearText}>🗓️ {currentYear}</Text>
+                  <Text allowFontScaling={false} style={styles.monthText}>
+                    {currentMonth}
+                  </Text>
+                  <Text allowFontScaling={false} style={styles.yearText}>
+                    🗓️ {currentYear}
+                  </Text>
                 </View>
-                <TouchableOpacity style={styles.monthButton} onPress={handleNextMonth}>
+                <TouchableOpacity
+                  style={styles.monthButton}
+                  onPress={handleNextMonth}
+                >
                   <Ionicons name="chevron-forward" size={24} color="#7B68EE" />
                 </TouchableOpacity>
               </View>
@@ -527,7 +573,9 @@ const applicationProfile = "User";
               <View style={styles.daysOfWeekRow}>
                 {daysOfWeek.map((day, index) => (
                   <View key={index} style={styles.dayOfWeekCell}>
-                    <Text allowFontScaling={false} style={styles.dayOfWeekText}>{day}</Text>
+                    <Text allowFontScaling={false} style={styles.dayOfWeekText}>
+                      {day}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -535,7 +583,8 @@ const applicationProfile = "User";
               {/* Calendar Grid */}
               <View style={styles.calendarGrid}>
                 {calendarDays.map((item, index) => {
-                  const isSelected = item.day === selectedDate && item.isCurrentMonth;
+                  const isSelected =
+                    item.day === selectedDate && item.isCurrentMonth;
 
                   const isMyTrainingDay =
                     trainingMode === "My" &&
@@ -553,11 +602,12 @@ const applicationProfile = "User";
                   const selectedColors =
                     trainingMode === "My"
                       ? item.hasEvent
-                        ? [getEventColor(item.eventType), getEventColor(item.eventType)]
-                        : ['#22C55E', '#16A34A'] // ✅ green only when NO event
-                      : ['#7B68EE', '#9D7FEA'];
-
-
+                        ? [
+                            getEventColor(item.eventType),
+                            getEventColor(item.eventType),
+                          ]
+                        : ["#22C55E", "#16A34A"] // ✅ green only when NO event
+                      : ["#7B68EE", "#9D7FEA"];
 
                   return (
                     <TouchableOpacity
@@ -571,7 +621,7 @@ const applicationProfile = "User";
                         const clickedMonth = months.indexOf(currentMonth);
                         const clickedDay = item.day;
 
-                        const filtered = calendarData.filter(x => {
+                        const filtered = calendarData.filter((x) => {
                           const d = normalizeDate(x.trainingDate);
                           return (
                             d.getFullYear() === clickedYear &&
@@ -582,18 +632,23 @@ const applicationProfile = "User";
 
                         setTasks(filtered);
 
-                        const newAnims = filtered.map(() => new Animated.Value(0));
+                        const newAnims = filtered.map(
+                          () => new Animated.Value(0),
+                        );
                         setTaskAnims(newAnims);
 
                         newAnims.forEach((anim, idx) => {
-                          setTimeout(() => {
-                            Animated.spring(anim, {
-                              toValue: 1,
-                              tension: 40,
-                              friction: 7,
-                              useNativeDriver: true,
-                            }).start();
-                          }, 150 + idx * 120);
+                          setTimeout(
+                            () => {
+                              Animated.spring(anim, {
+                                toValue: 1,
+                                tension: 40,
+                                friction: 7,
+                                useNativeDriver: true,
+                              }).start();
+                            },
+                            150 + idx * 120,
+                          );
                         });
                       }}
                       style={styles.dayCell}
@@ -604,12 +659,22 @@ const applicationProfile = "User";
                           colors={selectedColors}
                           style={[
                             styles.selectedDay,
-                            trainingMode === "My" && styles.selectedDayCircle
+                            trainingMode === "My" && styles.selectedDayCircle,
                           ]}
                         >
-                          <Text allowFontScaling={false} style={styles.selectedDayText}>{item.day}</Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.selectedDayText}
+                          >
+                            {item.day}
+                          </Text>
                           {item.hasEvent && (
-                            <View style={[styles.eventDot, { backgroundColor: '#fff' }]} />
+                            <View
+                              style={[
+                                styles.eventDot,
+                                { backgroundColor: "#fff" },
+                              ]}
+                            />
                           )}
                         </LinearGradient>
                       ) : isMyTrainingDay ? (
@@ -617,10 +682,12 @@ const applicationProfile = "User";
                         <View
                           style={[
                             styles.myTrainingDay,
-                            { backgroundColor: getEventColor(item.eventType) }
+                            { backgroundColor: getEventColor(item.eventType) },
                           ]}
                         >
-                          <Text style={styles.myTrainingDayText}>{item.day}</Text>
+                          <Text style={styles.myTrainingDayText}>
+                            {item.day}
+                          </Text>
                         </View>
                       ) : (
                         /* ✅ Normal day */
@@ -641,7 +708,11 @@ const applicationProfile = "User";
                               <View
                                 style={[
                                   styles.eventDot,
-                                  { backgroundColor: getEventColor(item.eventType) }
+                                  {
+                                    backgroundColor: getEventColor(
+                                      item.eventType,
+                                    ),
+                                  },
                                 ]}
                               />
                             )}
@@ -675,16 +746,30 @@ const applicationProfile = "User";
             </Text>
 
             {tasks.length === 0 ? (
-              <Text allowFontScaling={false} style={{ color: '#999', fontSize: 14, textAlign: 'center', marginTop: 10 }}>
+              <Text
+                allowFontScaling={false}
+                style={{
+                  color: "#999",
+                  fontSize: 14,
+                  textAlign: "center",
+                  marginTop: 10,
+                }}
+              >
                 No trainings scheduled for this date.
               </Text>
             ) : (
               tasks.map((task, index) => {
                 const scale = taskAnims[index]
-                  ? taskAnims[index].interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] })
+                  ? taskAnims[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.9, 1],
+                    })
                   : 1;
                 const translateY = taskAnims[index]
-                  ? taskAnims[index].interpolate({ inputRange: [0, 1], outputRange: [30, 0] })
+                  ? taskAnims[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [30, 0],
+                    })
                   : 0;
                 const opacity = taskAnims[index] || 1;
 
@@ -705,35 +790,68 @@ const applicationProfile = "User";
                     ]}
                   >
                     <LinearGradient
-                      colors={[typeColor, '#7B68EE']}
+                      colors={[typeColor, "#7B68EE"]}
                       style={styles.taskGradient}
                     >
                       <View style={styles.taskLeft}>
-                        <Text allowFontScaling={false} style={styles.taskDate}>{dateObj.getDate()}</Text>
-                        <Text allowFontScaling={false} style={{ color: '#fff', fontSize: 10 }}>{currentMonth.slice(0, 3)}</Text>
+                        <Text allowFontScaling={false} style={styles.taskDate}>
+                          {dateObj.getDate()}
+                        </Text>
+                        <Text
+                          allowFontScaling={false}
+                          style={{ color: "#fff", fontSize: 10 }}
+                        >
+                          {currentMonth.slice(0, 3)}
+                        </Text>
                       </View>
 
                       <View style={styles.taskMiddle}>
                         <FontAwesome5
-                          name={task.type?.toLowerCase() === 'virtual' ? 'video' : 'chalkboard-teacher'}
+                          name={
+                            task.type?.toLowerCase() === "virtual"
+                              ? "video"
+                              : "chalkboard-teacher"
+                          }
                           size={16}
                           color="#fff"
                           style={styles.taskIcon}
                         />
                         <View style={styles.taskInfo}>
-                          <Text allowFontScaling={false} style={styles.taskTitle}>{task.title}</Text>
+                          <Text
+                            allowFontScaling={false}
+                            style={styles.taskTitle}
+                          >
+                            {task.title}
+                          </Text>
                           <View style={styles.taskMeta}>
-                            <Ionicons name="calendar" size={12} color="rgba(255,255,255,0.9)" />
-                            <Text allowFontScaling={false} style={styles.taskMetaText}>{dateStr}</Text>
+                            <Ionicons
+                              name="calendar"
+                              size={12}
+                              color="rgba(255,255,255,0.9)"
+                            />
+                            <Text
+                              allowFontScaling={false}
+                              style={styles.taskMetaText}
+                            >
+                              {dateStr}
+                            </Text>
                           </View>
                         </View>
                       </View>
 
-                      <TouchableOpacity style={styles.detailsBtn} onPress={() => {
-                        setSelectedTask(task);
-                        setModalVisible(true);
-                      }}>
-                        <Text allowFontScaling={false} style={styles.detailsBtnText}>Details</Text>
+                      <TouchableOpacity
+                        style={styles.detailsBtn}
+                        onPress={() => {
+                          setSelectedTask(task);
+                          setModalVisible(true);
+                        }}
+                      >
+                        <Text
+                          allowFontScaling={false}
+                          style={styles.detailsBtnText}
+                        >
+                          Details
+                        </Text>
                       </TouchableOpacity>
                     </LinearGradient>
                   </Animated.View>
@@ -757,12 +875,18 @@ const applicationProfile = "User";
           <View style={styles.modalContainer}>
             {selectedTask && (
               <>
-                <Text allowFontScaling={false} style={styles.modalTitle}>Training Session Details</Text>
-                <Text allowFontScaling={false} style={styles.modalSubTitle}>{selectedTask.title}</Text>
+                <Text allowFontScaling={false} style={styles.modalTitle}>
+                  Training Session Details
+                </Text>
+                <Text allowFontScaling={false} style={styles.modalSubTitle}>
+                  {selectedTask.title}
+                </Text>
 
                 {(() => {
                   const start = new Date(selectedTask.trainingDate);
-                  const end = new Date(start.getTime() + selectedTask.duration * 60000);
+                  const end = new Date(
+                    start.getTime() + selectedTask.duration * 60000,
+                  );
 
                   const formatTime = (d) =>
                     d.toLocaleString("en-US", {
@@ -777,11 +901,21 @@ const applicationProfile = "User";
                   return (
                     <>
                       <Text allowFontScaling={false} style={styles.modalText}>
-                        <Text allowFontScaling={false} style={styles.modalLabel}>Start: </Text>
+                        <Text
+                          allowFontScaling={false}
+                          style={styles.modalLabel}
+                        >
+                          Start:{" "}
+                        </Text>
                         {formatTime(start)}
                       </Text>
                       <Text allowFontScaling={false} style={styles.modalText}>
-                        <Text allowFontScaling={false} style={styles.modalLabel}>End: </Text>
+                        <Text
+                          allowFontScaling={false}
+                          style={styles.modalLabel}
+                        >
+                          End:{" "}
+                        </Text>
                         {formatTime(end)}
                       </Text>
                     </>
@@ -790,44 +924,59 @@ const applicationProfile = "User";
 
                 {selectedTask.trainerName && (
                   <Text allowFontScaling={false} style={styles.modalText}>
-                    <Text allowFontScaling={false} style={styles.modalLabel}>Trainer: </Text>
+                    <Text allowFontScaling={false} style={styles.modalLabel}>
+                      Trainer:{" "}
+                    </Text>
                     {selectedTask.trainerName}
                   </Text>
                 )}
 
                 {selectedTask.location && (
                   <Text allowFontScaling={false} style={styles.modalText}>
-                    <Text allowFontScaling={false} style={styles.modalLabel}>Location: </Text>
+                    <Text allowFontScaling={false} style={styles.modalLabel}>
+                      Location:{" "}
+                    </Text>
                     {selectedTask.location.trim()}
                   </Text>
                 )}
 
                 {selectedTask.venue && (
                   <Text allowFontScaling={false} style={styles.modalText}>
-                    <Text allowFontScaling={false} style={styles.modalLabel}>Venue: </Text>
+                    <Text allowFontScaling={false} style={styles.modalLabel}>
+                      Venue:{" "}
+                    </Text>
                     {selectedTask.venue.trim()}
                   </Text>
                 )}
 
                 <View style={styles.modalButtonRow}>
                   <Pressable
-                    style={[styles.modalButton, { backgroundColor: '#7B68EE' }]}
+                    style={[styles.modalButton, { backgroundColor: "#7B68EE" }]}
                     onPress={() => {
                       setModalVisible(false);
-                      navigation.navigate('TrainingDetails', {
-                        trainingSessionId: selectedTask.trainingSessionId
+                      navigation.navigate("TrainingDetails", {
+                        trainingSessionId: selectedTask.trainingSessionId,
                       });
                     }}
                   >
-                    <Text allowFontScaling={false} style={styles.modalButtonText}>DETAILS</Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.modalButtonText}
+                    >
+                      DETAILS
+                    </Text>
                   </Pressable>
 
-
                   <Pressable
-                    style={[styles.modalButton, { backgroundColor: '#ccc' }]}
+                    style={[styles.modalButton, { backgroundColor: "#ccc" }]}
                     onPress={() => setModalVisible(false)}
                   >
-                    <Text allowFontScaling={false} style={[styles.modalButtonText, { color: '#000' }]}>CLOSE</Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={[styles.modalButtonText, { color: "#000" }]}
+                    >
+                      CLOSE
+                    </Text>
                   </Pressable>
                 </View>
               </>
@@ -862,12 +1011,12 @@ const applicationProfile = "User";
 
 const styles = StyleSheet.create({
   selectedDayCircle: {
-    borderRadius: 999,   // perfect circle
+    borderRadius: 999, // perfect circle
   },
 
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: "#1a1a2e",
   },
   mainContent: {
     flex: 1,
@@ -880,23 +1029,23 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(123, 104, 238, 0.3)',
+    borderColor: "rgba(123, 104, 238, 0.3)",
   },
   greetingText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: "600",
+    color: "#fff",
   },
   trainingToggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginHorizontal: 20,
     marginBottom: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: "rgba(255,255,255,0.05)",
     padding: 6,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(123, 104, 238, 0.3)',
+    borderColor: "rgba(123, 104, 238, 0.3)",
   },
 
   trainingToggleBtn: {
@@ -904,39 +1053,39 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginHorizontal: 4,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   trainingToggleBtnActive: {
-    backgroundColor: '#7B68EE',
+    backgroundColor: "#7B68EE",
     elevation: 3,
   },
 
   trainingToggleText: {
     fontSize: 13,
-    color: '#a8b2d1',
-    fontWeight: '600',
+    color: "#a8b2d1",
+    fontWeight: "600",
   },
 
   trainingToggleTextActive: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
   },
 
   scrollContent: {
     flex: 1,
   },
   legendContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 20,
     marginBottom: 20,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
     gap: 12,
   },
   legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   legendDot: {
@@ -946,65 +1095,65 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 11,
-    color: '#a8b2d1',
-    fontWeight: '500',
+    color: "#a8b2d1",
+    fontWeight: "500",
   },
   calendarCard: {
     marginHorizontal: 20,
     marginBottom: 25,
     borderRadius: 20,
     elevation: 8,
-    shadowColor: '#7B68EE',
+    shadowColor: "#7B68EE",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   calendarGradient: {
     padding: 20,
   },
   monthHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   monthButton: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   monthTextContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   monthText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2D2D2D',
+    fontWeight: "bold",
+    color: "#2D2D2D",
   },
   yearText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 2,
   },
   daysOfWeekRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 10,
   },
   dayOfWeekCell: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 8,
   },
   dayOfWeekText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#7B68EE',
+    fontWeight: "600",
+    color: "#7B68EE",
   },
   calendarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   dayCell: {
     width: `${100 / 7}%`,
@@ -1014,27 +1163,27 @@ const styles = StyleSheet.create({
   selectedDay: {
     flex: 1,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 4,
   },
   selectedDayText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   dayContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   dayText: {
     fontSize: 15,
-    color: '#2D2D2D',
-    fontWeight: '500',
+    color: "#2D2D2D",
+    fontWeight: "500",
   },
   inactiveDayText: {
-    color: '#CCC',
+    color: "#CCC",
   },
   eventDot: {
     width: 6,
@@ -1047,45 +1196,45 @@ const styles = StyleSheet.create({
   },
   tasksSectionTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 15,
   },
   taskCard: {
     marginBottom: 15,
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
   },
   taskGradient: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   taskLeft: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 10,
     marginRight: 12,
     minWidth: 55,
-    alignItems: 'center',
+    alignItems: "center",
   },
   taskDate: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 13,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     lineHeight: 16,
   },
   taskMiddle: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   taskIcon: {
     marginRight: 10,
@@ -1095,85 +1244,85 @@ const styles = StyleSheet.create({
   },
   taskTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: "600",
+    color: "#fff",
     marginBottom: 4,
   },
   taskMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
     marginTop: 2,
   },
   taskMetaText: {
     fontSize: 11,
-    color: 'rgba(255,255,255,0.9)',
+    color: "rgba(255,255,255,0.9)",
   },
   detailsBtn: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: "rgba(255,255,255,0.3)",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
   },
   detailsBtnText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingOverlay: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.25)",
     zIndex: 9999,
   },
   modalContainer: {
-    width: '85%',
-    backgroundColor: '#fff',
+    width: "85%",
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
     elevation: 10,
-    shadowColor: '#7B68EE',
+    shadowColor: "#7B68EE",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1a1a2e',
+    fontWeight: "bold",
+    color: "#1a1a2e",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalSubTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#7B68EE',
+    fontWeight: "600",
+    color: "#7B68EE",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     marginBottom: 6,
   },
   modalLabel: {
-    fontWeight: 'bold',
-    color: '#1a1a2e',
+    fontWeight: "bold",
+    color: "#1a1a2e",
   },
   modalButtonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 20,
   },
   modalButton: {
@@ -1181,28 +1330,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     paddingVertical: 10,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 14,
   },
   myTrainingDay: {
     flex: 1,
     borderRadius: 999,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 4,
   },
 
   myTrainingDayText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
-
 });
 
 export default CalendarScreen;
-

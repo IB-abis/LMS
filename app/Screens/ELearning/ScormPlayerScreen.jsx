@@ -14,9 +14,9 @@ import { WebView } from "react-native-webview";
 import Header from "../../Components/Header";
 
 const API_SAVE_PROGRESS =
-  "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/saveprogress";
+  "https://lms-api.abisaio.com/api/v1/ELearning/course/saveprogress";
 const API_GET_PROGRESS =
-  "https://lms-api-qa.abisaio.com/api/v1/ELearning/course/getprogress";
+  "https://lms-api.abisaio.com/api/v1/ELearning/course/getprogress";
 
 const SCORMPlayerScreen = ({ route, navigation }) => {
   const { course, employeeID, token } = route.params;
@@ -82,9 +82,12 @@ const SCORMPlayerScreen = ({ route, navigation }) => {
               }
 
               // Resume from last location if available
-              if (parsed.lessonLocation && parsed.lessonLocation.includes("#")) {
+              if (
+                parsed.lessonLocation &&
+                parsed.lessonLocation.includes("#")
+              ) {
                 const hash = parsed.lessonLocation.substring(
-                  parsed.lessonLocation.indexOf("#")
+                  parsed.lessonLocation.indexOf("#"),
                 );
                 setWebUrl(`https://lms-qa.abisaio.com/${course.path}${hash}`);
               } else {
@@ -113,7 +116,10 @@ const SCORMPlayerScreen = ({ route, navigation }) => {
           totalTimeSpent.current += 10;
           console.log("⏰ Auto-saving SCORM progress...");
           if (Object.keys(latestStateRef.current).length > 0) {
-            saveProgressToServer(latestStateRef.current, totalTimeSpent.current);
+            saveProgressToServer(
+              latestStateRef.current,
+              totalTimeSpent.current,
+            );
           }
         }, 10000);
 
@@ -203,8 +209,7 @@ const SCORMPlayerScreen = ({ route, navigation }) => {
   // === SAVE PROGRESS TO API (exact web format) ===
   const saveProgressToServer = async (state, timeSpentSeconds) => {
     try {
-      const completionStatus =
-        state["cmi.core.lesson_status"] || "incomplete";
+      const completionStatus = state["cmi.core.lesson_status"] || "incomplete";
       const scoreRaw = parseInt(state["cmi.core.score.raw"]) || 0;
       const sessionTime = state["cmi.core.session_time"] || "0000:00:00";
       const lessonLocation = state["cmi.core.lesson_location"] || "";

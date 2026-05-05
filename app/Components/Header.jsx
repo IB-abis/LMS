@@ -1,23 +1,25 @@
-import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef, useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
-  Easing, findNodeHandle, Image,
+  Easing,
+  findNodeHandle,
+  Image,
   Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
-import { TourGuideZone, useTourGuideController } from 'rn-tourguide';
-import { useNotification } from './NotificationContext';
-const { width, height } = Dimensions.get('window');
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
+import { TourGuideZone, useTourGuideController } from "rn-tourguide";
+import { useNotification } from "./NotificationContext";
+const { width, height } = Dimensions.get("window");
 
 const Header = ({
   title,
@@ -29,7 +31,6 @@ const Header = ({
   showMore = true,
   showBackButton = false,
   showSpinner = true,
-
 }) => {
   const navigation = useNavigation();
 
@@ -49,7 +50,8 @@ const Header = ({
   // Add state to track if tutorial should be shown
   const [shouldShowTutorial, setShouldShowTutorial] = useState(false);
 
-  {/* // Modified useEffect for starting tour
+  {
+    /* // Modified useEffect for starting tour
   useEffect(() => {
     const checkAndStartTutorial = async () => {
       try {
@@ -69,7 +71,8 @@ const Header = ({
     };
 
     checkAndStartTutorial();
-  }, [canStart, start]);*/ }
+  }, [canStart, start]);*/
+  }
 
   const insets = useSafeAreaInsets();
 
@@ -84,7 +87,9 @@ const Header = ({
           const cy = y + h / 2;
           // compute an offset to compensate for header padding vs safe-area
           const HEADER_PADDING_TOP = 50; // matches styles.header.paddingTop
-          const offsetY = insets.top ? -(HEADER_PADDING_TOP - insets.top) : -HEADER_PADDING_TOP;
+          const offsetY = insets.top
+            ? -(HEADER_PADDING_TOP - insets.top)
+            : -HEADER_PADDING_TOP;
           setter({ x: cx, y: cy, width: w, height: h, offsetY });
         });
       }
@@ -110,8 +115,6 @@ const Header = ({
   const handleSpinnerLayout = () => measureRef(spinnerRef, setSpinnerAnchor);
   const handleNotifLayout = () => measureRef(notifRef, setNotifAnchor);
 
-
-
   const { unreadCount } = useNotification();
   // API based spinner points
   const [spinnerPoints, setSpinnerPoints] = useState([]);
@@ -133,12 +136,14 @@ const Header = ({
   const spinnerSlideAnim = useRef(new Animated.Value(height)).current;
   const spinnerRotation = useRef(new Animated.Value(0)).current;
   const celebrationScale = useRef(new Animated.Value(0)).current;
-  const confettiAnims = useRef([...Array(50)].map(() => ({
-    x: new Animated.Value(0),
-    y: new Animated.Value(0),
-    rotate: new Animated.Value(0),
-    opacity: new Animated.Value(0),
-  }))).current;
+  const confettiAnims = useRef(
+    [...Array(50)].map(() => ({
+      x: new Animated.Value(0),
+      y: new Animated.Value(0),
+      rotate: new Animated.Value(0),
+      opacity: new Animated.Value(0),
+    })),
+  ).current;
 
   const spinnerOptions = spinnerPoints.map((p, index) => ({
     label: `${p} Points`,
@@ -186,12 +191,15 @@ const Header = ({
     try {
       const token = await AsyncStorage.getItem("token");
 
-      const res = await fetch("https://lms-api-qa.abisaio.com/api/v1/Dashboard/SpinWheel", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        "https://lms-api.abisaio.com/api/v1/Dashboard/SpinWheel",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const data = await res.json();
 
@@ -248,7 +256,8 @@ const Header = ({
     const degreePerSegment = 360 / spinnerOptions.length;
 
     const baseRotation = 360 * 5;
-    const segmentCenterAngle = randomIndex * degreePerSegment + (degreePerSegment / 2);
+    const segmentCenterAngle =
+      randomIndex * degreePerSegment + degreePerSegment / 2;
     const targetDegree = baseRotation + (360 - segmentCenterAngle);
 
     Animated.timing(spinnerRotation, {
@@ -276,13 +285,13 @@ const Header = ({
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        `https://lms-api-qa.abisaio.com/api/v1/Dashboard/SavePoints?points=${points}`,
+        `https://lms-api.abisaio.com/api/v1/Dashboard/SavePoints?points=${points}`,
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -337,7 +346,7 @@ const Header = ({
         }),
       ]).start(() => {
         if (index === confettiAnims.length - 1) {
-          confettiAnims.forEach(a => {
+          confettiAnims.forEach((a) => {
             a.x.setValue(0);
             a.y.setValue(0);
             a.rotate.setValue(0);
@@ -377,7 +386,12 @@ const Header = ({
 
       return (
         <G key={index}>
-          <Path d={pathData} fill={option.color} stroke="#fff" strokeWidth="2" />
+          <Path
+            d={pathData}
+            fill={option.color}
+            stroke="#fff"
+            strokeWidth="2"
+          />
           <SvgText
             x={textX}
             y={textY}
@@ -396,7 +410,14 @@ const Header = ({
 
   const renderConfetti = () => {
     if (!showConfetti) return null;
-    const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#f093fb', '#FFA500', '#667eea'];
+    const confettiColors = [
+      "#FFD700",
+      "#FF6B6B",
+      "#4ECDC4",
+      "#f093fb",
+      "#FFA500",
+      "#667eea",
+    ];
     return confettiAnims.map((anim, index) => {
       const color = confettiColors[index % confettiColors.length];
       const size = 10 + Math.random() * 10;
@@ -416,8 +437,8 @@ const Header = ({
                 {
                   rotate: anim.rotate.interpolate({
                     inputRange: [0, 720],
-                    outputRange: ['0deg', '720deg'],
-                  })
+                    outputRange: ["0deg", "720deg"],
+                  }),
                 },
               ],
             },
@@ -435,7 +456,7 @@ const Header = ({
           duration: 2000,
           easing: Easing.linear,
           useNativeDriver: true,
-        })
+        }),
       ).start();
     }
 
@@ -453,26 +474,40 @@ const Header = ({
             <TourGuideZone
               zone={1}
               order={1}
-              text={menuAnchor ? JSON.stringify({ text: 'Access the menu by tapping this icon to navigate through different sections of the app.', anchor: menuAnchor }) : 'Access the menu by tapping this icon to navigate through different sections of the app.'}
+              text={
+                menuAnchor
+                  ? JSON.stringify({
+                      text: "Access the menu by tapping this icon to navigate through different sections of the app.",
+                      anchor: menuAnchor,
+                    })
+                  : "Access the menu by tapping this icon to navigate through different sections of the app."
+              }
               shape="circle"
               tooltipBottomOffset={10}
               maskOffset={6}
             >
-              <TouchableOpacity ref={menuRef} onLayout={handleMenuLayout} style={styles.menuButton} onPress={onMenuPress}>
+              <TouchableOpacity
+                ref={menuRef}
+                onLayout={handleMenuLayout}
+                style={styles.menuButton}
+                onPress={onMenuPress}
+              >
                 <Ionicons name="menu" size={24} color="#fff" />
               </TouchableOpacity>
             </TourGuideZone>
           )}
-          <Text allowFontScaling={false} style={styles.headerTitle}>{title}</Text>
+          <Text allowFontScaling={false} style={styles.headerTitle}>
+            {title}
+          </Text>
         </View>
         <View style={styles.headerRight}>
           {/* Report Icon */}
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => navigation.navigate('Report')}
+            onPress={() => navigation.navigate("Report")}
           >
             <Image
-              source={require('../Images/REPORT1.png')}
+              source={require("../Images/REPORT1.png")}
               style={{ width: 70, height: 24 }}
               resizeMode="contain"
             />
@@ -493,16 +528,18 @@ const Header = ({
               >
                 <Animated.View
                   style={{
-                    transform: [{
-                      rotate: spinnerRotation.interpolate({
-                        inputRange: [0, 360],
-                        outputRange: ['0deg', '360deg'],
-                      }),
-                    }],
+                    transform: [
+                      {
+                        rotate: spinnerRotation.interpolate({
+                          inputRange: [0, 360],
+                          outputRange: ["0deg", "360deg"],
+                        }),
+                      },
+                    ],
                   }}
                 >
                   <Image
-                    source={require('../Images/spinner.png')}
+                    source={require("../Images/spinner.png")}
                     style={{
                       width: 30,
                       height: 30,
@@ -512,7 +549,6 @@ const Header = ({
                 </Animated.View>
               </TouchableOpacity>
             </TourGuideZone>
-
           )}
           {showNotification && (
             <TourGuideZone
@@ -523,7 +559,6 @@ const Header = ({
               tooltipBottomOffset={12}
               maskOffset={6}
             >
-
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={onNotificationPress}
@@ -531,14 +566,16 @@ const Header = ({
                 <Ionicons name="notifications-outline" size={24} color="#fff" />
                 {unreadCount > 0 && (
                   <View style={styles.notificationBadge}>
-                    <Text allowFontScaling={false} style={styles.notificationBadgeText}>
-                      {unreadCount > 99 ? '99+' : unreadCount}
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.notificationBadgeText}
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
                     </Text>
                   </View>
                 )}
               </TouchableOpacity>
             </TourGuideZone>
-
           )}
         </View>
       </View>
@@ -557,34 +594,53 @@ const Header = ({
               { transform: [{ translateY: spinnerSlideAnim }] },
             ]}
           >
-            <LinearGradient colors={['#2D2438', '#1a1a2e']} style={styles.spinnerContent}>
+            <LinearGradient
+              colors={["#2D2438", "#1a1a2e"]}
+              style={styles.spinnerContent}
+            >
               <View style={styles.spinnerHeader}>
-                <Text allowFontScaling={false} style={styles.spinnerTitle}>🎯 Spin & Win!</Text>
-                <TouchableOpacity onPress={closeSpinner} style={styles.closeButton}>
+                <Text allowFontScaling={false} style={styles.spinnerTitle}>
+                  🎯 Spin & Win!
+                </Text>
+                <TouchableOpacity
+                  onPress={closeSpinner}
+                  style={styles.closeButton}
+                >
                   <Ionicons name="close-circle" size={30} color="#fff" />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.wheelContainer}>
                 <View style={styles.wheelPointer}>
-                  <Text allowFontScaling={false} style={styles.pointerIcon}>▼</Text>
+                  <Text allowFontScaling={false} style={styles.pointerIcon}>
+                    ▼
+                  </Text>
                 </View>
                 <Animated.View
                   style={[
                     styles.wheel,
                     {
-                      transform: [{
-                        rotate: spinnerRotation.interpolate({
-                          inputRange: [0, 360],
-                          outputRange: ['0deg', '360deg'],
-                        }),
-                      }],
+                      transform: [
+                        {
+                          rotate: spinnerRotation.interpolate({
+                            inputRange: [0, 360],
+                            outputRange: ["0deg", "360deg"],
+                          }),
+                        },
+                      ],
                     },
                   ]}
                 >
                   <Svg width="300" height="300" viewBox="0 0 300 300">
                     {renderWheelSegments()}
-                    <Circle cx="150" cy="150" r="25" fill="#1a1a2e" stroke="#FFD700" strokeWidth="3" />
+                    <Circle
+                      cx="150"
+                      cy="150"
+                      r="25"
+                      fill="#1a1a2e"
+                      stroke="#FFD700"
+                      strokeWidth="3"
+                    />
                     <SvgText
                       x="150"
                       y="155"
@@ -607,11 +663,13 @@ const Header = ({
                   activeOpacity={0.8}
                 >
                   <LinearGradient
-                    colors={isSpinning ? ['#888', '#666'] : ['#667eea', '#764ba2']}
+                    colors={
+                      isSpinning ? ["#888", "#666"] : ["#667eea", "#764ba2"]
+                    }
                     style={styles.spinButtonGradient}
                   >
                     <Text style={styles.spinButtonText}>
-                      {isSpinning ? 'SPINNING...' : 'SPIN NOW'}
+                      {isSpinning ? "SPINNING..." : "SPIN NOW"}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -624,12 +682,27 @@ const Header = ({
                   ]}
                 >
                   <LinearGradient
-                    colors={['#FFD700', '#FFA500']}
+                    colors={["#FFD700", "#FFA500"]}
                     style={styles.celebrationGradient}
                   >
-                    <Text allowFontScaling={false} style={styles.celebrationIcon}>🎉</Text>
-                    <Text allowFontScaling={false} style={styles.celebrationTitle}>Congratulations!</Text>
-                    <Text allowFontScaling={false} style={styles.celebrationText}>You won {selectedReward.label}!</Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.celebrationIcon}
+                    >
+                      🎉
+                    </Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.celebrationTitle}
+                    >
+                      Congratulations!
+                    </Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.celebrationText}
+                    >
+                      You won {selectedReward.label}!
+                    </Text>
                     <TouchableOpacity
                       style={styles.claimButton}
                       onPress={() => {
@@ -640,7 +713,12 @@ const Header = ({
                         }
                       }}
                     >
-                      <Text allowFontScaling={false} style={styles.claimButtonText}>Claim Reward</Text>
+                      <Text
+                        allowFontScaling={false}
+                        style={styles.claimButtonText}
+                      >
+                        Claim Reward
+                      </Text>
                     </TouchableOpacity>
                   </LinearGradient>
                 </Animated.View>
@@ -662,10 +740,7 @@ const Header = ({
         onRequestClose={closeModernAlert}
       >
         <Animated.View
-          style={[
-            styles.modernAlertOverlay,
-            { opacity: modernAlertOpacity }
-          ]}
+          style={[styles.modernAlertOverlay, { opacity: modernAlertOpacity }]}
         >
           <Animated.View
             style={[
@@ -676,7 +751,7 @@ const Header = ({
                   {
                     rotateZ: modernAlertScale.interpolate({
                       inputRange: [0, 1],
-                      outputRange: ['10deg', '0deg'],
+                      outputRange: ["10deg", "0deg"],
                     }),
                   },
                 ],
@@ -685,22 +760,35 @@ const Header = ({
             ]}
           >
             <LinearGradient
-              colors={['rgba(123, 104, 238, 0.15)', 'rgba(157, 127, 234, 0.15)']}
+              colors={[
+                "rgba(123, 104, 238, 0.15)",
+                "rgba(157, 127, 234, 0.15)",
+              ]}
               style={styles.modernAlertGradient}
             >
               <View style={styles.glassEffect}>
                 <View style={styles.iconCircle}>
                   <LinearGradient
-                    colors={['#7B68EE', '#9D7FEA']}
+                    colors={["#7B68EE", "#9D7FEA"]}
                     style={styles.iconGradient}
                   >
-                    <Text allowFontScaling={false} style={styles.modernAlertIcon}>✓</Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.modernAlertIcon}
+                    >
+                      ✓
+                    </Text>
                   </LinearGradient>
                 </View>
 
-                <Text allowFontScaling={false} style={styles.modernAlertTitle}>Attempt Completed</Text>
+                <Text allowFontScaling={false} style={styles.modernAlertTitle}>
+                  Attempt Completed
+                </Text>
 
-                <Text allowFontScaling={false} style={styles.modernAlertMessage}>
+                <Text
+                  allowFontScaling={false}
+                  style={styles.modernAlertMessage}
+                >
                   You’ve already used today’s spin.
                 </Text>
 
@@ -719,12 +807,17 @@ const Header = ({
                   activeOpacity={0.8}
                 >
                   <LinearGradient
-                    colors={['#7B68EE', '#9D7FEA']}
+                    colors={["#7B68EE", "#9D7FEA"]}
                     style={styles.modernAlertButtonGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                   >
-                    <Text allowFontScaling={false} style={styles.modernAlertButtonText}>Got it</Text>
+                    <Text
+                      allowFontScaling={false}
+                      style={styles.modernAlertButtonText}
+                    >
+                      Got it
+                    </Text>
                     <Ionicons
                       name="arrow-forward"
                       size={18}
@@ -743,92 +836,91 @@ const Header = ({
 };
 
 const styles = StyleSheet.create({
-
   // Remove or replace notificationDot with:
   notificationBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: 4,
     right: 4,
-    backgroundColor: '#ff4757',
+    backgroundColor: "#ff4757",
     borderRadius: 10,
     minWidth: 18,
     height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 5,
     borderWidth: 2,
-    borderColor: '#1a1a2e',
+    borderColor: "#1a1a2e",
   },
   notificationBadgeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 5,
   },
   menuButton: {
     width: 45,
     height: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: -14,
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginLeft: -5,
   },
   headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 15,
   },
   iconButton: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
   },
   notificationDot: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
     width: 8,
     height: 8,
-    backgroundColor: '#ff4757',
+    backgroundColor: "#ff4757",
     borderRadius: 4,
   },
   spinnerButton: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 10,
   },
   spinnerModalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "flex-end",
   },
   spinnerDrawer: {
     height: height * 0.85,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   spinnerContent: {
     flex: 1,
@@ -836,36 +928,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   spinnerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   spinnerTitle: {
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
   closeButton: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   wheelContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 30,
-    position: 'relative',
+    position: "relative",
   },
   wheelPointer: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     zIndex: 10,
   },
   pointerIcon: {
     fontSize: 40,
-    color: '#FFD700',
+    color: "#FFD700",
   },
   wheel: {
     width: 300,
@@ -875,32 +967,32 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginHorizontal: 40,
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 8,
   },
   spinButtonGradient: {
     paddingVertical: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   spinButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     letterSpacing: 1,
   },
   celebrationCard: {
-    position: 'absolute',
-    top: '30%',
+    position: "absolute",
+    top: "30%",
     left: 40,
     right: 40,
     borderRadius: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 15,
   },
   celebrationGradient: {
     padding: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   celebrationIcon: {
     fontSize: 60,
@@ -908,36 +1000,36 @@ const styles = StyleSheet.create({
   },
   celebrationTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 10,
   },
   celebrationText: {
     fontSize: 18,
-    color: '#fff',
+    color: "#fff",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   claimButton: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 25,
   },
   claimButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFD700',
+    fontWeight: "bold",
+    color: "#FFD700",
   },
   confettiContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   },
   confetti: {
-    position: 'absolute',
+    position: "absolute",
     top: 100,
     left: width / 2,
     borderRadius: 3,
@@ -946,18 +1038,18 @@ const styles = StyleSheet.create({
   // Modern Alert Styles
   modernAlertOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 30,
   },
   modernAlertContainer: {
-    width: '100%',
+    width: "100%",
     maxWidth: 340,
     borderRadius: 28,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 20,
-    shadowColor: '#7B68EE',
+    shadowColor: "#7B68EE",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,
     shadowRadius: 20,
@@ -965,12 +1057,12 @@ const styles = StyleSheet.create({
   modernAlertGradient: {
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderColor: "rgba(255, 255, 255, 0.18)",
   },
   glassEffect: {
-    backgroundColor: 'rgba(29, 29, 39, 0.85)',
+    backgroundColor: "rgba(29, 29, 39, 0.85)",
     padding: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   iconCircle: {
     width: 80,
@@ -978,67 +1070,67 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     marginBottom: 20,
     elevation: 10,
-    shadowColor: '#7B68EE',
+    shadowColor: "#7B68EE",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.4,
     shadowRadius: 10,
   },
   iconGradient: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   modernAlertIcon: {
     fontSize: 45,
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   modernAlertTitle: {
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 12,
     letterSpacing: 0.5,
   },
   modernAlertMessage: {
     fontSize: 15,
-    color: 'rgba(255, 255, 255, 0.75)',
-    textAlign: 'center',
+    color: "rgba(255, 255, 255, 0.75)",
+    textAlign: "center",
     marginBottom: 20,
     lineHeight: 22,
   },
   modernDivider: {
-    width: '100%',
+    width: "100%",
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     marginVertical: 15,
   },
   infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(157, 127, 234, 0.12)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(157, 127, 234, 0.12)",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     marginBottom: 25,
     borderWidth: 1,
-    borderColor: 'rgba(157, 127, 234, 0.2)',
+    borderColor: "rgba(157, 127, 234, 0.2)",
   },
   infoText: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.85)',
+    color: "rgba(255, 255, 255, 0.85)",
     marginLeft: 10,
     flex: 1,
     lineHeight: 18,
   },
   modernAlertButton: {
-    width: '100%',
+    width: "100%",
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 5,
-    shadowColor: '#7B68EE',
+    shadowColor: "#7B68EE",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -1046,14 +1138,14 @@ const styles = StyleSheet.create({
   modernAlertButtonGradient: {
     paddingVertical: 16,
     paddingHorizontal: 30,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modernAlertButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: "600",
+    color: "#fff",
     letterSpacing: 0.8,
   },
 });

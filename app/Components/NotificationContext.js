@@ -21,13 +21,15 @@ export const NotificationProvider = ({ children }) => {
     try {
       const employeeID = await AsyncStorage.getItem("employeeID");
       const res = await fetch(
-        `https://lms-api-qa.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`
+        `https://lms-api.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`,
       );
       const json = await res.json();
 
       // Filter only unread notifications (isRead === false)
       if (json?.data) {
-        const unreadNotifications = json.data.filter(item => item.isRead === false);
+        const unreadNotifications = json.data.filter(
+          (item) => item.isRead === false,
+        );
         setNotifications(unreadNotifications);
         setUnreadCount(unreadNotifications.length); // Add this line
       }
@@ -39,8 +41,11 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const closeNotification = () => {
-    Animated.timing(scaleAnim, { toValue: 0, duration: 150, useNativeDriver: true })
-      .start(() => setVisible(false));
+    Animated.timing(scaleAnim, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => setVisible(false));
   };
 
   const markAsRead = async (notificationId) => {
@@ -48,71 +53,78 @@ export const NotificationProvider = ({ children }) => {
       const token = await AsyncStorage.getItem("token");
 
       await fetch(
-        `https://lms-api-qa.abisaio.com/api/v1/Notification/MarkNotificationAsRead?notificationId=${notificationId}`,
+        `https://lms-api.abisaio.com/api/v1/Notification/MarkNotificationAsRead?notificationId=${notificationId}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
 
       // Remove the notification from the list after marking as read
-      setNotifications(prev => prev.filter(item => item.id !== notificationId));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setNotifications((prev) =>
+        prev.filter((item) => item.id !== notificationId),
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
 
   const fetchUnreadCount = async () => {
-  try {
-    const employeeID = await AsyncStorage.getItem("employeeID");
-    const res = await fetch(
-      `https://lms-api-qa.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`
-    );
-    const json = await res.json();
-    if (json?.data) {
-      const unreadNotifications = json.data.filter(item => item.isRead === false);
-      setUnreadCount(unreadNotifications.length);
+    try {
+      const employeeID = await AsyncStorage.getItem("employeeID");
+      const res = await fetch(
+        `https://lms-api.abisaio.com/api/v1/Notification/GetUserNotifications?employeeId=${employeeID}`,
+      );
+      const json = await res.json();
+      if (json?.data) {
+        const unreadNotifications = json.data.filter(
+          (item) => item.isRead === false,
+        );
+        setUnreadCount(unreadNotifications.length);
+      }
+    } catch (error) {
+      console.error("Error fetching notification count:", error);
     }
-  } catch (error) {
-    console.error("Error fetching notification count:", error);
-  }
-};
-
-useEffect(() => {
-  // Call immediately on mount
-  fetchUnreadCount();
-
-  // Set up interval to call every 5 seconds
-  const intervalId = setInterval(() => {
-    fetchUnreadCount();
-  }, 5000); // 5000ms = 5 seconds
-
-  // Cleanup function to clear interval when component unmounts
-  return () => {
-    clearInterval(intervalId);
   };
-}, []);
 
+  useEffect(() => {
+    // Call immediately on mount
+    fetchUnreadCount();
+
+    // Set up interval to call every 5 seconds
+    const intervalId = setInterval(() => {
+      fetchUnreadCount();
+    }, 5000); // 5000ms = 5 seconds
+
+    // Cleanup function to clear interval when component unmounts
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
-    <NotificationContext.Provider value={{
-      openNotification,
-      closeNotification,
-      markAsRead,
-      unreadCount,
-      visible,
-      notifications,
-      loading,
-      scaleAnim
-    }}>
+    <NotificationContext.Provider
+      value={{
+        openNotification,
+        closeNotification,
+        markAsRead,
+        unreadCount,
+        visible,
+        notifications,
+        loading,
+        scaleAnim,
+      }}
+    >
       {children}
     </NotificationContext.Provider>
   );
 };
 
 // Dummy default export — required by Expo Router route scanning
-export default function NotificationContextPlaceholder() { return null; }
+export default function NotificationContextPlaceholder() {
+  return null;
+}
