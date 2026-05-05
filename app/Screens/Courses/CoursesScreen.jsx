@@ -385,7 +385,8 @@ const CoursesScreen = ({ navigation }) => {
     setCreatedById("");
     setFromDate(null);
     setToDate(null);
-    setFilterModalVisible(false);
+    setShowFromDatePicker(false);
+    setShowToDatePicker(false);
     // Keep search as-is per existing behavior; fetch with explicit filter clears
     fetchCourses({
       category: "",
@@ -666,7 +667,6 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -687,7 +687,6 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -708,7 +707,6 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -729,7 +727,6 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -753,7 +750,6 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -777,7 +773,6 @@ const CoursesScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -810,7 +805,7 @@ const CoursesScreen = ({ navigation }) => {
 
                     onChange={(e, date) => {
                       setShowFromDatePicker(Platform.OS === "ios");
-                      if (!date) return;
+                      if (e?.type === "dismissed" || !date) return;
 
                       setFromDate(date);
 
@@ -850,7 +845,7 @@ const CoursesScreen = ({ navigation }) => {
                     // }}
                     onChange={(e, date) => {
                       setShowToDatePicker(Platform.OS === "ios");
-                      if (!date) return;
+                      if (e?.type === "dismissed" || !date) return;
 
                       // ❌ Prevent selecting To Date before From Date
                       if (fromDate && isBefore(date, fromDate)) {
@@ -1130,25 +1125,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingTop: 4,
+    paddingTop: 6,
   },
   filterCell: {
     width: "48%",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   filterLabel: {
     fontSize: 12,
     color: "#555",
-    marginBottom: 2,
-    fontWeight: "500",
+    marginBottom: 6,
+    fontWeight: "600",
   },
   pickerWrap: {
     borderWidth: 1,
-    borderColor: "#979797",
-    // borderRadius: 8,
+    borderColor: "#D0D5DD",
+    borderRadius: 10,
     position: "relative",
-    overflow: "visible", // <-- IMPORTANT
-    //paddingRight: 10,
+    overflow: "visible",
     backgroundColor: "#fff",
   },
   picker: {
@@ -1163,19 +1157,15 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   dropdown: {
-    height: 40,
+    height: 44,
     width: "100%",
     backgroundColor: "#fff",
+    paddingHorizontal: 12,
   },
   dropdownText: {
-    color: "#000",
-    fontSize: 12,
-  },
-
-  dropdownText: {
-    color: "#000",
+    color: "#111",
     fontSize: 13,
-    lineHeight: 12,
+    lineHeight: 18,
   },
 
   sortBullet: {
@@ -1187,35 +1177,36 @@ const styles = StyleSheet.create({
   },
 
   dateInput: {
-    height: 40,
+    height: 44,
     borderWidth: 1,
-    borderColor: "#979797",
-    // borderRadius: 8,
+    borderColor: "#D0D5DD",
+    borderRadius: 10,
     justifyContent: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     backgroundColor: "#fff",
   },
 
   filterButtonsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 14,
+    gap: 12,
+    marginTop: 16,
   },
   resetButton: {
+    flex: 1,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#7B68EE",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    // borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   applyButton: {
+    flex: 1,
     backgroundColor: "#7B68EE",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    // borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -298,6 +298,7 @@ const Header = ({
       console.log("Save Points API:", data);
 
       if (data?.succeeded) {
+        onPointsUpdated?.(points);
         return true;
       } else {
         // keep native alert for error
@@ -496,19 +497,24 @@ const Header = ({
               </TouchableOpacity>
             </TourGuideZone>
           )}
-          <Text allowFontScaling={false} style={styles.headerTitle}>
+          <Text
+            allowFontScaling={false}
+            style={styles.headerTitle}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {title}
           </Text>
         </View>
         <View style={styles.headerRight}>
           {/* Report Icon */}
           <TouchableOpacity
-            style={styles.iconButton}
+            style={[styles.iconButton, styles.reportBadgeButton]}
             onPress={() => navigation.navigate("Report")}
           >
             <Image
               source={require("../Images/REPORT1.png")}
-              style={{ width: 70, height: 24 }}
+              style={styles.reportBadgeImage}
               resizeMode="contain"
             />
           </TouchableOpacity>
@@ -869,6 +875,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
+    flex: 1,
+    minWidth: 0,
+    paddingRight: 8,
   },
   menuButton: {
     width: 45,
@@ -882,6 +891,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     marginLeft: -5,
+    flexShrink: 1,
   },
   headerRight: {
     flexDirection: "row",
@@ -894,6 +904,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+  },
+  reportBadgeButton: {
+    width: 56,
+  },
+  reportBadgeImage: {
+    width: 54,
+    height: 22,
   },
   notificationDot: {
     position: "absolute",

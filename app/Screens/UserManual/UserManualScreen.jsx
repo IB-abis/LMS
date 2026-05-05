@@ -6,6 +6,7 @@ import {
   Animated,
   BackHandler,
   Dimensions,
+  InteractionManager,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -154,11 +155,12 @@ const UserManualScreen = ({ navigation }) => {
   const [videoSource, setVideoSource] = useState(null);
 
   useEffect(() => {
-    // Defer loading the heavy video so UI stays responsive on mount
-    const timer = setTimeout(() => {
+    // Defer heavy video initialization until after initial interactions
+    // so the header menu opens immediately on first tap.
+    const task = InteractionManager.runAfterInteractions(() => {
       setVideoSource(USER_MANUAL_VIDEO_URL);
-    }, 600);
-    return () => clearTimeout(timer);
+    });
+    return () => task?.cancel?.();
   }, []);
 
   const player = useVideoPlayer(videoSource, (p) => {
@@ -281,13 +283,13 @@ const UserManualScreen = ({ navigation }) => {
 
       {/* ✅ Universal Drawer Component */}
       <CustomDrawer
-        visible={drawerVisible}
-        selectedMenuItem={selectedMenuItem}
+        drawerVisible={drawerVisible}
         drawerSlideAnim={drawerSlideAnim}
         overlayOpacity={overlayOpacity}
         menuItemAnims={menuItemAnims}
-        onClose={toggleDrawer}
+        selectedMenuItem={selectedMenuItem}
         handleMenuItemPress={(index) => handleMenuItemPress(index, navigation)}
+        toggleDrawer={toggleDrawer}
         navigation={navigation}
       />
     </View>

@@ -224,6 +224,17 @@ const DashboardScreen = ({ navigation }) => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(true);
 
+  const handlePointsUpdated = (deltaPoints) => {
+    const delta = Number(deltaPoints);
+    if (!Number.isFinite(delta) || delta === 0) return;
+
+    setDashboardData((prev) => {
+      if (!prev) return prev;
+      const currentPoints = Number(prev.points) || 0;
+      return { ...prev, points: currentPoints + delta };
+    });
+  };
+
   const [sapId, setSapId] = useState(null);
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -241,7 +252,7 @@ const DashboardScreen = ({ navigation }) => {
         const currentDate = new Date();
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth() + 1;
-        const apiUrl = `https://lms-api.abisaio.com/api/v1/Dashboard/GetDashboardData?UserID=${employeeID}&type=User&year=${year}&month=${month}`;
+        const apiUrl = `https://lms-api-qa.abisaio.com/api/v1/Dashboard/GetDashboardData?UserID=${employeeID}&type=User&year=${year}&month=${month}`;
         const response = await fetch(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -2308,6 +2319,7 @@ const DashboardScreen = ({ navigation }) => {
             title="Dashboard"
             onMenuPress={toggleDrawer}
             onNotificationPress={openNotification}
+            onPointsUpdated={handlePointsUpdated}
           />
           <Animated.View
             style={[

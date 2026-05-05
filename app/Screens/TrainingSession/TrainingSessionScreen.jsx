@@ -570,7 +570,10 @@ const TrainingSessionScreen = ({ navigation }) => {
     setCreatedTo(null);
     setTrainingStart(null);
     setTrainingEnd(null);
-    setFilterModalVisible(false);
+    setShowCreatedFromPicker(false);
+    setShowCreatedToPicker(false);
+    setShowTrainingStartPicker(false);
+    setShowTrainingEndPicker(false);
 
     // fetch with cleared filters
     const rows = selectedFilter === "ALL" ? 100 : 20;
@@ -915,7 +918,6 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -939,7 +941,6 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -972,7 +973,6 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -996,7 +996,6 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -1020,7 +1019,6 @@ const TrainingSessionScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -1533,8 +1531,8 @@ const styles = StyleSheet.create({
   filterModal: {
     width: "92%",
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 14,
+    padding: 16,
     maxHeight: "90%",
   },
   sortModal: {
@@ -1555,60 +1553,67 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingTop: 4,
+    paddingTop: 6,
   },
   filterCell: {
     width: "48%",
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  filterLabel: { fontSize: 12, color: "#444", marginBottom: 2 },
+  filterLabel: {
+    fontSize: 12,
+    color: "#555",
+    marginBottom: 6,
+    fontWeight: "600",
+  },
   pickerWrap: {
     borderWidth: 1,
-    borderColor: "#979797",
-    // borderRadius:5,
+    borderColor: "#D0D5DD",
+    borderRadius: 10,
     position: "relative",
     overflow: "visible",
-    //paddingRight: 8,
     backgroundColor: "#fff",
   },
   dropdown: {
-    height: 40,
+    height: 44,
     width: "100%",
     backgroundColor: "#fff",
+    paddingHorizontal: 12,
   },
   dropdownText: {
-    color: "#000",
-    fontSize: 12,
+    color: "#111",
+    fontSize: 13,
+    lineHeight: 18,
   },
   dateInput: {
-    height: 40,
+    height: 44,
     borderWidth: 1,
-    borderColor: "#979797",
-    // borderRadius: 8,
+    borderColor: "#D0D5DD",
+    borderRadius: 10,
     justifyContent: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     backgroundColor: "#fff",
   },
   filterButtonsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    gap: 12,
+    marginTop: 16,
   },
   resetButton: {
+    flex: 1,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#7B68EE",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    // borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   applyButton: {
+    flex: 1,
     backgroundColor: "#7B68EE",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    // borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },

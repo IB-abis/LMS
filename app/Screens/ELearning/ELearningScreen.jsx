@@ -227,21 +227,19 @@ const ELearningScreen = ({ navigation }) => {
     setCriteria("");
     setStartDate("");
     setEndDate("");
-    setSearchText("");
-    setSelectedFilter("ALL");
-    setRowsPerPage(200);
     setPage(1);
-    setFilterModalVisible(false);
+    setShowStartPicker(false);
+    setShowEndPicker(false);
     // restore animations values used elsewhere (reset to 0 then re-run entry animations)
     // Reset rowAnims values to 0 so that useEffect animates them again when data arrives
     rowAnims.forEach((a) => a.setValue(0));
 
     // reload unfiltered list from API
     await fetchCoursesFromApi({
-      tab: "ALL",
-      search: "",
+      tab: selectedFilter,
+      search: searchText,
       page: 1,
-      rowsPerPage: 200,
+      rowsPerPage,
       fromDate: "",
       toDate: "",
       createdBy: "0",
@@ -1272,7 +1270,6 @@ const ELearningScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -1293,7 +1290,6 @@ const ELearningScreen = ({ navigation }) => {
                     style={styles.dropdown}
                     selectedTextStyle={styles.dropdownText}
                     placeholderStyle={styles.dropdownText}
-                    containerStyle={{ marginTop: -20 }} // 👈 move dropdown upward
                   />
                 </View>
               </View>
@@ -1377,7 +1373,7 @@ const ELearningScreen = ({ navigation }) => {
 
           onChange={(e, selected) => {
             setShowStartPicker(Platform.OS === "ios");
-            if (!selected) return;
+            if (e?.type === "dismissed" || !selected) return;
 
             const newStart = formatDate(selected);
             setStartDate(newStart);
@@ -1402,7 +1398,7 @@ const ELearningScreen = ({ navigation }) => {
 
           onChange={(e, selected) => {
             setShowEndPicker(Platform.OS === "ios");
-            if (!selected) return;
+            if (e?.type === "dismissed" || !selected) return;
 
             // ❌ Block End Date before Start Date
             if (
@@ -1740,8 +1736,8 @@ const styles = StyleSheet.create({
   filterModal: {
     width: "92%",
     backgroundColor: "#fff",
-    // borderRadius: 12,
-    padding: 14,
+    borderRadius: 14,
+    padding: 16,
     maxHeight: "90%",
   },
   modalTitle: {
@@ -1755,43 +1751,45 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    paddingTop: 6,
   },
   filterCell: {
     width: "48%",
-    marginBottom: 10,
+    marginBottom: 16,
   },
   filterLabel: {
     fontSize: 12,
-    color: "#444",
-    marginBottom: 2,
+    color: "#555",
+    marginBottom: 6,
+    fontWeight: "600",
   },
 
   pickerWrap: {
     borderWidth: 1,
-    borderColor: "#979797",
-    // borderRadius: 8,
+    borderColor: "#D0D5DD",
+    borderRadius: 10,
     position: "relative",
     overflow: "visible",
-    //paddingRight: 36,
     backgroundColor: "#fff",
   },
   dropdown: {
-    height: 40,
-    paddingHorizontal: 8,
+    height: 44,
+    paddingHorizontal: 12,
     backgroundColor: "#fff",
   },
   dateInput: {
-    height: 40,
+    height: 44,
     borderWidth: 1,
-    borderColor: "#979797",
-    // borderRadius: 8,
+    borderColor: "#D0D5DD",
+    borderRadius: 10,
     justifyContent: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     backgroundColor: "#fff",
   },
   dropdownText: {
-    fontSize: 12,
-    color: "#000",
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#111",
   },
   sNoColumn: {
     width: 50,
@@ -1820,23 +1818,24 @@ const styles = StyleSheet.create({
   filterButtonsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    gap: 12,
+    marginTop: 16,
   },
   resetButton: {
+    flex: 1,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#7B68EE",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    // borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   applyButton: {
+    flex: 1,
     backgroundColor: "#7B68EE",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    // borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
