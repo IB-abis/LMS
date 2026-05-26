@@ -500,8 +500,7 @@ const Header = ({
           <Text
             allowFontScaling={false}
             style={styles.headerTitle}
-            numberOfLines={1}
-            ellipsizeMode="tail"
+            numberOfLines={2}
           >
             {title}
           </Text>
@@ -892,6 +891,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginLeft: -5,
     flexShrink: 1,
+    lineHeight: 20,
   },
   headerRight: {
     flexDirection: "row",

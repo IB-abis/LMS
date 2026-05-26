@@ -644,9 +644,21 @@ const CoursesScreen = ({ navigation }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.filterModal}>
-            <Text allowFontScaling={false} style={styles.modalTitle}>
-              Filters
-            </Text>
+            <View style={styles.modalHeader}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.modalTitle, { marginBottom: 0 }]}
+              >
+                Filters
+              </Text>
+              <TouchableOpacity
+                onPress={() => setFilterModalVisible(false)}
+                style={styles.modalCloseButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color="#111" />
+              </TouchableOpacity>
+            </View>
 
             {/* Grid: 2 columns x 5 rows (10 elements) */}
             <View style={styles.filterGrid}>
@@ -660,13 +672,13 @@ const CoursesScreen = ({ navigation }) => {
                     data={CATEGORY_DATA}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={category}
                     onChange={(item) => setCategory(item.value)}
                     dropdownPosition="auto"
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -681,12 +693,12 @@ const CoursesScreen = ({ navigation }) => {
                     data={LEVEL_DATA}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={level}
                     onChange={(item) => setLevel(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -701,12 +713,12 @@ const CoursesScreen = ({ navigation }) => {
                     data={STATUS_DATA}
                     labelField="label"
                     valueField="value"
-                    placeholder="All"
+                    placeholder="Select"
                     value={status}
                     onChange={(item) => setStatus(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -721,12 +733,12 @@ const CoursesScreen = ({ navigation }) => {
                     data={GLOBAL_CATEGORY_DATA}
                     labelField="label"
                     valueField="value"
-                    placeholder="All"
+                    placeholder="Select"
                     value={globalCategory}
                     onChange={(item) => setGlobalCategory(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -744,12 +756,12 @@ const CoursesScreen = ({ navigation }) => {
                     }))}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={programId}
                     onChange={(item) => setProgramId(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -767,12 +779,12 @@ const CoursesScreen = ({ navigation }) => {
                     }))}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={createdById}
                     onChange={(item) => setCreatedById(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -1120,6 +1132,20 @@ const styles = StyleSheet.create({
     color: "#111",
     marginBottom: 10,
   },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  modalCloseButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.04)",
+  },
 
   filterGrid: {
     flexDirection: "row",
@@ -1162,8 +1188,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 12,
   },
-  dropdownText: {
+  dropdownSelectedText: {
     color: "#111",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  dropdownPlaceholderText: {
+    color: "#888",
     fontSize: 13,
     lineHeight: 18,
   },

@@ -920,7 +920,7 @@ const ELearningScreen = ({ navigation }) => {
                         allowFontScaling={false}
                         style={[styles.headerCell, styles.statusColumn]}
                       >
-                        Course Status
+                        Status
                       </Text>
                       <Text
                         allowFontScaling={false}
@@ -1245,9 +1245,21 @@ const ELearningScreen = ({ navigation }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.filterModal}>
-            <Text allowFontScaling={false} style={styles.modalTitle}>
-              Filters
-            </Text>
+            <View style={styles.modalHeader}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.modalTitle, { marginBottom: 0 }]}
+              >
+                Filters
+              </Text>
+              <TouchableOpacity
+                onPress={() => setFilterModalVisible(false)}
+                style={styles.modalCloseButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color="#111" />
+              </TouchableOpacity>
+            </View>
 
             {/* SAME 2×5 GRID LIKE COURSE SCREEN */}
             <View style={styles.filterGrid}>
@@ -1264,12 +1276,12 @@ const ELearningScreen = ({ navigation }) => {
                     ]}
                     labelField="label"
                     valueField="value"
-                    placeholder="Select Criteria"
+                    placeholder="Select"
                     value={criteria}
                     onChange={(item) => setCriteria(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -1284,12 +1296,12 @@ const ELearningScreen = ({ navigation }) => {
                     data={createdByList}
                     labelField="label"
                     valueField="value"
-                    placeholder="Select Trainer"
+                    placeholder="Select"
                     value={selectedCreatedBy}
                     onChange={(item) => setSelectedCreatedBy(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -1746,6 +1758,20 @@ const styles = StyleSheet.create({
     color: "#111",
     marginBottom: 10,
   },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  modalCloseButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.04)",
+  },
 
   filterGrid: {
     flexDirection: "row",
@@ -1786,10 +1812,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "#fff",
   },
-  dropdownText: {
+  dropdownSelectedText: {
     fontSize: 13,
     lineHeight: 18,
     color: "#111",
+  },
+  dropdownPlaceholderText: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#888",
   },
   sNoColumn: {
     width: 50,

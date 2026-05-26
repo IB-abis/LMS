@@ -894,9 +894,21 @@ const TrainingSessionScreen = ({ navigation }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.filterModal}>
-            <Text allowFontScaling={false} style={styles.modalTitle}>
-              Filters
-            </Text>
+            <View style={styles.modalHeader}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.modalTitle, { marginBottom: 0 }]}
+              >
+                Filters
+              </Text>
+              <TouchableOpacity
+                onPress={() => setFilterModalVisible(false)}
+                style={styles.modalCloseButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={22} color="#111" />
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.filterGrid}>
               {/* Type */}
@@ -912,12 +924,12 @@ const TrainingSessionScreen = ({ navigation }) => {
                     ]}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={type}
                     onChange={(item) => setType(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -935,12 +947,12 @@ const TrainingSessionScreen = ({ navigation }) => {
                     ]}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={userType}
                     onChange={(item) => setUserType(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -967,12 +979,12 @@ const TrainingSessionScreen = ({ navigation }) => {
                     ]}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={statusFilter}
                     onChange={(item) => setStatusFilter(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -990,12 +1002,12 @@ const TrainingSessionScreen = ({ navigation }) => {
                     }))}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={courseId}
                     onChange={(item) => setCourseId(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -1013,12 +1025,12 @@ const TrainingSessionScreen = ({ navigation }) => {
                     }))}
                     labelField="label"
                     valueField="value"
-                    placeholder=""
+                    placeholder="Select"
                     value={trainerId}
                     onChange={(item) => setTrainerId(item.value)}
                     style={styles.dropdown}
-                    selectedTextStyle={styles.dropdownText}
-                    placeholderStyle={styles.dropdownText}
+                    selectedTextStyle={styles.dropdownSelectedText}
+                    placeholderStyle={styles.dropdownPlaceholderText}
                   />
                 </View>
               </View>
@@ -1548,6 +1560,20 @@ const styles = StyleSheet.create({
     color: "#111",
     marginBottom: 10,
   },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  modalCloseButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.04)",
+  },
 
   filterGrid: {
     flexDirection: "row",
@@ -1579,8 +1605,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 12,
   },
-  dropdownText: {
+  dropdownSelectedText: {
     color: "#111",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  dropdownPlaceholderText: {
+    color: "#888",
     fontSize: 13,
     lineHeight: 18,
   },
