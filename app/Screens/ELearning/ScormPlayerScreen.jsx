@@ -89,21 +89,21 @@ const SCORMPlayerScreen = ({ route, navigation }) => {
                 const hash = parsed.lessonLocation.substring(
                   parsed.lessonLocation.indexOf("#"),
                 );
-                setWebUrl(`https://lms-qa.abisaio.com/${course.path}${hash}`);
+                setWebUrl(`https://lms.abisaio.com/${course.path}${hash}`);
               } else {
-                setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
+                setWebUrl(`https://lms.abisaio.com/${course.path}`);
               }
             } catch (e) {
               console.log("⚠️ Error parsing scormDataJson:", e);
-              setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
+              setWebUrl(`https://lms.abisaio.com/${course.path}`);
             }
           } else {
             console.log("📄 No previous SCORM data, starting fresh.");
-            setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
+            setWebUrl(`https://lms.abisaio.com/${course.path}`);
           }
         } else {
           console.log("🆕 No previous progress found, starting fresh.");
-          setWebUrl(`https://lms-qa.abisaio.com/${course.path}`);
+          setWebUrl(`https://lms.abisaio.com/${course.path}`);
         }
 
         setWebSavedState(savedState);
